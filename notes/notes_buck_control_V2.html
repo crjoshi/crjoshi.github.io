@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MATLAB PWM Control Tutorial</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 40px; }
+        pre { background: #f4f4f4; padding: 10px; border-radius: 5px; overflow-x: auto; }
+        h1, h2, h3 { color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        table, th, td { border: 1px solid black; }
+        th, td { padding: 10px; text-align: left; }
+    </style>
+-->
+    <!-- Dark Theme for Highlight.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/googlecode.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/matlab.min.js"></script>
+    <script>hljs.highlightAll();</script>
+<!--
+  <style>
+        /* Dark Mode Styling */
+        body {
+            background-color: #1e1e1e; /* Dark background */
+            color: #ffffff; /* Light text */
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        pre {
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        h2 {
+            color: #ffcc00; /* Highlight color */
+        }
+    </style>
+-->
+</head>
+<body>
+    <h1>MATLAB PWM Control Tutorial</h1>
+    <p>This tutorial covers the final MATLAB implementation of a control function for a buck converter and the generation of a PWM signal with an up-down counter sawtooth waveform.</p>
+
+    <h2>Final MATLAB Code</h2>
+    <h3>Control Function (PI Controller for Duty Cycle Calculation)</h3>
+    <pre> <code class="language-matlab">
+function duty_cycle = control_function(Io, Iref, Ts, Kp, Ki)
+    persistent err_int;
+    if isempty(err_int)
+        err_int = 0;
+    end
+    
+    sample_time = Ts / 20;
+    error = Iref - Io; % Error Calculation
+    err_int = err_int + (error * sample_time); % Integral of Error
+    duty_cycle = (Kp * error) + (Ki * err_int); % PI Control Calculation
+    
+    % Clamping duty cycle between 0 and 1
+    duty_cycle = max(0, min(duty_cycle, 1));
+end
+</code>
+    </pre>
+    
+    <h3>Sawtooth PWM Generator (Up-Down Counter Mode)</h3>
+    <pre> <code class="language-matlab">
+function gate_signal = sawtooth_pwm(duty_cycle, Ts)
+    persistent t_saw direction;
+    sample_time = Ts / 20;
+    
+    if isempty(t_saw)
+        t_saw = 0;
+        direction = 1; % 1 for up, -1 for down
+    end
+    
+    % Up-down counter logic
+    t_saw = t_saw + (direction * sample_time);
+    if t_saw >= Ts
+        t_saw = Ts;
+        direction = -1;
+    elseif t_saw <= 0
+        t_saw = 0;
+        direction = 1;
+    end
+    
+    % Generate PWM Gate Signal
+    gate_signal = (t_saw / Ts) < duty_cycle;
+end
+</code>
+    </pre>
+
+    <h2>Frequently Asked Questions (FAQ)</h2>
+    
+    <h3>1. Explanation of these lines:</h3>
+    <pre> <code class="language-matlab">
+t_saw = mod(t_saw + sample_time, Ts);
+
+   
+% Generate PWM Gate Signal
+gate_signal = (t_saw / Ts) < duty_cycle;
+</code></pre>
+<!--add new stuff here
+-->
+<p>This line generates the sawtooth waveform by accumulating time t_saw at each sampling step and resetting it when it reaches Ts.</p>
+
+        <h4>How it Works:</h4>
+        <ul>
+            <li>1. t_saw starts at 0.</li>
+            <li>2. At each sampling step (Ts/20), t_saw increases.</li>
+            <li>3. When t_saw reaches Ts, it resets to 0 using mod(), forming a periodic sawtooth wave.</li>
+        </ul>
+
+        <h4>Example Values:</h4>
+        <table>
+            <tr>
+                <th>Step</th>
+                <th>t_saw (before)</th>
+                <th>t_saw + sample_time</th>
+                <th>mod(t_saw + sample_time, Ts)</th>
+            </tr>
+            <tr><td>1</td><td>0.00 ms</td><td>0.05 ms</td><td>0.05 ms</td></tr>
+            <tr><td>2</td><td>0.05 ms</td><td>0.10 ms</td><td>0.10 ms</td></tr>
+            <tr><td>20</td><td>0.95 ms</td><td>1.00 ms</td><td>0.00 ms (reset)</td></tr>
+        </table>
+<!--
+-->
+    <p>The first line ensures that the sawtooth wave resets to 0 once it reaches the period Ts. The mod function keeps it within range.</p>
+    <p>The second line generates the PWM signal by comparing the normalized sawtooth wave with the duty cycle.</p>
+
+    <h3>2. Why do we use t_saw / Ts?</h3>
+    <p>The term <code>t_saw / Ts</code> normalizes the sawtooth waveform between 0 and 1, allowing the comparison with duty_cycle, which also varies from 0 to 1.</p>
+
+    <h3>3. How to implement the up-down counter mode?</h3>
+    <p>The up-down counter changes direction when reaching 0 or Ts, ensuring a symmetric sawtooth waveform:</p>
+    <pre> <code class="language-matlab">
+if t_saw >= Ts
+    t_saw = Ts;
+    direction = -1;
+elseif t_saw <= 0
+    t_saw = 0;
+    direction = 1;
+end
+</code>
+    </pre>
+
+    <h3>4. Setting the PowerGui sample time</h3>
+    <p>The PowerGui sample time should be set appropriately based on the switching frequency:</p>
+    <table>
+        <tr>
+            <th>Switching Frequency (Hz)</th>
+            <th>Ts (s)</th>
+            <th>Sample Time (Ts/20)</th>
+        </tr>
+        <tr>
+            <td>12 kHz</td>
+            <td>83.33 µs</td>
+            <td>4.17 µs</td>
+        </tr>
+        <tr>
+            <td>20 kHz</td>
+            <td>50 µs</td>
+            <td>2.5 µs</td>
+        </tr>
+    </table>
+
+    <p>Ensure that the sample time of Simulink blocks is set to match this value for correct simulation behavior.</p>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on My Hugo Notes</title>
+    <link>http://localhost:1313/posts/</link>
+    <description>Recent content in Posts on My Hugo Notes</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 12 Apr 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>ADC and ISR Tutorial</title>
+      <link>http://localhost:1313/posts/adc_tutorial/</link>
+      <pubDate>Sat, 12 Apr 2025 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/adc_tutorial/</guid>
+      <description>&lt;h1 id=&#34;adc-module-and-interrupt-service-routine-isr-tutorial&#34;&gt;ADC Module and Interrupt Service Routine (ISR) Tutorial&lt;/h1&gt;&#xA;&lt;p&gt;This tutorial explains the working of the ADC module and its associated interrupt service routine (ISR). We&amp;rsquo;ll use the TMS320F28x series microcontroller as an example and demonstrate how to configure ADC Start of Conversion (SOC), handle interrupts, and trigger multiple ADC channels for conversions.&lt;/p&gt;&#xA;&lt;h2 id=&#34;understanding-the-adc-module&#34;&gt;Understanding the ADC Module&lt;/h2&gt;&#xA;&lt;p&gt;The ADC module on the TMS320F28x series consists of multiple channels and start of conversion (SOC) events that trigger ADC conversions on those channels. The ADC SOC can be triggered by various events, such as an EPWM trigger or a software trigger. When a conversion is completed, an interrupt is generated to notify the microcontroller of the completion of the conversion.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Links</title>
+      <link>http://localhost:1313/posts/links/</link>
+      <pubDate>Mon, 07 Apr 2025 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/links/</guid>
+      <description>&lt;p&gt;-&lt;a href=&#34;https://chatgpt.com/c/67f416a8-72a8-800e-974e-ae313609535b&#34;&gt;PI control discretization&lt;/a&gt;&lt;/p&gt;&#xA;&lt;p&gt;-&lt;a href=&#34;https://chatgpt.com/c/67eeebd1-0c98-800e-9944-b61cb4b732e1&#34;&gt;Fault tree and safety analysis in Transformerless EV&lt;/a&gt;&lt;/p&gt;&#xA;&lt;h3 id=&#34;hardware-design&#34;&gt;Hardware design:&lt;/h3&gt;&#xA;&lt;p&gt;-&lt;a href=&#34;https://www.youtube.com/watch?v=56p3_aORiJ0&amp;amp;t=580s&#34;&gt;Good link on MOSFET and gate driver rule of thumb calculations&lt;/a&gt;&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Start with an Empty Project</title>
+      <link>http://localhost:1313/posts/my-second-note/</link>
+      <pubDate>Sat, 05 Apr 2025 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/my-second-note/</guid>
+      <description>&lt;p&gt;I created an empty project and added the following files:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;f28x_project.h&lt;/li&gt;&#xA;&lt;li&gt;f28x_device.h&lt;/li&gt;&#xA;&lt;li&gt;f28x_sysctrl.c&lt;/li&gt;&#xA;&lt;li&gt;f28x_defaultisr.c&lt;/li&gt;&#xA;&lt;li&gt;f28x_globalvariabledefs.c&lt;/li&gt;&#xA;&lt;li&gt;f28x_codestartbranch.asm&lt;/li&gt;&#xA;&lt;li&gt;f28x_usdelay.asm&lt;/li&gt;&#xA;&lt;li&gt;f28x_headers_nonbios.cmd&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;Initially it was not working and I was struggling to debug. The error was about unresolved symbols like _clkregs, etc. I realised this was happening because I was missing to add two of the above files which I added and then the code compiled.&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;f28x_globalvariabledefs.c&lt;/li&gt;&#xA;&lt;li&gt;f28x_headers_nonbios.cmd&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;After this InitSysCtrl was working. I further added following files:&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>My First Note</title>
+      <link>http://localhost:1313/posts/my-first-note/</link>
+      <pubDate>Sun, 31 Mar 2024 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/my-first-note/</guid>
+      <description>&lt;p&gt;Inline math: $$E = mc^2$$&lt;/p&gt;&#xA;&lt;p&gt;Block math:&lt;/p&gt;&#xA;&lt;p&gt;$$&#xA;F = G \frac{m_1 m_2}{r^2}&#xA;$$&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

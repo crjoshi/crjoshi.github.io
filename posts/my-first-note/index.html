@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My First Note</title>
+    
+    <meta name="debug" content="KaTeX should load">
+
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css">
+
+    
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/contrib/auto-render.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            console.log("KaTeX is being initialized!");
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false}
+                ]
+            });
+        });
+    </script>
+</head>
+<body>
+    <header>
+        <h1>My Hugo Notes</h1>
+    </header>
+
+    <main>
+        
+<article>
+    <h1>My First Note</h1>
+    <div><p>Inline math: $$E = mc^2$$</p>
+<p>Block math:</p>
+<p>$$
+F = G \frac{m_1 m_2}{r^2}
+$$</p>
+</div>
+</article>
+
+    </main>
+
+    <footer>
+        <p>© 2025 My Hugo Notes</p>
+    </footer>
+</body>
+</html>

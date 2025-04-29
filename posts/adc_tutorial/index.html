@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADC and ISR Tutorial</title>
+    
+    <meta name="debug" content="KaTeX should load">
+
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css">
+
+    
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/contrib/auto-render.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            console.log("KaTeX is being initialized!");
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false}
+                ]
+            });
+        });
+    </script>
+</head>
+<body>
+    <header>
+        <h1>My Hugo Notes</h1>
+    </header>
+
+    <main>
+        
+<article>
+    <h1>ADC and ISR Tutorial</h1>
+    <div><h1 id="adc-module-and-interrupt-service-routine-isr-tutorial">ADC Module and Interrupt Service Routine (ISR) Tutorial</h1>
+<p>This tutorial explains the working of the ADC module and its associated interrupt service routine (ISR). We&rsquo;ll use the TMS320F28x series microcontroller as an example and demonstrate how to configure ADC Start of Conversion (SOC), handle interrupts, and trigger multiple ADC channels for conversions.</p>
+<h2 id="understanding-the-adc-module">Understanding the ADC Module</h2>
+<p>The ADC module on the TMS320F28x series consists of multiple channels and start of conversion (SOC) events that trigger ADC conversions on those channels. The ADC SOC can be triggered by various events, such as an EPWM trigger or a software trigger. When a conversion is completed, an interrupt is generated to notify the microcontroller of the completion of the conversion.</p>
+<h2 id="setting-up-the-adc-module-for-conversion">Setting Up the ADC Module for Conversion</h2>
+<p>Let&rsquo;s begin by setting up ADC for conversions on <code>ADCA</code> and configuring the interrupt mechanism.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">// In UserInitADC(), we configure ADC for SOC0 and SOC1.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">UserInitADC</span>()
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Power up ADC module
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    AdcaRegs.ADCCTL1.bit.ADCPWDNZ <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>; <span style="color:#75715e">// Power up ADC
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Configure SOC0 (Start of Conversion 0)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    AdcaRegs.ADCSOC0CTL.bit.CHSEL <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;  <span style="color:#75715e">// Select input channel (e.g., Channel 0)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    AdcaRegs.ADCSOC0CTL.bit.TRIGSEL <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>; <span style="color:#75715e">// Trigger source (e.g., EPWM)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    AdcaRegs.ADCSOC0CTL.bit.ACQPS <span style="color:#f92672">=</span> <span style="color:#ae81ff">14</span>;  <span style="color:#75715e">// Set acquisition period (e.g., 15 cycles)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    AdcaRegs.ADCSOC0CTL.bit.SOCPRIORITY <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;  <span style="color:#75715e">// SOC0 has the highest priority
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Configure SOC1 (Start of Conversion 1)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    AdcaRegs.ADCSOC1CTL.bit.CHSEL <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;  <span style="color:#75715e">// Select input channel (e.g., Channel 1)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    AdcaRegs.ADCSOC1CTL.bit.TRIGSEL <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>; <span style="color:#75715e">// Trigger source (same as SOC0)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    AdcaRegs.ADCSOC1CTL.bit.ACQPS <span style="color:#f92672">=</span> <span style="color:#ae81ff">14</span>;  <span style="color:#75715e">// Set acquisition period (e.g., 15 cycles)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    AdcaRegs.ADCSOC1CTL.bit.SOCPRIORITY <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;  <span style="color:#75715e">// SOC1 has a lower priority than SOC0
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Enable ADC interrupts for SOC0 and SOC1
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    AdcaRegs.ADCINTSEL1N2.bit.INT1SEL <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;<span style="color:#75715e">//Interrupt on ADC EOC1
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    AdcaRegs.ADCINTSEL1N2.bit.INT1E <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;<span style="color:#75715e">//Enable ADC interrupt
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    AdcaRegs.ADCINTFLGCLR.bit.ADCINT1 <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;<span style="color:#75715e">//Clear interrupt flag
+</span></span></span></code></pre></div><h2 id="understanding-the-trigger-and-conversion-process">Understanding the Trigger and Conversion Process</h2>
+<p>In this setup, we have two SOC events, SOC0 and SOC1. Both are configured to be triggered by the same source, an EPWM event (e.g., SOCA). The trigger for both SOC0 and SOC1 starts the conversion of respective channels (Channel 0 for SOC0 and Channel 1 for SOC1).</p>
+<p>The main difference between the two is the priority and interrupt handling. When the ADC conversion completes for a given SOC, it sets a corresponding interrupt flag. These flags can then trigger the interrupt service routine (ISR), where we handle the conversion results.</p>
+<h2 id="setting-up-the-isr">Setting Up the ISR</h2>
+<p>Next, we configure the interrupt service routine (ISR) to handle the completion of ADC conversions. The ISR will be called whenever the ADC conversion completes for either SOC0 or SOC1.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">// ADC Interrupt Service Routine (ISR)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>__interrupt <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">adc_isr</span>(<span style="color:#66d9ef">void</span>)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Check if the interrupt was triggered by SOC0 (ADCINT0)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> (AdcaRegs.ADCINTFLG.bit.ADCINT1)  <span style="color:#75715e">// Check if SOC1 has completed
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Clear the interrupt flag for SOC1
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        AdcaRegs.ADCINTFLGCLR.bit.ADCINT1 <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Read the conversion result for Channel 1 (SOC1)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">int</span> result1 <span style="color:#f92672">=</span> AdcaResultRegs.ADCRESULT1;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Process the result (e.g., store or use it for control)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Check if the interrupt was triggered by SOC1 (ADCINT1)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> (AdcaRegs.ADCINTFLG.bit.ADCINT0)  <span style="color:#75715e">// Check if SOC0 has completed
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Clear the interrupt flag for SOC0
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        AdcaRegs.ADCINTFLGCLR.bit.ADCINT0 <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Read the conversion result for Channel 0 (SOC0)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">int</span> result0 <span style="color:#f92672">=</span> AdcaResultRegs.ADCRESULT0;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Process the result (e.g., store or use it for control)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Clear the global interrupt flag
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    PieCtrlRegs.PIEACK.all <span style="color:#f92672">=</span> PIEACK_GROUP1;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="how-the-interrupt-is-triggered">How the Interrupt is Triggered</h2>
+<p>After the ADC conversion is triggered by the EPWM SOCA event, the ADC takes a few cycles to acquire and convert the data. Once the conversion is complete, the interrupt flag for the corresponding SOC is set. If the interrupt flag is set, the microcontroller enters the ISR.</p>
+<p>In the ISR, we check which channel completed the conversion and clear the corresponding interrupt flag. We then read the conversion result and can further process it as needed.</p>
+<h2 id="order-of-interrupt-generation">Order of Interrupt Generation</h2>
+<p>When both SOC0 and SOC1 are configured and triggered by the same event, the order of interrupt generation depends on the priority set for the SOCs:</p>
+<ul>
+<li>When SOCA triggers, the ADC conversion for both SOC0 and SOC1 begins.</li>
+<li>Since SOC0 has a higher priority than SOC1, the ISR will first handle SOC0&rsquo;s interrupt flag (ADCINT0) and process the result for Channel 0.</li>
+<li>After SOC0&rsquo;s ISR is completed, the ISR will then handle SOC1&rsquo;s interrupt flag (ADCINT1) and process the result for Channel 1.</li>
+</ul>
+<h2 id="conclusion">Conclusion</h2>
+<p>In this tutorial, we learned how to configure and use the ADC module in the TMS320F28x series microcontroller. We set up two SOC events, SOC0 and SOC1, triggered by the same EPWM event, and learned how to configure interrupt flags for each SOC. By configuring the ISR, we were able to handle the ADC conversion results effectively.</p>
+<p>Next time you work with ADCs, remember that each SOC event handles one channel at a time. Configuring multiple SOCs with different priorities and interrupts allows you to handle conversions for multiple channels concurrently, providing flexibility in your applications.</p>
+</div>
+</article>
+
+    </main>
+
+    <footer>
+        <p>© 2025 My Hugo Notes</p>
+    </footer>
+</body>
+</html>
