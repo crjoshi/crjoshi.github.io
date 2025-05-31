@@ -2,32 +2,32 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://localhost:1313/</loc>
+    <loc>http://localhost/</loc>
     <lastmod>2025-05-11T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/posts/low-side-mosfet-drive-circuit/</loc>
+    <loc>http://localhost/posts/low-side-mosfet-drive-circuit/</loc>
     <lastmod>2025-05-11T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/posts/</loc>
+    <loc>http://localhost/posts/</loc>
     <lastmod>2025-05-11T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/posts/altium_revision_notes/</loc>
+    <loc>http://localhost/posts/altium_revision_notes/</loc>
     <lastmod>2025-05-04T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/posts/adc_tutorial/</loc>
+    <loc>http://localhost/posts/adc_tutorial/</loc>
     <lastmod>2025-04-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/posts/links/</loc>
+    <loc>http://localhost/posts/links/</loc>
     <lastmod>2025-04-07T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/posts/my-second-note/</loc>
+    <loc>http://localhost/posts/my-second-note/</loc>
     <lastmod>2025-04-05T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/posts/my-first-note/</loc>
+    <loc>http://localhost/posts/my-first-note/</loc>
     <lastmod>2024-03-31T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/categories/</loc>
+    <loc>http://localhost/categories/</loc>
   </url><url>
-    <loc>http://localhost:1313/tags/</loc>
+    <loc>http://localhost/tags/</loc>
   </url>
 </urlset>

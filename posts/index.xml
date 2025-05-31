@@ -2,52 +2,52 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Posts on Hello World!</title>
-    <link>http://localhost:1313/posts/</link>
+    <link>http://localhost/posts/</link>
     <description>Recent content in Posts on Hello World!</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Sun, 11 May 2025 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://localhost/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Low-side MOSFET drive circuit</title>
-      <link>http://localhost:1313/posts/low-side-mosfet-drive-circuit/</link>
+      <link>http://localhost/posts/low-side-mosfet-drive-circuit/</link>
       <pubDate>Sun, 11 May 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/low-side-mosfet-drive-circuit/</guid>
-      <description>&lt;h3 id=&#34;links&#34;&gt;Links&lt;/h3&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://chatgpt.com/c/680debbb-caa4-800e-b8ed-7b05d48d4d3d&#34;&gt;Low Side MOSFET drive circuit analsysis&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://chatgpt.com/c/68152c66-8584-800e-b80f-9f4fc11de51e&#34;&gt;LED resistor calculation&lt;/a&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;I was able to simulate a low side drive circuit without the MOSFET - assume MOSFET is on! in LTSpice and it gives the desired result&lt;/p&gt;&#xA;&lt;!--&#xD;&#xA;![LT-Spice_Simulation](/images/low-side-drive-ltspice.png ){ style=&#34;max-width: 40%; height: auto;&#34; }&#xD;&#xA;--&gt;&#xD;&#xA;&lt;img src=&#34;http://localhost:1313/images/low-side-drive-ltspice.png&#34; alt=&#34;LT-Spice_Simulation&#34; width=&#34;800&#34; /&gt;&#xD;&#xA;&lt;h4 id=&#34;19-may-2025&#34;&gt;19 May 2025&lt;/h4&gt;&#xA;&lt;p&gt;The OpAmp circuit was not working as expected. It was giving output of only 24mV.&#xA;&lt;strong&gt;Fixed:&lt;/strong&gt; I found out that I had accidentally connected +ve to the inverting input of the OpAmp which I realized that instead, the low-side of the shunt resistor should be connected to the inverting end. It now shows correct output voltage.&lt;/p&gt;</description>
+      <guid>http://localhost/posts/low-side-mosfet-drive-circuit/</guid>
+      <description>&lt;h3 id=&#34;links&#34;&gt;Links&lt;/h3&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://chatgpt.com/c/680debbb-caa4-800e-b8ed-7b05d48d4d3d&#34;&gt;Low Side MOSFET drive circuit analsysis&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://chatgpt.com/c/68152c66-8584-800e-b80f-9f4fc11de51e&#34;&gt;LED resistor calculation&lt;/a&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;I was able to simulate a low side drive circuit without the MOSFET - assume MOSFET is on! in LTSpice and it gives the desired result&lt;/p&gt;&#xA;&lt;!--&#xD;&#xA;![LT-Spice_Simulation](/images/low-side-drive-ltspice.png ){ style=&#34;max-width: 40%; height: auto;&#34; }&#xD;&#xA;--&gt;&#xD;&#xA;&lt;img src=&#34;http://localhost/images/low-side-drive-ltspice.png&#34; alt=&#34;LT-Spice_Simulation&#34; width=&#34;800&#34; /&gt;&#xD;&#xA;&lt;h4 id=&#34;19-may-2025&#34;&gt;19 May 2025&lt;/h4&gt;&#xA;&lt;p&gt;The OpAmp circuit was not working as expected. It was giving output of only 24mV.&#xA;&lt;strong&gt;Fixed:&lt;/strong&gt; I found out that I had accidentally connected +ve to the inverting input of the OpAmp which I realized that instead, the low-side of the shunt resistor should be connected to the inverting end. It now shows correct output voltage.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Altium revision notes</title>
-      <link>http://localhost:1313/posts/altium_revision_notes/</link>
+      <link>http://localhost/posts/altium_revision_notes/</link>
       <pubDate>Sun, 04 May 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/altium_revision_notes/</guid>
+      <guid>http://localhost/posts/altium_revision_notes/</guid>
       <description>&lt;h3 id=&#34;importing-components&#34;&gt;Importing components:&lt;/h3&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;Learnt to search for components on Ultra Librarian and SamacSys&#xA;&lt;ul&gt;&#xA;&lt;li&gt;Learnt to download components from Samacsys and import into Altium: Have to download and use Altium Library Loader and then install the .epw file&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=CDLLoCsIT4Q&#34;&gt;Video link&lt;/a&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;/li&gt;&#xA;&lt;li&gt;Ultra Librarian - Once the part is downloaded one has to install the script by running File-&amp;gt;Script. Followed a youtube video for this installation&#xA;-&lt;a href=&#34;https://www.youtube.com/watch?v=6h-Z_NJibI8&#34;&gt;Video Link&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=cD-iW0LNR9Q&#34;&gt;How to add a custom title block&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;I also learnt how to add parts from part search. &lt;a href=&#34;https://www.youtube.com/watch?v=a8UG1_U1KtU&#34;&gt;Video&lt;/a&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;/li&gt;&#xA;&lt;li&gt;Schematic library&#xA;&lt;ul&gt;&#xA;&lt;li&gt;For each component: in schematic library -&#xA;&lt;ul&gt;&#xA;&lt;li&gt;Design Id: Part number&lt;/li&gt;&#xA;&lt;li&gt;Designator: Letter + ? e.g. U? - The &amp;lsquo;?&amp;rsquo; gets replaced by the appropriate number when schematics are annotated&lt;/li&gt;&#xA;&lt;li&gt;Comment: Part number (As per Robert Feranec)&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
     </item>
     <item>
       <title>ADC and ISR Tutorial</title>
-      <link>http://localhost:1313/posts/adc_tutorial/</link>
+      <link>http://localhost/posts/adc_tutorial/</link>
       <pubDate>Sat, 12 Apr 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/adc_tutorial/</guid>
+      <guid>http://localhost/posts/adc_tutorial/</guid>
       <description>&lt;h1 id=&#34;adc-module-and-interrupt-service-routine-isr-tutorial&#34;&gt;ADC Module and Interrupt Service Routine (ISR) Tutorial&lt;/h1&gt;&#xA;&lt;p&gt;This tutorial explains the working of the ADC module and its associated interrupt service routine (ISR). We&amp;rsquo;ll use the TMS320F28x series microcontroller as an example and demonstrate how to configure ADC Start of Conversion (SOC), handle interrupts, and trigger multiple ADC channels for conversions.&lt;/p&gt;&#xA;&lt;h2 id=&#34;understanding-the-adc-module&#34;&gt;Understanding the ADC Module&lt;/h2&gt;&#xA;&lt;p&gt;The ADC module on the TMS320F28x series consists of multiple channels and start of conversion (SOC) events that trigger ADC conversions on those channels. The ADC SOC can be triggered by various events, such as an EPWM trigger or a software trigger. When a conversion is completed, an interrupt is generated to notify the microcontroller of the completion of the conversion.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Links</title>
-      <link>http://localhost:1313/posts/links/</link>
+      <link>http://localhost/posts/links/</link>
       <pubDate>Mon, 07 Apr 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/links/</guid>
+      <guid>http://localhost/posts/links/</guid>
       <description>&lt;ul&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://chatgpt.com/c/67f416a8-72a8-800e-974e-ae313609535b&#34;&gt;PI control discretization&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://chatgpt.com/c/67eeebd1-0c98-800e-9944-b61cb4b732e1&#34;&gt;Fault tree and safety analysis in Transformerless EV&lt;/a&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h3 id=&#34;hardware-design&#34;&gt;Hardware design:&lt;/h3&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=56p3_aORiJ0&amp;amp;t=580s&#34;&gt;Good link on MOSFET and gate driver rule of thumb calculations&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://chatgpt.com/c/680debbb-caa4-800e-b8ed-7b05d48d4d3d&#34;&gt;Low-side MOSFET drive Getting Started!&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://chatgpt.com/c/68162cec-1f94-800e-813a-3ce182c44d36&#34;&gt;Low side mosfet drive&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://chatgpt.com/c/67eae120-2b80-800e-84a6-1296fbb9e23c&#34;&gt;LED resistor and low-side drive calculation&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://chatgpt.com/c/6815e77b-ed64-800e-8113-45a86c4e1e71&#34;&gt;Gate driver selection&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://chatgpt.com/c/6819f085-778c-800e-ac1c-bf0b99fe577c&#34;&gt;Voltage and Current Sensing&lt;/a&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h3 id=&#34;hugo-edits&#34;&gt;Hugo edits:&lt;/h3&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://chatgpt.com/c/67f13f22-7238-800e-995e-b42e6582e74a&#34;&gt;Hugo formatting&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://chatgpt.com/c/67eae120-2b80-800e-84a6-1296fbb9e23c&#34;&gt;Hugo getting started&lt;/a&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h3 id=&#34;phd-topics&#34;&gt;PhD topics&lt;/h3&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://chatgpt.com/c/68191d46-e9c4-800e-af77-dc481027bec5&#34;&gt;Transfornerless topology&lt;/a&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h3 id=&#34;introduction-to-resonant-converters&#34;&gt;Introduction to Resonant converters&lt;/h3&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://chatgpt.com/c/6808c2e7-bd58-800e-b5ed-1ee7b82fbf45&#34;&gt;MOSFET turn-on and turn-off mechanism and half-bridge operation&lt;/a&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h3 id=&#34;lt-spice&#34;&gt;LT-Spice&lt;/h3&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://ltwiki.org/LTspiceHelpXVII/LTspiceHelp/html/Schematic_Editing.htm&#34;&gt;LT Wiki&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://courses.grainger.illinois.edu/ece110/sp2020/content/labs/Experiments/LTspice%20Tutorial%20Part%202%20-%20Components%20and%20basic%20interface.pdf&#34;&gt;LT Spice Uni Notes&lt;/a&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h3 id=&#34;current-sensing&#34;&gt;Current Sensing&lt;/h3&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://www.ti.com/lit/eb/slyy154b/slyy154b.pdf?ts=1747523008415&amp;amp;ref_url=https%253A%252F%252Fduckduckgo.com%252F&#34;&gt;TI: Engineer&amp;rsquo;s guide to current sensing&lt;/a&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
     </item>
     <item>
       <title>Start with an Empty Project</title>
-      <link>http://localhost:1313/posts/my-second-note/</link>
+      <link>http://localhost/posts/my-second-note/</link>
       <pubDate>Sat, 05 Apr 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/my-second-note/</guid>
+      <guid>http://localhost/posts/my-second-note/</guid>
       <description>&lt;p&gt;I created an empty project and added the following files:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;f28x_project.h&lt;/li&gt;&#xA;&lt;li&gt;f28x_device.h&lt;/li&gt;&#xA;&lt;li&gt;f28x_sysctrl.c&lt;/li&gt;&#xA;&lt;li&gt;f28x_defaultisr.c&lt;/li&gt;&#xA;&lt;li&gt;f28x_globalvariabledefs.c&lt;/li&gt;&#xA;&lt;li&gt;f28x_codestartbranch.asm&lt;/li&gt;&#xA;&lt;li&gt;f28x_usdelay.asm&lt;/li&gt;&#xA;&lt;li&gt;f28x_headers_nonbios.cmd&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;Initially it was not working and I was struggling to debug. The error was about unresolved symbols like _clkregs, etc. I realised this was happening because I was missing to add two of the above files which I added and then the code compiled.&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;f28x_globalvariabledefs.c&lt;/li&gt;&#xA;&lt;li&gt;f28x_headers_nonbios.cmd&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;After this InitSysCtrl was working. I further added following files:&lt;/p&gt;</description>
     </item>
     <item>
       <title>My First Note</title>
-      <link>http://localhost:1313/posts/my-first-note/</link>
+      <link>http://localhost/posts/my-first-note/</link>
       <pubDate>Sun, 31 Mar 2024 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/my-first-note/</guid>
+      <guid>http://localhost/posts/my-first-note/</guid>
       <description>&lt;p&gt;Inline math: $$E = mc^2$$&lt;/p&gt;&#xA;&lt;p&gt;Block math:&lt;/p&gt;&#xA;&lt;p&gt;$$&#xA;F = G \frac{m_1 m_2}{r^2}&#xA;$$&lt;/p&gt;</description>
     </item>
   </channel>
