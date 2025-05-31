@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Low-side MOSFET drive circuit</title>
+    
+    <meta name="debug" content="KaTeX should load">
+
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css">
+
+    
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/contrib/auto-render.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            console.log("KaTeX is being initialized!");
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false}
+                ]
+            });
+        });
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Hello World!</h1>
+    </header>
+
+    <main>
+        
+<article>
+    <h1>Low-side MOSFET drive circuit</h1>
+    <div><h3 id="links">Links</h3>
+<ul>
+<li><a href="https://chatgpt.com/c/680debbb-caa4-800e-b8ed-7b05d48d4d3d">Low Side MOSFET drive circuit analsysis</a></li>
+<li><a href="https://chatgpt.com/c/68152c66-8584-800e-b80f-9f4fc11de51e">LED resistor calculation</a></li>
+</ul>
+<p>I was able to simulate a low side drive circuit without the MOSFET - assume MOSFET is on! in LTSpice and it gives the desired result</p>
+<!--
+![LT-Spice_Simulation](/images/low-side-drive-ltspice.png ){ style="max-width: 40%; height: auto;" }
+-->
+<img src="/images/low-side-drive-ltspice.png" alt="LT-Spice_Simulation" width="800" />
+<h4 id="19-may-2025">19 May 2025</h4>
+<p>The OpAmp circuit was not working as expected. It was giving output of only 24mV.
+<strong>Fixed:</strong> I found out that I had accidentally connected +ve to the inverting input of the OpAmp which I realized that instead, the low-side of the shunt resistor should be connected to the inverting end. It now shows correct output voltage.</p>
+<img src="/images/low-side-drive-ltspice_2.png" alt="LT-Spice_Simulation" width="800" />
+<img src="/images/low-side-drive-ltspice_3.png" alt="LT-Spice_Simulation" width="800" />
+</div>
+</article>
+
+    </main>
+
+    <footer>
+        <p>© 2025 Hello World!</p>
+    </footer>
+</body>
+</html>
