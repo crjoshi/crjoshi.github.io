@@ -57,5 +57,19 @@
       <guid>http://localhost/posts/my-first-note/</guid>
       <description>&lt;p&gt;Inline math: $$E = mc^2$$&lt;/p&gt;&#xA;&lt;p&gt;Block math:&lt;/p&gt;&#xA;&lt;p&gt;$$&#xA;F = G \frac{m_1 m_2}{r^2}&#xA;$$&lt;/p&gt;</description>
     </item>
+    <item>
+      <title>finances</title>
+      <link>http://localhost/finances/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost/finances/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Finances</title>
+      <link>http://localhost/_finances/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost/_finances/</guid>
+      <description></description>
+    </item>
   </channel>
 </rss>

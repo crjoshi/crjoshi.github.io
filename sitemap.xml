@@ -31,6 +31,10 @@
   </url><url>
     <loc>http://localhost/categories/</loc>
   </url><url>
+    <loc>http://localhost/finances/</loc>
+  </url><url>
+    <loc>http://localhost/_finances/</loc>
+  </url><url>
     <loc>http://localhost/tags/</loc>
   </url>
 </urlset>
