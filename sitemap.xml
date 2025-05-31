@@ -2,13 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://localhost/</loc>
-    <lastmod>2025-05-11T00:00:00+00:00</lastmod>
+    <loc>http://localhost/posts/arduinostarterkit/</loc>
+    <lastmod>2025-05-31T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost/posts/low-side-mosfet-drive-circuit/</loc>
-    <lastmod>2025-05-11T00:00:00+00:00</lastmod>
+    <loc>http://localhost/</loc>
+    <lastmod>2025-05-31T00:00:00+00:00</lastmod>
   </url><url>
     <loc>http://localhost/posts/</loc>
+    <lastmod>2025-05-31T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://localhost/posts/low-side-mosfet-drive-circuit/</loc>
     <lastmod>2025-05-11T00:00:00+00:00</lastmod>
   </url><url>
     <loc>http://localhost/posts/altium_revision_notes/</loc>

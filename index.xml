@@ -6,8 +6,15 @@
     <description>Recent content in Home on Hello World!</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 11 May 2025 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 31 May 2025 00:00:00 +0000</lastBuildDate>
     <atom:link href="http://localhost/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Arduino Starter Kit</title>
+      <link>http://localhost/posts/arduinostarterkit/</link>
+      <pubDate>Sat, 31 May 2025 00:00:00 +0000</pubDate>
+      <guid>http://localhost/posts/arduinostarterkit/</guid>
+      <description>&lt;h3 id=&#34;arduino-starter-kit-contents&#34;&gt;Arduino Starter Kit Contents&lt;/h3&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;1 Projects Book (170 pages),&lt;/li&gt;&#xA;&lt;li&gt;1 Arduino Uno,&lt;/li&gt;&#xA;&lt;li&gt;1 USB cable,&lt;/li&gt;&#xA;&lt;li&gt;1 Breadboard 400 points,&lt;/li&gt;&#xA;&lt;li&gt;70Solid core jumper wires,&lt;/li&gt;&#xA;&lt;li&gt;1 Easy-to-assemble wooden base,&lt;/li&gt;&#xA;&lt;li&gt;1 9v battery snap,&lt;/li&gt;&#xA;&lt;li&gt;1 Stranded jumper wires (black),&lt;/li&gt;&#xA;&lt;li&gt;1 Stranded jumper wires (red),&lt;/li&gt;&#xA;&lt;li&gt;6 Phototransistor,&lt;/li&gt;&#xA;&lt;li&gt;3 Potentiometer 10kOhms,&lt;/li&gt;&#xA;&lt;li&gt;10Pushbuttons,&lt;/li&gt;&#xA;&lt;li&gt;1 Temperature sensor [TMP36],&lt;/li&gt;&#xA;&lt;li&gt;1 Tilt sensor,&lt;/li&gt;&#xA;&lt;li&gt;1 alphanumeric LCD (16x2 characters),&lt;/li&gt;&#xA;&lt;li&gt;1LED (bright white),&lt;/li&gt;&#xA;&lt;li&gt;1 LED (RGB),&lt;/li&gt;&#xA;&lt;li&gt;8 LEDs (red),&lt;/li&gt;&#xA;&lt;li&gt;8 LEDs (green),&lt;/li&gt;&#xA;&lt;li&gt;8 LEDs (yellow),&lt;/li&gt;&#xA;&lt;li&gt;3 LEDs (blue),&lt;/li&gt;&#xA;&lt;li&gt;1 Small DC motor 6/9V,&lt;/li&gt;&#xA;&lt;li&gt;1 Small servo motor,&lt;/li&gt;&#xA;&lt;li&gt;1 Piezo capsule [PKM22EPP-40],&lt;/li&gt;&#xA;&lt;li&gt;1 H-bridge motor driver [L293D],&lt;/li&gt;&#xA;&lt;li&gt;1 Optocouplers [4N35],&lt;/li&gt;&#xA;&lt;li&gt;2 Mosfet transistors [IRF520],&lt;/li&gt;&#xA;&lt;li&gt;3 Capacitors 100uF,&lt;/li&gt;&#xA;&lt;li&gt;5 Diodes [1N4007],&lt;/li&gt;&#xA;&lt;li&gt;3 Transparent gels (red, green, blue),&lt;/li&gt;&#xA;&lt;li&gt;1 Male pins strip (40x1),&lt;/li&gt;&#xA;&lt;li&gt;20 Resistors 220 Ohms,&lt;/li&gt;&#xA;&lt;li&gt;5Resistors 560 Ohms,&lt;/li&gt;&#xA;&lt;li&gt;5 Resistors 1 kOhms,&lt;/li&gt;&#xA;&lt;li&gt;5 Resistors 4.7 kOhms,&lt;/li&gt;&#xA;&lt;li&gt;20 Resistors 10 kOhms,&lt;/li&gt;&#xA;&lt;li&gt;5Resistors 1 MOhms,&lt;/li&gt;&#xA;&lt;li&gt;5 Resistors 10 MOhms&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;Source:&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Low-side MOSFET drive circuit</title>
       <link>http://localhost/posts/low-side-mosfet-drive-circuit/</link>
