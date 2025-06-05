@@ -6,8 +6,15 @@
     <description>Recent content in Home on Hello World!</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 31 May 2025 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 04 Jun 2025 00:00:00 +0000</lastBuildDate>
     <atom:link href="http://localhost/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Drawing Circuit Diagrams with Inkscape and Visio</title>
+      <link>http://localhost/posts/circuitdiagrams/</link>
+      <pubDate>Wed, 04 Jun 2025 00:00:00 +0000</pubDate>
+      <guid>http://localhost/posts/circuitdiagrams/</guid>
+      <description>&lt;h3 id=&#34;inkscape&#34;&gt;Inkscape&lt;/h3&gt;&#xA;&lt;h4 id=&#34;some-circuit-symbols&#34;&gt;Some circuit symbols:&lt;/h4&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://www.mbeckler.org/inkscape/circuit_symbols/&#34;&gt;Matthew Beckler Circuit Symbols&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://inkscape.org/~fsmMLK/%E2%98%85circuitsymbols&#34;&gt;Circuit Symbols on official Inkscape&lt;/a&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
+    </item>
     <item>
       <title>Arduino Starter Kit</title>
       <link>http://localhost/posts/arduinostarterkit/</link>
