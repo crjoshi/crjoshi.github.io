@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADC read voltage</title>
+    
+    <meta name="debug" content="KaTeX should load">
+
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css">
+
+    
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/contrib/auto-render.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            console.log("KaTeX is being initialized!");
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false}
+                ]
+            });
+        });
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Hello World!</h1>
+    </header>
+
+    <main>
+        
+<article>
+    <h1>ADC read voltage</h1>
+    <div><h3 id="brief">Brief</h3>
+<ul>
+<li>This code/ project is with a potentiometer between 3.3 and GND and the output of the potentiometer is given to ADC Channe</li>
+<li>In this, we learnt to configure the ADC SOC with a software trigger so that we can give the trigger to start Start of Conversion (SOC) from the while(1) function</li>
+<li>This way you can read the &lsquo;adcResult&rsquo; as well as scale the raw adc result to the &lsquo;voltage&rsquo; value</li>
+<li><strong>Important lesson learnt!:</strong> I had the adcResult is integer and if you do directly adcResult/4095 , since both are integers, it will keep the result to 0</li>
+<li>So the correct way would be to:
+$$
+voltage = \frac{(float)adcResult}{4095.0f} 3.3
+$$</li>
+<li>this way it will convert your adcResult to float and the 4095.0f converts 4095 to float. This will work</li>
+</ul>
+<h3 id="setup">Setup</h3>
+<img src="/images/adc_read_Setup.png" alt="ADC Read Setup" height="400" />
+<img src="/images/adc_read_Setup_2.png" alt="ADC Read Setup" height="400" />
+<h3 id="code">Code</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * main.c
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> */</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;f28x_project.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;F28004x_Device.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;math.h&gt;  //I believe this is for the sin function.</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">setupGpio</span>(<span style="color:#66d9ef">void</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">setupInterrupts</span>(<span style="color:#66d9ef">void</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">setupEPwm1</span>(<span style="color:#66d9ef">void</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">UserInitADC</span>(<span style="color:#66d9ef">void</span>);
+</span></span><span style="display:flex;"><span>__interrupt <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">EPwm1ISR</span>(<span style="color:#66d9ef">void</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">//__interrupt void ADC_ISR(void);   //initialize ADC_ISR
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">//global variables
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">volatile</span> <span style="color:#66d9ef">int</span> counter;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">volatile</span> <span style="color:#66d9ef">float</span> voltage <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.0</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#define PWM_FREQ 1000 </span><span style="color:#75715e">//Set the PWM frequency to 1k
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#75715e">#define PWM_CLK 100e6 </span><span style="color:#75715e">//System Clock (100 MHz)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">uint16_t</span> adcResult <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">//#define ADC_CHANNEL 5   //ADC Channel A0 for example
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(<span style="color:#66d9ef">void</span>)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>     counter <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#ifdef _FLASH
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>     <span style="color:#a6e22e">memcpy</span>(<span style="color:#f92672">&amp;</span>RamfuncsRunStart, <span style="color:#f92672">&amp;</span>RamfuncsLoadStart, (<span style="color:#66d9ef">size_t</span>)<span style="color:#f92672">&amp;</span>RamfuncsLoadSize);
+</span></span><span style="display:flex;"><span>     <span style="color:#a6e22e">InitFlash</span>();
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#endif
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">InitSysCtrl</span>();
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">InitGpio</span>();
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">setupGpio</span>();
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">setupEPwm1</span>();
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">UserInitADC</span>();
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">setupInterrupts</span>();
+</span></span><span style="display:flex;"><span>    EINT; <span style="color:#75715e">//enable interrupts
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    ERTM; <span style="color:#75715e">//Enable real-time debugging for interrupts
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">while</span>(<span style="color:#ae81ff">1</span>){
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//GpioDataRegs.GPATOGGLE.bit.GPIO23 = 1; //toggle GPIO23 pin ie LED
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    EALLOW;
+</span></span><span style="display:flex;"><span>    AdcaRegs.ADCINTFLGCLR.bit.ADCINT1 <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x01</span>;
+</span></span><span style="display:flex;"><span>    AdcaRegs.ADCSOCFRC1.all <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x01</span>; <span style="color:#75715e">//Trigger Start of Conversion
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">while</span>(AdcaRegs.ADCINTFLG.bit.ADCINT1 <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>); <span style="color:#75715e">//wait for SoC to finish. &#39;;&#39; indicates loop is empty
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">//Read result frp, Result 0 (SOC0)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>    adcResult <span style="color:#f92672">=</span> AdcaResultRegs.ADCRESULT0; <span style="color:#75715e">//read raw adc value
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    EDIS;
+</span></span><span style="display:flex;"><span>    ERTM;
+</span></span><span style="display:flex;"><span>    voltage <span style="color:#f92672">=</span> ((<span style="color:#66d9ef">float</span>)adcResult<span style="color:#f92672">/</span><span style="color:#ae81ff">4095.0f</span>)<span style="color:#f92672">*</span><span style="color:#ae81ff">3.3</span>; <span style="color:#75715e">//convert adc value to voltage
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> (voltage <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">0</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//printf(&#34;Voltage: %f\n&#34;, voltage);
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">//printf(&#34;Hello\n&#34;);
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">DELAY_US</span>(<span style="color:#ae81ff">1000</span>); <span style="color:#75715e">//small delay 1ms
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">setupGpio</span>(){
+</span></span><span style="display:flex;"><span>    EALLOW;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">//    GpioCtrlRegs.GPAPUD.bit.GPIO6 = 0; //Enable Pull-up
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//    GpioCtrlRegs.GPAGMUX1.bit.GPIO6 = 0; //Set as GPIO
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//    GpioCtrlRegs.GPADIR.bit.GPIO6 = 1; //set direction as output
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//LED GPIO23
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    GpioCtrlRegs.GPAPUD.bit.GPIO23 <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>; <span style="color:#75715e">//disable Pull-up... refer schematic of launchpad
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    GpioCtrlRegs.GPAGMUX2.bit.GPIO23 <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; <span style="color:#75715e">//Set as GPIO
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    GpioCtrlRegs.GPADIR.bit.GPIO23 <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>; <span style="color:#75715e">//set direction as output
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//LED GPIO34 for Timer Interrupt
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    GpioCtrlRegs.GPBPUD.bit.GPIO34 <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>; <span style="color:#75715e">//disable pull-up ... refer schematic of launchpad.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    GpioCtrlRegs.GPBGMUX1.bit.GPIO34 <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; <span style="color:#75715e">//Setup as GPIO
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    GpioCtrlRegs.GPBDIR.bit.GPIO34 <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>; <span style="color:#75715e">//set direction as output
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//Setup GPIO0 as EPWM1A
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">//GpioCtrlRegs.GPAPUD.bit.GPIO0 = 0; //Enable pull-up
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    GpioCtrlRegs.GPAMUX1.bit.GPIO0 <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>; <span style="color:#75715e">// Set as EPWM1
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    GpioCtrlRegs.GPAGMUX1.bit.GPIO0 <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; <span style="color:#75715e">// Set as EPWM1
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">//GpioCtrlRegs.GPADIR.bit.GPIO0 = 1; //set direction as output
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//Setup GPIO1 as EPWM1B
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//    GpioCtrlRegs.GPAMUX1.bit.GPIO1 = 1; //Setup as EPWM1B
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//    GpioCtrlRegs.GPAGMUX1.bit.GPIO1 = 0;//Setup as EPWM1B
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>    EDIS;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">setupInterrupts</span>(){
+</span></span><span style="display:flex;"><span>    DINT; <span style="color:#75715e">//Disable all interrupts
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">InitPieCtrl</span>(); <span style="color:#75715e">//Initialize all PIE interrupts to default state
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    IER <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x0000</span>; <span style="color:#75715e">//Clear CPU Interrupt enable register
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    IFR <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x0000</span>; <span style="color:#75715e">//Clear all pending CPU interrupts
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">InitPieVectTable</span>(); <span style="color:#75715e">//Initialize PIE vector table with default ISRs
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>    EALLOW;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    PieVectTable.EPWM1_INT <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span>EPwm1ISR;
+</span></span><span style="display:flex;"><span>    PieCtrlRegs.PIEIER3.bit.INTx1 <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>; <span style="color:#75715e">//Enable interrupt for group 3, int 1 see in TRM
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    IER <span style="color:#f92672">|=</span> M_INT3; <span style="color:#75715e">//Enable CPU interrupt for group 3
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//PieVectTable.ADCC1_INT = &amp;ADC_ISR;
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">//PieCtrlRegs.PIEIER1.bit.INTx1 = 1;  //Enable ADC interrupt in PIE
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">//IER |= M_INT1;  //Enable row 1 interrupts
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>    PieCtrlRegs.PIECTRL.bit.ENPIE <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>; <span style="color:#75715e">//Enable the PIE block
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    PieCtrlRegs.PIEACK.all <span style="color:#f92672">=</span> <span style="color:#ae81ff">0xFFF</span>; <span style="color:#75715e">//Clear all interrupts once at the time of PIE configuration
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    EDIS;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">setupEPwm1</span>(<span style="color:#66d9ef">void</span>){
+</span></span><span style="display:flex;"><span>    EALLOW;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">uint16_t</span> tbprd <span style="color:#f92672">=</span> (PWM_CLK <span style="color:#f92672">/</span> (<span style="color:#ae81ff">2</span> <span style="color:#f92672">*</span> PWM_FREQ)) <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>;  <span style="color:#75715e">//Compute period for 10kHz
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    EPwm1Regs.TBCTL.bit.CLKDIV <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;<span style="color:#75715e">//0;//100;//0;
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    EPwm1Regs.TBCTL.bit.HSPCLKDIV <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;<span style="color:#75715e">//0;//10;//0;
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    EPwm1Regs.TBCTL.bit.CTRMODE <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span>; <span style="color:#75715e">//setup as up-down counter
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    EPwm1Regs.TBPRD <span style="color:#f92672">=</span> <span style="color:#ae81ff">50000</span>;<span style="color:#75715e">//50000;//10000;//50000; //TBPRD calculated for 1 kHz square wave
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    EPwm1Regs.CMPA.bit.CMPA <span style="color:#f92672">=</span> <span style="color:#ae81ff">50000</span><span style="color:#f92672">/</span><span style="color:#ae81ff">2</span>;<span style="color:#75715e">//25000;//5000;//25000; //Set CMPA at 100% duty cycle
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    EPwm1Regs.AQCTLA.bit.CAU <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span>; <span style="color:#75715e">//set on CMPA up
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    EPwm1Regs.AQCTLA.bit.CAD <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>; <span style="color:#75715e">//set on CMPA down
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//EPwm1Regs.DBCTL.bit.OUT_MODE = 3;//DB_FULL_ENABLE; //Enables both EPWM1A and EPWM1B
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">//EPwm1Regs.DBCTL.bit.POLSEL = 2;//DB_ACTV_LOC; //EPWM1B is inverted with respect to EPWM1A
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">//POLSEL - 1 - DB_ACTV_HIC, 2 - DB_ACTV_LOC, 0 - DB_disable
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">//EPwm1Regs.DBCTL.bit.IN_MODE = 0;//DBA_ALL; //Use EPWM1A as input for both RED and FED
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">//EPwm1Regs.DBRED.bit.DBRED = 2000;
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">//EPwm1Regs.DBFED.bit.DBFED = 3000;
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//Trigger source for EPWM
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    EPwm1Regs.ETSEL.bit.INTSEL <span style="color:#f92672">=</span> ET_CTR_PRD; <span style="color:#75715e">//Trigger on ET_CTR = 0
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    EPwm1Regs.ETSEL.bit.INTEN <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>; <span style="color:#75715e">//Enable the EPWM interrupt trigger
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    EPwm1Regs.ETPS.bit.INTPRD <span style="color:#f92672">=</span> ET_1ST; <span style="color:#75715e">// Prescale - trigger interrupt on every event
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    EDIS;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">//Configure ADC Trigger (SOCA)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#75715e">//EPwm1Regs.ETSEL.bit.SOCAEN = 1; //Enable SOCA
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#75715e">//EPwm1Regs.ETSEL.bit.SOCASEL = 4;  //Event occurs at CTR = 0 (center-aligned)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#75715e">//EPwm1Regs.ETPS.bit.SOCAPRD = 1; //Generate event on every period
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">UserInitADC</span>(<span style="color:#66d9ef">void</span>)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">SetVREF</span>(ADC_ADCA, ADC_INTERNAL, ADC_VREF3P3);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">SetVREF</span>(ADC_ADCB, ADC_INTERNAL, ADC_VREF3P3);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">SetVREF</span>(ADC_ADCC, ADC_INTERNAL, ADC_VREF3P3);
+</span></span><span style="display:flex;"><span>    EALLOW;
+</span></span><span style="display:flex;"><span>    AdcaRegs.ADCCTL2.bit.PRESCALE <span style="color:#f92672">=</span> <span style="color:#ae81ff">6</span>;  <span style="color:#75715e">//ADCCLK = SYSCLK/4
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">//AdcSetMode(ADC_ADCA, ADC_RESOLUTION_12BIT, ADC_SIGNALMODE_SINGLE);
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//Enable ADC Interrupt
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">//AdcaRegs.ADCINTSEL1N2.bit.INT1SEL = 1;//Interrupt on ADC EOC1
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    AdcaRegs.ADCINTSEL1N2.bit.INT1E <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;<span style="color:#75715e">//Enable ADC interrupt
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    AdcaRegs.ADCINTFLGCLR.bit.ADCINT1 <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;<span style="color:#75715e">//Clear interrupt flag
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//Configure all ADC channel SOC0 A3 B6 C3 C5
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    AdcaRegs.ADCSOC0CTL.bit.CHSEL <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>;<span style="color:#75715e">//Set ADC channel - A5
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    AdcaRegs.ADCSOC0CTL.bit.ACQPS <span style="color:#f92672">=</span> <span style="color:#ae81ff">14</span>;<span style="color:#75715e">//Set sampling window
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    AdcaRegs.ADCSOC0CTL.bit.TRIGSEL <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x0F</span>;<span style="color:#75715e">//Triggered by EPWM1 SOCA
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>    AdcaRegs.ADCCTL1.bit.ADCPWDNZ <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Configure interrupt after SOC0
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    AdcaRegs.ADCINTSEL1N2.bit.INT1SEL <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;  <span style="color:#75715e">// End of SOC0 triggers ADCINT1
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    AdcaRegs.ADCINTSEL1N2.bit.INT1E <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;    <span style="color:#75715e">// Enable ADCINT1
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    AdcaRegs.ADCINTFLGCLR.bit.ADCINT1 <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;  <span style="color:#75715e">// Clear flag
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    EDIS;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>__interrupt <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">EPwm1ISR</span>(){
+</span></span><span style="display:flex;"><span>    EALLOW;
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//every 10th counter i.e. 1 kHz/10 = 100 ms and then toggle will divide by 2 so LED should blink at 200ms
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> (counter <span style="color:#f92672">==</span> <span style="color:#ae81ff">100</span>){
+</span></span><span style="display:flex;"><span>        GpioDataRegs.GPBTOGGLE.bit.GPIO34 <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>; <span style="color:#75715e">//toggle LED34
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        GpioDataRegs.GPATOGGLE.bit.GPIO23 <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>        counter <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>{
+</span></span><span style="display:flex;"><span>        counter<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    EPwm1Regs.ETCLR.bit.INT <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>; <span style="color:#75715e">//clear the interrupt clear flag
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    PieCtrlRegs.PIEACK.all <span style="color:#f92672">=</span> PIEACK_GROUP3; <span style="color:#75715e">//acknowledge PIE group 3
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    EDIS;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">//__interrupt void ADC_ISR(void)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//{
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//    AdccRegs.ADCINTFLGCLR.bit.ADCINT1 = 1;
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//    PieCtrlRegs.PIEACK.all = PIEACK_GROUP1; //Acknowledge interrupt
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//}
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">//
+</span></span></span></code></pre></div></div>
+</article>
+
+    </main>
+
+    <footer>
+        <p>© 2025 Hello World!</p>
+    </footer>
+</body>
+</html>
