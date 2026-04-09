@@ -1,0 +1,1939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resonant Converters — Complete Study Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f8f9fb; --surf:#ffffff; --surf2:#f1f3f7; --border:#e2e6ed;
+  --text:#1a2030; --dim:#6b7a94; --bright:#0d1420;
+  --acc:#1a56db; --acc2:#d97706; --acc3:#7c3aed; --acc4:#dc2626; --acc5:#059669;
+  --tag-blue:#dbeafe; --tag-green:#d1fae5; --tag-orange:#fef3c7; --tag-red:#fee2e2; --tag-purple:#ede9fe;
+  --mono:'IBM Plex Mono',monospace; --sans:'Inter',sans-serif; --head:'Syne',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15.5px;line-height:1.75;font-weight:300}
+/* SIDEBAR */
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:240px;background:var(--surf);border-right:1px solid var(--border);overflow-y:auto;z-index:200;padding:20px 0 60px}
+.sb-logo{font-family:var(--head);font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--acc);padding:0 18px 14px;border-bottom:1px solid var(--border);margin-bottom:6px}
+.sb-a{display:block;padding:5px 18px;font-size:12px;color:var(--dim);text-decoration:none;border-left:2px solid transparent;transition:all .14s;line-height:1.5}
+.sb-a:hover,.sb-a.on{color:var(--bright);background:rgba(26,86,219,.04);border-left-color:var(--acc)}
+.sb-a.sub{padding-left:30px;font-size:11px}
+.sb-sep{height:1px;background:var(--border);margin:6px 18px}
+/* MAIN */
+main{margin-left:240px;max-width:900px;padding:48px 56px 120px}
+/* INDEX GRID */
+.index-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0}
+.idx-card{background:var(--surf);border:1px solid var(--border);border-radius:6px;padding:12px 14px;cursor:pointer;transition:border-color .14s}
+.idx-card:hover{border-color:var(--acc)}
+.idx-num{font-family:var(--mono);font-size:10px;color:var(--acc);font-weight:500}
+.idx-title{font-weight:600;font-size:12.5px;margin:2px 0;color:var(--bright)}
+.idx-sub{font-size:11px;color:var(--dim);line-height:1.4}
+.idx-badge{display:inline-block;font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;background:var(--acc);color:#fff;padding:1px 6px;border-radius:3px;margin-left:4px;vertical-align:middle}
+/* SECTION HEADERS */
+.sec-hdr{display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:6px;margin:3rem 0 1rem;color:#fff;font-family:var(--head);font-weight:700;font-size:1.15rem}
+.sec-hdr.blue{background:linear-gradient(90deg,#1a56db,#2563eb)}
+.sec-hdr.green{background:linear-gradient(90deg,#047857,#059669)}
+.sec-hdr.orange{background:linear-gradient(90deg,#b45309,#d97706)}
+.sec-hdr.red{background:linear-gradient(90deg,#991b1b,#dc2626)}
+.sec-hdr.purple{background:linear-gradient(90deg,#5b21b6,#7c3aed)}
+.sec-hdr.dark{background:linear-gradient(90deg,#1e2535,#374151)}
+.sec-hdr.teal{background:linear-gradient(90deg,#0e7490,#0891b2)}
+.sec-hdr .num{font-family:var(--mono);font-size:.72rem;background:rgba(255,255,255,.25);padding:2px 8px;border-radius:3px}
+.interactive-badge{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:rgba(255,255,255,.9);color:var(--acc);padding:2px 8px;border-radius:10px}
+/* TYPOGRAPHY */
+h2{font-family:var(--head);font-weight:700;font-size:1.1rem;color:var(--bright);margin:1.8rem 0 .6rem}
+h3{font-weight:600;font-size:.97rem;color:var(--acc2);margin:1.5rem 0 .5rem}
+p{margin-bottom:.9em}
+strong{font-weight:600;color:var(--bright)}
+em{color:var(--acc2);font-style:italic}
+a{color:var(--acc);text-decoration:none}
+/* CODE BLOCKS */
+code{font-family:var(--mono);font-size:.8em;background:var(--surf2);color:var(--acc);padding:1px 5px;border-radius:3px;border:1px solid var(--border)}
+.codeblock{background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:14px 18px;margin:1rem 0;font-family:var(--mono);font-size:.8rem;color:#7ee787;line-height:1.9;overflow-x:auto;white-space:pre-wrap}
+/* CALLOUTS */
+.note{border-left:3px solid var(--acc);background:var(--tag-blue);padding:12px 16px;margin:1.2rem 0;border-radius:0 5px 5px 0;font-size:.92rem}
+.note.orange{border-color:var(--acc2);background:var(--tag-orange)}
+.note.red{border-color:var(--acc4);background:var(--tag-red)}
+.note.green{border-color:var(--acc5);background:var(--tag-green)}
+.note.purple{border-color:var(--acc3);background:var(--tag-purple)}
+.note-t{font-size:.72rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;margin-bottom:5px;color:var(--acc)}
+.note.orange .note-t{color:var(--acc2)}.note.red .note-t{color:var(--acc4)}.note.green .note-t{color:var(--acc5)}.note.purple .note-t{color:var(--acc3)}
+/* DIAGRAMS */
+.dw{background:var(--surf);border:1px solid var(--border);border-radius:8px;padding:20px;margin:1.6rem 0}
+.dc{text-align:center;font-size:.76rem;color:var(--dim);margin-top:8px;font-style:italic}
+canvas{display:block;width:100%;border-radius:5px;background:#f8faff}
+/* CONTROLS */
+.ctrl{display:flex;flex-wrap:wrap;gap:12px;margin:10px 0;align-items:center}
+.cl{font-family:var(--mono);font-size:.74rem;color:var(--dim);min-width:80px}
+input[type=range]{-webkit-appearance:none;height:3px;background:var(--border);border-radius:2px;outline:none;cursor:pointer;width:130px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;background:var(--acc);border-radius:50%}
+.vv{font-family:var(--mono);font-size:.74rem;color:var(--acc);min-width:65px}
+/* LEGEND */
+.leg{display:flex;flex-wrap:wrap;gap:12px;margin:8px 0 2px;font-family:var(--mono);font-size:.72rem}
+.li{display:flex;align-items:center;gap:5px;color:var(--dim)}
+.ld{width:20px;height:3px;border-radius:2px}
+/* TABLE */
+table{width:100%;border-collapse:collapse;font-size:.86rem;margin:1rem 0}
+th{font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;color:var(--dim);border-bottom:2px solid var(--border);padding:8px 10px;text-align:left;background:var(--surf2)}
+td{padding:7px 10px;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+tr:nth-child(even) td{background:var(--surf2)}
+/* PHASOR PANELS */
+.phasor-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:1.2rem 0}
+.phasor-panel{border:2px solid var(--border);border-radius:6px;padding:12px;text-align:center}
+.phasor-panel.cap{border-color:#dc2626;background:#fff5f5}
+.phasor-panel.res{border-color:#059669;background:#f0fdf4}
+.phasor-panel.ind{border-color:#1a56db;background:#eff6ff}
+.phasor-title{font-size:.72rem;font-weight:700;margin-bottom:8px;color:var(--bright)}
+/* STEP COMMUTATION */
+.comm-btn{background:var(--acc);color:#fff;border:none;padding:6px 18px;border-radius:4px;cursor:pointer;font-family:var(--sans);font-size:.85rem;font-weight:500}
+.comm-btn:hover{background:#1741b0}
+/* TERMINAL OUTPUT */
+.terminal{background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:16px 18px;font-family:var(--mono);font-size:.78rem;line-height:2;color:#c9d1d9;overflow-x:auto;white-space:pre-wrap;margin-top:10px}
+/* KEY INTUITIONS GRID */
+.intuitions-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:1.4rem 0}
+.int-card{border:1px solid var(--border);border-radius:7px;padding:14px 16px;background:var(--surf)}
+.int-card.blue{border-top:3px solid var(--acc);background:var(--tag-blue)}
+.int-card.orange{border-top:3px solid var(--acc2);background:var(--tag-orange)}
+.int-card.green{border-top:3px solid var(--acc5);background:var(--tag-green)}
+.int-card.purple{border-top:3px solid var(--acc3);background:var(--tag-purple)}
+.int-num{font-size:1.2rem;margin-bottom:4px}
+.int-title{font-weight:700;font-size:.88rem;color:var(--bright);margin-bottom:6px}
+.int-body{font-size:.82rem;color:var(--dim);line-height:1.55}
+/* DESIGN FLOW */
+.flow{display:flex;flex-direction:column;align-items:center;gap:0;margin:1.2rem 0}
+.flow-box{background:var(--surf);border:1px solid var(--border);border-radius:6px;padding:10px 20px;text-align:center;width:280px;font-size:.84rem}
+.flow-box.blue{background:var(--tag-blue);border-color:var(--acc)}
+.flow-box.orange{background:var(--tag-orange);border-color:var(--acc2)}
+.flow-box.red{background:var(--tag-red);border-color:var(--acc4)}
+.flow-box.green{background:var(--tag-green);border-color:var(--acc5)}
+.flow-arrow{font-size:1.2rem;color:var(--dim);line-height:1.2}
+.flow-row{display:flex;gap:20px;align-items:flex-start;justify-content:center;margin:1.2rem 0}
+.flow-checklist{background:var(--surf2);border:1px solid var(--border);border-radius:6px;padding:12px 14px;font-size:.78rem;min-width:180px}
+.flow-checklist li{list-style:none;padding:2px 0;color:var(--dim)}
+.flow-checklist li::before{content:'✓ ';color:var(--acc5);font-weight:700}
+section{scroll-margin-top:20px}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+@media(max-width:860px){.sidebar{display:none}main{margin-left:0;padding:20px 16px 80px}.phasor-grid{grid-template-columns:1fr}.index-grid{grid-template-columns:1fr 1fr}.intuitions-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sb-logo">Resonant Converters</div>
+  <a class="sb-a" href="#s0">0 — Where We Are Going</a>
+  <a class="sb-a" href="#s1">1 — LC Tank <span style="color:var(--acc);font-size:10px">●</span></a>
+  <a class="sb-a sub" href="#s1">Series RLC circuit</a>
+  <a class="sb-a sub" href="#s1">Why current is sinusoidal</a>
+  <a class="sb-a sub" href="#s1">Q factor & impedance</a>
+  <a class="sb-a" href="#s2">2 — Why Sinusoidal?</a>
+  <a class="sb-a sub" href="#s2">2nd order vs 1st order</a>
+  <a class="sb-a sub" href="#s2">DAB vs LLC waveforms</a>
+  <div class="sb-sep"></div>
+  <a class="sb-a" href="#s3">3 — Phase Relationships <span style="color:var(--acc);font-size:10px">●</span></a>
+  <a class="sb-a sub" href="#s3">ELI/ICE basics</a>
+  <a class="sb-a sub" href="#s3">Phase vs frequency</a>
+  <a class="sb-a" href="#s4">4 — Phasor Diagrams</a>
+  <a class="sb-a sub" href="#s4">3 operating regions</a>
+  <a class="sb-a" href="#s5">5 — Phase Shift & Power Flow <span style="color:var(--acc);font-size:10px">●</span></a>
+  <a class="sb-a" href="#s6">6 — ZVS Mechanism <span style="color:var(--acc);font-size:10px">●</span></a>
+  <a class="sb-a sub" href="#s6">C_oss commutation</a>
+  <a class="sb-a sub" href="#s6">Dead time sizing</a>
+  <div class="sb-sep"></div>
+  <a class="sb-a" href="#s7">7 — Topology Landscape</a>
+  <a class="sb-a" href="#s8">8 — DAB Converter <span style="color:var(--acc);font-size:10px">●</span></a>
+  <a class="sb-a" href="#s9">9 — LLC Converter <span style="color:var(--acc);font-size:10px">●</span></a>
+  <a class="sb-a" href="#s10">10 — CLLC Converter</a>
+  <a class="sb-a" href="#s11">11 — Transformer Design</a>
+  <div class="sb-sep"></div>
+  <a class="sb-a" href="#s12">12 — L &amp; C Sizing <span style="color:var(--acc);font-size:10px">●</span></a>
+  <a class="sb-a" href="#s13">13 — Dead Time &amp; C_oss <span style="color:var(--acc);font-size:10px">●</span></a>
+  <a class="sb-a" href="#s14">14 — Key Intuitions</a>
+</nav>
+
+<main>
+
+<!-- INDEX -->
+<div style="margin-bottom:2rem">
+  <p style="font-family:var(--mono);font-size:.72rem;color:var(--acc);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">Power Electronics · Complete Study Guide</p>
+  <h1 style="font-family:var(--head);font-size:2.2rem;font-weight:800;color:var(--bright);line-height:1.15;margin-bottom:.4em">Resonant Converters<br>From First Principles</h1>
+  <p style="color:var(--dim);font-size:.95rem;margin-bottom:1.4rem">LC Tank · Phase &amp; Phasors · ZVS Mechanism · SRC → LLC → CLLC → DAB · Transformer Design · Component Sizing · Interactive Diagrams Throughout</p>
+
+  <div style="background:var(--surf);border:1px solid var(--border);border-radius:8px;padding:16px 20px;margin-bottom:1.4rem">
+    <div style="font-weight:700;font-size:.88rem;margin-bottom:8px;color:var(--bright)">INDEX — WHAT WE COVER</div>
+    <p style="font-size:.84rem;color:var(--dim);margin-bottom:12px">Start from Section 0 and work through — each section builds on the previous. Sections with <span style="background:var(--acc);color:#fff;font-size:9px;padding:1px 6px;border-radius:3px;font-weight:700">INTERACTIVE</span> have live diagrams you can manipulate.</p>
+    <div class="index-grid">
+      <div class="idx-card" onclick="location.href='#s0'"><div class="idx-num">0</div><div class="idx-title">Roadmap</div><div class="idx-sub">Where we are going and how concepts connect</div></div>
+      <div class="idx-card" onclick="location.href='#s1'"><div class="idx-num">1</div><div class="idx-title">LC Tank <span class="idx-badge">interactive</span></div><div class="idx-sub">Why current is sinusoidal · Q factor · impedance vs frequency</div></div>
+      <div class="idx-card" onclick="location.href='#s2'"><div class="idx-num">2</div><div class="idx-title">Why Sinusoidal?</div><div class="idx-sub">2nd vs 1st order · FHA · DAB vs LLC waveform comparison</div></div>
+      <div class="idx-card" onclick="location.href='#s3'"><div class="idx-num">3</div><div class="idx-title">Phase Relationships <span class="idx-badge">interactive</span></div><div class="idx-sub">ELI/ICE · inductive region · ZVS connection</div></div>
+      <div class="idx-card" onclick="location.href='#s4'"><div class="idx-num">4</div><div class="idx-title">Phasor Diagrams</div><div class="idx-sub">Visual language · 3 operating regions</div></div>
+      <div class="idx-card" onclick="location.href='#s5'"><div class="idx-num">5</div><div class="idx-title">Phase Shift &amp; Power Flow <span class="idx-badge">interactive</span></div><div class="idx-sub">P∝V₁·V₂·sin(φ)/ωL · why current must lag</div></div>
+      <div class="idx-card" onclick="location.href='#s6'"><div class="idx-num">6</div><div class="idx-title">ZVS Mechanism <span class="idx-badge">step-through</span></div><div class="idx-sub">C_oss commutation · body diode · dead time</div></div>
+      <div class="idx-card" onclick="location.href='#s7'"><div class="idx-num">7</div><div class="idx-title">Topology Landscape</div><div class="idx-sub">SRC / PRC / LLC / CLLC / DAB comparison table</div></div>
+      <div class="idx-card" onclick="location.href='#s8'"><div class="idx-num">8</div><div class="idx-title">DAB Converter <span class="idx-badge">interactive</span></div><div class="idx-sub">Trapezoidal current · phase-shift control · ZVS range</div></div>
+      <div class="idx-card" onclick="location.href='#s9'"><div class="idx-num">9</div><div class="idx-title">LLC Converter <span class="idx-badge">interactive</span></div><div class="idx-sub">Two resonances · gain curves · Lm role · ZCS diodes</div></div>
+      <div class="idx-card" onclick="location.href='#s10'"><div class="idx-num">10</div><div class="idx-title">CLLC Converter</div><div class="idx-sub">Bidirectional LLC · symmetric tank · V2G</div></div>
+      <div class="idx-card" onclick="location.href='#s11'"><div class="idx-num">11</div><div class="idx-title">Transformer Design</div><div class="idx-sub">6-step process · core selection · Lm · Llk · Litz wire</div></div>
+      <div class="idx-card" onclick="location.href='#s12'"><div class="idx-num">12</div><div class="idx-title">L &amp; C Sizing <span class="idx-badge">calculator</span></div><div class="idx-sub">Systematic method · fr · Z₀ · Q · design flow</div></div>
+      <div class="idx-card" onclick="location.href='#s13'"><div class="idx-num">13</div><div class="idx-title">Dead Time &amp; C_oss <span class="idx-badge">interactive</span></div><div class="idx-sub">Q_oss budget · ZVS energy check · scope verification</div></div>
+      <div class="idx-card" onclick="location.href='#s14'"><div class="idx-num">14</div><div class="idx-title">Key Intuitions</div><div class="idx-sub">7 concepts to carry forward into any resonant design</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ S0 ═══════════════════════════════════════ -->
+<section id="s0">
+<div class="sec-hdr dark"><span class="num">0</span> WHERE WE ARE GOING</div>
+<p>You already understand soft switching under inductive load — that's a great foundation. What we're building here is the <em>resonant converter</em> version of that intuition. The structure below is the order in which the concepts connect:</p>
+<ol style="margin:1rem 0 1rem 1.4rem;line-height:2.1;font-size:.93rem">
+  <li><strong>LC Tank</strong> — the physical heart of every resonant converter. We revisit this properly.</li>
+  <li><strong>Why is the current sinusoidal?</strong> — and why isn't it in a DAB? This is a key conceptual split.</li>
+  <li><strong>Phase relationships</strong> — what "current lags voltage" actually means and why it matters.</li>
+  <li><strong>Phasor diagrams</strong> — your visual tool for reading any resonant circuit.</li>
+  <li><strong>Phase shift &amp; power flow</strong> — why P∝V₁·V₂·sin(φ)/ωL, and why current must lag for ZVS.</li>
+  <li><strong>ZVS mechanism</strong> — exactly how phase lag enables zero-voltage switching, step by step.</li>
+  <li><strong>Topologies</strong> — SRC → LLC → CLLC → DAB, with circuit diagrams and waveforms.</li>
+  <li><strong>Transformer design</strong> — how to write the specification, what Lm and Llk mean in this context.</li>
+  <li><strong>Sizing L and C</strong> — the systematic method, not random values.</li>
+</ol>
+<div class="note">By the time you finish this document you should be able to open any LLC or DAB converter datasheet, look at the gain curve or the phase-shift waveform, and immediately understand <em>why</em> each element is there and what it does. The detailed math can come after — conceptual clarity first.</div>
+</section>
+
+<!-- ═══ S1 ═══════════════════════════════════════ -->
+<section id="s1">
+<div class="sec-hdr blue"><span class="num">1</span> THE LC TANK: REVISITING THE FOUNDATION <span class="interactive-badge">INTERACTIVE</span></div>
+<p>Every resonant converter is built around some version of an LC tank. Before we look at real converter topologies, let's make sure the tank circuit feels completely natural.</p>
+
+<h2>The Series RLC Circuit</h2>
+<div class="dw">
+<svg viewBox="0 0 680 130" style="width:100%" xmlns="http://www.w3.org/2000/svg" font-family="'IBM Plex Mono',monospace">
+  <rect width="680" height="130" fill="#f8faff"/>
+  <!-- Square wave source -->
+  <rect x="18" y="40" width="60" height="50" rx="4" fill="#fff" stroke="#1a56db" stroke-width="1.5"/>
+  <text x="48" y="60" text-anchor="middle" fill="#1a56db" font-size="9">square</text>
+  <text x="48" y="72" text-anchor="middle" fill="#1a56db" font-size="9">wave</text>
+  <text x="48" y="82" text-anchor="middle" fill="#1a56db" font-size="9">V</text>
+  <!-- top wire -->
+  <line x1="78" y1="55" x2="100" y2="55" stroke="#374151" stroke-width="1.5"/>
+  <!-- L (inductor) -->
+  <path d="M100,55 Q108,42 116,55 Q124,68 132,55 Q140,42 148,55 Q156,68 164,55" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <text x="132" y="38" text-anchor="middle" fill="#dc2626" font-size="9">L</text>
+  <text x="132" y="84" text-anchor="middle" fill="#6b7a94" font-size="8">(resonant)</text>
+  <line x1="164" y1="55" x2="188" y2="55" stroke="#374151" stroke-width="1.5"/>
+  <text x="176" y="44" text-anchor="middle" fill="#6b7a94" font-size="8">V_L</text>
+  <!-- C (capacitor) -->
+  <line x1="188" y1="40" x2="188" y2="70" stroke="#7c3aed" stroke-width="3"/>
+  <line x1="196" y1="40" x2="196" y2="70" stroke="#7c3aed" stroke-width="3"/>
+  <line x1="196" y1="55" x2="230" y2="55" stroke="#374151" stroke-width="1.5"/>
+  <text x="192" y="35" text-anchor="middle" fill="#7c3aed" font-size="9">C</text>
+  <text x="192" y="84" text-anchor="middle" fill="#6b7a94" font-size="8">V_C</text>
+  <!-- Arrow -->
+  <line x1="230" y1="55" x2="270" y2="55" stroke="#374151" stroke-width="1.5"/>
+  <polygon points="266,51 274,55 266,59" fill="#374151"/>
+  <text x="252" y="46" text-anchor="middle" fill="#374151" font-size="9">I →</text>
+  <!-- R (load) -->
+  <rect x="274" y="40" width="60" height="30" rx="3" fill="#fff" stroke="#059669" stroke-width="1.5"/>
+  <text x="304" y="59" text-anchor="middle" fill="#059669" font-size="11">R</text>
+  <text x="304" y="82" text-anchor="middle" fill="#6b7a94" font-size="8">(load)</text>
+  <text x="304" y="23" text-anchor="middle" fill="#6b7a94" font-size="8">V_R</text>
+  <!-- bottom wire -->
+  <line x1="334" y1="55" x2="380" y2="55" stroke="#374151" stroke-width="1.5"/>
+  <line x1="380" y1="55" x2="380" y2="95" stroke="#374151" stroke-width="1.5"/>
+  <line x1="18" y1="90" x2="380" y2="90" stroke="#374151" stroke-width="1.5"/>
+  <line x1="18" y1="90" x2="18" y2="90" stroke="#374151" stroke-width="1.5"/>
+  <!-- Equations -->
+  <rect x="420" y="25" width="245" height="85" rx="4" fill="#fff" stroke="#e2e6ed" stroke-width="1"/>
+  <text x="432" y="44" fill="#374151" font-size="9" font-weight="600">Series RLC</text>
+  <text x="432" y="58" fill="#6b7a94" font-size="8">V = V_L + V_C + V_R</text>
+  <text x="432" y="70" fill="#6b7a94" font-size="8">V_L = L·dI/dt</text>
+  <text x="432" y="82" fill="#7c3aed" font-size="8">V_C = (1/C)·∫I dt</text>
+  <text x="432" y="94" fill="#059669" font-size="8">V_R = I·R</text>
+</svg>
+<p class="dc">Series RLC driven by a square-wave bridge. The key insight: the tank acts as a bandpass filter — only the fundamental gets through, so tank current is approximately sinusoidal.</p>
+</div>
+
+<h2>The Energy Pendulum — Why LC Resonates</h2>
+<p>Think of the inductor as a flywheel and the capacitor as a spring. The inductor <em>resists changes in current</em> — it stores kinetic energy (½LI²) in its magnetic field. The capacitor <em>resists changes in voltage</em> — it stores potential energy (½CV²) in its electric field.</p>
+<p>Apply KVL around the LC loop: V_L + V_C = 0 → L·d²i/dt² + i/C = 0. This is the <strong>simple harmonic oscillator equation</strong> — identical to a pendulum, mass-spring, or planet in orbit. Its only possible solution is sinusoidal:</p>
+<div class="codeblock">i(t) = I_peak · sin(ω₀t + φ)   ω₀ = 1/√(L·C) [rad/s]   f₀ = 1/(2π·√(L·C)) [Hz]
+
+Z₀ = √(L/C)  [Ω]  ← characteristic impedance (stiffness of the tank)
+I_peak = V₀/Z₀  ← set by initial energy and Z₀
+
+Q = ω₀·L/R = Z₀/R  ← quality factor: how many cycles before energy decays
+Typical LLC design: Q = 0.3–0.5 at full load; High Q → sharp resonance → more current stress</div>
+
+<div class="note orange">
+  <div class="note-t">The Pendulum Analogy</div>
+  Push a child on a swing at exactly the right rhythm (= f₀) and you build up a large oscillation with very little effort. Push at the wrong frequency and you fight the swing. This is exactly what happens in a resonant converter: by switching at (or near) f₀, you transfer maximum energy per switching cycle with minimum reactive stress on the switches.
+</div>
+
+<h2>Interactive: Free LC Tank Oscillation</h2>
+<div class="dw">
+  <div class="ctrl">
+    <span class="cl">L (μH)</span><input type="range" id="lc_L" min="5" max="100" value="25" oninput="drawLC()"><span class="vv" id="lc_Lv">25 μH</span>
+    <span class="cl">C (nF)</span><input type="range" id="lc_C" min="5" max="200" value="60" oninput="drawLC()"><span class="vv" id="lc_Cv">60 nF</span>
+  </div>
+  <div class="ctrl" style="gap:24px">
+    <span class="cl">f₀ =</span><span class="vv" id="lc_f0">—</span>
+    <span class="cl">Z₀ =</span><span class="vv" id="lc_Z0">—</span>
+    <span class="cl">I_peak =</span><span class="vv" id="lc_Ip">—</span>
+  </div>
+  <canvas id="lcCanvas" height="160"></canvas>
+  <div class="leg">
+    <div class="li"><div class="ld" style="background:#7c3aed"></div>V_C (capacitor voltage)</div>
+    <div class="li"><div class="ld" style="background:#dc2626"></div>I_L (inductor current, scaled)</div>
+    <div class="li"><div class="ld" style="background:#059669; opacity:.6"></div>Total energy (sum = constant)</div>
+  </div>
+  <p class="dc">Free LC tank oscillation. V_C starts at 1V (all energy in capacitor), I_L starts at 0. They are permanently 90° apart. Changing L or C changes frequency and characteristic impedance.</p>
+</div>
+
+<h2>Impedance vs Frequency — The Key Curve</h2>
+<p>The total impedance of the series RLC: Z = R + j(ωL − 1/ωC). Plot magnitude vs frequency:</p>
+<div class="dw">
+<svg viewBox="0 0 620 200" style="width:100%" xmlns="http://www.w3.org/2000/svg" font-family="'IBM Plex Mono',monospace">
+  <rect width="620" height="200" fill="#f8faff"/>
+  <!-- axes -->
+  <line x1="60" y1="160" x2="580" y2="160" stroke="#374151" stroke-width="1.5"/>
+  <line x1="60" y1="20" x2="60" y2="160" stroke="#374151" stroke-width="1.5"/>
+  <text x="320" y="190" text-anchor="middle" fill="#374151" font-size="11">Frequency →</text>
+  <text x="18" y="92" fill="#374151" font-size="11" transform="rotate(-90,18,92)">|Z| Impedance</text>
+  <!-- Capacitive region curve (1/ωC branch, falling) -->
+  <path d="M80,20 Q140,60 200,110 Q240,135 290,155" fill="none" stroke="#dc2626" stroke-width="2" stroke-dasharray="6,3"/>
+  <text x="130" y="65" fill="#dc2626" font-size="9">1/(ωC) dominates</text>
+  <!-- Inductive region curve (ωL branch, rising) -->
+  <path d="M350,155 Q400,135 450,110 Q510,70 560,30" fill="none" stroke="#1a56db" stroke-width="2" stroke-dasharray="6,3"/>
+  <text x="470" y="80" fill="#1a56db" font-size="9">ωL dominates</text>
+  <!-- Total impedance V-shape -->
+  <path d="M80,22 Q140,62 200,112 Q260,145 310,158 Q315,159 320,159 Q325,159 330,158 Q380,145 440,112 Q500,72 560,28" fill="none" stroke="#374151" stroke-width="2.5"/>
+  <!-- resonance vertical -->
+  <line x1="320" y1="158" x2="320" y2="20" stroke="#059669" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <text x="320" y="15" text-anchor="middle" fill="#059669" font-size="10" font-weight="600">f₀</text>
+  <!-- Current peak label -->
+  <rect x="330" y="25" width="130" height="24" rx="3" fill="#d1fae5" stroke="#059669" stroke-width="1"/>
+  <text x="395" y="41" text-anchor="middle" fill="#059669" font-size="9" font-weight="600">ZVS operating zone</text>
+  <!-- I magnitude curve (inverse of Z) -->
+  <path d="M80,155 Q140,148 200,132 Q270,105 310,22 Q315,10 320,10 Q325,10 330,22 Q370,105 440,132 Q500,148 560,155" fill="none" stroke="#d97706" stroke-width="1.5" stroke-dasharray="3,3"/>
+  <text x="570" y="155" fill="#d97706" font-size="8">I magnitude</text>
+  <text x="570" y="145" fill="#d97706" font-size="8">(peak at f₀)</text>
+  <!-- region labels -->
+  <text x="170" y="152" fill="#dc2626" font-size="9" text-anchor="middle">Capacitive</text>
+  <text x="170" y="163" fill="#dc2626" font-size="8" text-anchor="middle">current LEADS voltage</text>
+  <text x="460" y="152" fill="#1a56db" font-size="9" text-anchor="middle">Inductive</text>
+  <text x="460" y="163" fill="#1a56db" font-size="8" text-anchor="middle">current LAGS voltage → ZVS</text>
+</svg>
+<p class="dc">Below f₀ the capacitor dominates — impedance is high and falling. Above f₀ the inductor dominates — impedance is high and rising. At f₀ they cancel exactly, leaving only R. This is why the current is maximum at resonance — the tank is "transparent" to the drive source.</p>
+</div>
+
+<h2>Interactive: RLC Gain vs Frequency (Q Factor Effect)</h2>
+<div class="dw">
+  <div class="ctrl">
+    <span class="cl">Q factor</span><input type="range" id="rlc_Q" min="0.3" max="8" step="0.1" value="2" oninput="drawRLC()"><span class="vv" id="rlc_Qv">2.0</span>
+    <span class="cl">Drive freq</span><input type="range" id="rlc_fn" min="0.3" max="2" step="0.01" value="1" oninput="drawRLC()"><span class="vv" id="rlc_fnv">1.00×f₀</span>
+  </div>
+  <canvas id="rlcCanvas" height="200"></canvas>
+  <div class="leg">
+    <div class="li"><div class="ld" style="background:#059669"></div>Gain |H(f)| vs frequency</div>
+    <div class="li"><div class="ld" style="background:#d97706"></div>Current operating point</div>
+    <div class="li"><div class="ld" style="background:#7c3aed;opacity:.5"></div>3dB bandwidth (BW = f₀/Q)</div>
+  </div>
+  <p class="dc">Series RLC gain vs normalised frequency. Higher Q = sharper, taller peak. Move the drive frequency slider to see the operating point on the curve. BW = f₀/Q</p>
+</div>
+</section>
+
+<!-- ═══ S2 ═══════════════════════════════════════ -->
+<section id="s2">
+<div class="sec-hdr blue"><span class="num">2</span> WHY IS TANK CURRENT SINUSOIDAL? (AND WHY NOT IN DAB?)</div>
+<p>This is one of the most important conceptual questions in resonant power electronics. The answer reveals a fundamental difference between resonant converters and the DAB.</p>
+
+<h2>A Series RLC is a 2nd-Order System</h2>
+<div class="codeblock">L·d²I/dt² + R·dI/dt + I/C = dV/dt  ← 2nd-order linear ODE
+
+Natural solution: I(t) = A·e^(-αt) · cos(ω_d·t + φ)  where ω_d ≈ ω₀ = 1/√(LC)
+Mathematics forces sinusoidal behaviour — not a choice, it is physics of L and C together.</div>
+
+<h2>The Inverter Drives with a Square Wave — So Why is I Sinusoidal?</h2>
+<p>Your half-bridge outputs a square wave at f_sw. A square wave contains harmonics: fundamental at f_sw, 3rd at 3f_sw, 5th at 5f_sw, etc.</p>
+<p>The tank's impedance is very low near f₀ (≈ f_sw) and very high at 3f₀, 5f₀, etc. The tank acts as a <strong>bandpass filter</strong> — passes the fundamental, blocks harmonics. Even though the applied voltage is a square wave, the tank current is approximately sinusoidal.</p>
+<p>This is the <strong>Fundamental Harmonic Approximation (FHA)</strong> — the backbone of resonant converter analysis. It becomes more accurate the higher the Q.</p>
+<div class="note green">
+  <div class="note-t">FHA in one sentence</div>
+  Replace the square wave inverter output with its fundamental sinusoidal component (amplitude = 4V_in/π for a full bridge) and analyse the tank as a linear AC circuit. The result gives you gain, phase, and ZVS conditions to within ~5–10% for well-designed LLC converters.
+</div>
+
+<h2>Why DAB Current is NOT Sinusoidal — The 1st vs 2nd Order Story</h2>
+<p>A DAB has <strong>no resonant capacitor</strong> — only an inductor (transformer leakage ± added series L). A pure inductor driven by a square wave gives:</p>
+<div class="codeblock">V_L = L · dI/dt  →  dI/dt = V_L / L = constant (when V_L is a square wave)
+Constant slope = linear ramp = TRAPEZOIDAL current waveform
+No C → no 2nd-order resonance. System is 1st order.</div>
+
+<div class="dw">
+<svg viewBox="0 0 640 220" style="width:100%" xmlns="http://www.w3.org/2000/svg" font-family="'IBM Plex Mono',monospace">
+  <rect width="640" height="220" fill="#f8faff"/>
+  <!-- LLC / Resonant side -->
+  <rect x="10" y="10" width="300" height="200" rx="5" fill="#fff" stroke="#1a56db" stroke-width="1.5"/>
+  <text x="160" y="30" text-anchor="middle" fill="#1a56db" font-size="11" font-weight="700">LLC / Resonant Converter</text>
+  <!-- bridge voltage square wave -->
+  <polyline points="30,80 30,60 80,60 80,100 130,100 130,60 180,60 180,100 230,100 230,60 280,60 280,80" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="36" y="55" fill="#dc2626" font-size="8">V_ab (square wave)</text>
+  <!-- sinusoidal tank current -->
+  <path d="M30,140 Q55,105 80,140 Q105,175 130,140 Q155,105 180,140 Q205,175 230,140 Q255,105 280,140" fill="none" stroke="#1a56db" stroke-width="2.5"/>
+  <text x="36" y="205" fill="#1a56db" font-size="8">I_tank (≈ sinusoidal)</text>
+  <line x1="10" y1="120" x2="310" y2="120" stroke="#e2e6ed" stroke-width="0.5"/>
+  <text x="160" y="198" text-anchor="middle" fill="#6b7a94" font-size="8">2nd-order LC → tank filters harmonics → sinusoidal I</text>
+
+  <!-- DAB side -->
+  <rect x="330" y="10" width="300" height="200" rx="5" fill="#fff" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="480" y="30" text-anchor="middle" fill="#dc2626" font-size="11" font-weight="700">DAB Converter</text>
+  <!-- V1 primary square wave -->
+  <polyline points="350,80 350,60 400,60 400,100 450,100 450,60 500,60 500,100 550,100 550,60 610,60 610,80" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="356" y="55" fill="#dc2626" font-size="8">V1 (primary)</text>
+  <!-- Trapezoidal current (linear ramps) -->
+  <polyline points="350,140 370,110 420,110 440,170 490,170 510,110 560,110 580,170 610,160" fill="none" stroke="#1a56db" stroke-width="2.5"/>
+  <text x="356" y="205" fill="#1a56db" font-size="8">I_L (trapezoidal)</text>
+  <line x1="330" y1="140" x2="640" y2="140" stroke="#e2e6ed" stroke-width="0.5"/>
+  <text x="480" y="198" text-anchor="middle" fill="#6b7a94" font-size="8">1st-order L only → dI/dt = V/L = const → LINEAR ramps</text>
+</svg>
+<p class="dc">The core difference: Resonant converters (LLC, CLLC, SRC) have LC — a 2nd-order system → sinusoidal current. DAB has only L — a 1st-order system → trapezoidal current. This single difference drives all the differences in control strategy, ZVS range, and design methodology.</p>
+</div>
+
+<div class="note red">
+  <div class="note-t">The Core Difference</div>
+  Resonant converters (LLC, CLLC, SRC) have LC — a 2nd-order system → sinusoidal current. DAB has only L — a 1st-order system → trapezoidal current. This single difference drives all the differences in control strategy, ZVS range, and design methodology.
+</div>
+</section>
+
+<!-- ═══ S3 ═══════════════════════════════════════ -->
+<section id="s3">
+<div class="sec-hdr blue"><span class="num">3</span> PHASE RELATIONSHIPS: THE HEART OF EVERYTHING <span class="interactive-badge">INTERACTIVE</span></div>
+
+<h2>The Three Basic Elements</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:1rem 0">
+<div>
+<p><strong>Resistor — In Phase</strong><br>
+V_R = I·R. If I = I₀·sin(ωt), then V_R = I₀R·sin(ωt). Voltage and current are perfectly in phase — angle between them is 0°.</p>
+<p><strong>Inductor — Current Lags (ELI)</strong><br>
+V_L = L·dI/dt. If I = I₀·sin(ωt), then V_L = ωL·I₀·cos(ωt) = ωL·I₀·sin(ωt + 90°). <strong>Voltage leads current by 90°</strong>, equivalently current lags voltage by 90°.</p>
+<p><strong>Capacitor — Current Leads (ICE)</strong><br>
+I_C = C·dV/dt. If V_C = V₀·sin(ωt), then I = ωC·V₀·cos(ωt). <strong>Current leads voltage by 90°.</strong></p>
+</div>
+<div class="note purple" style="margin:0">
+  <div class="note-t">The most important thing to memorise</div>
+  <p style="margin-bottom:6px">🔵 <strong>Inductor → current LAGS voltage (ELI)</strong></p>
+  <p style="margin-bottom:12px">🔴 <strong>Capacitor → current LEADS voltage (ICE)</strong></p>
+  <p style="font-size:.85rem">The phase difference between the tank current and the applied voltage is what enables ZVS. Specifically — you need the current to LAG, which means you need the tank to look <strong>inductive</strong>, which means operating above resonance (fs &gt; f₀).</p>
+</div>
+</div>
+
+<h2>How the Phase Angle Changes with Frequency</h2>
+<div class="codeblock">Phase angle of I relative to V_applied: φ = -arctan[(ωL - 1/ωC) / R]
+
+fs < f₀ : (1/ωC) > ωL → φ > 0 → I leads V (capacitive) → NO natural ZVS
+fs = f₀ : ωL = 1/ωC → φ = 0 → I in phase (resistive) → marginal
+fs > f₀ : ωL > (1/ωC) → φ < 0 → I lags V (inductive) → ZVS achievable ✓</div>
+
+<div class="note green">
+  <div class="note-t">The ZVS Connection</div>
+  When the tank current lags the inverter voltage (inductive region, fs &gt; f₀), the current is still flowing in the positive direction at the moment the top switch turns off. This current flows through the body diode of the bottom switch, clamping its drain to near zero. You then turn on the bottom switch into near-zero voltage — Zero Voltage Switching.
+</div>
+
+<h2>Interactive: Phase Shift vs Frequency Ratio</h2>
+<div class="dw">
+  <div class="ctrl">
+    <span class="cl">f_sw / f₀</span><input type="range" id="ph_ratio" min="0.5" max="1.6" step="0.01" value="1.2" oninput="drawPhase()"><span class="vv" id="ph_rv">1.20×</span>
+    <span class="cl">Q (load)</span><input type="range" id="ph_Q" min="0.3" max="3" step="0.1" value="0.8" oninput="drawPhase()"><span class="vv" id="ph_Qv">0.8</span>
+  </div>
+  <canvas id="phaseCanvas" height="220"></canvas>
+  <div class="leg">
+    <div class="li"><div class="ld" style="background:#374151"></div>Bridge voltage (square wave fundamental)</div>
+    <div class="li"><div class="ld" style="background:#dc2626"></div>Tank current (sinusoidal response)</div>
+    <div class="li"><div class="ld" style="background:#374151"></div>Switching instants (dots = current at transition)</div>
+  </div>
+  <p class="dc" id="ph_cap">INDUCTIVE REGION (f_sw=1.20×f₀) — current LAGS ✓ ZVS enabled. Green dots = current right direction (ZVS ✓). Red dots = wrong direction (ZVS ✗).</p>
+</div>
+</section>
+
+<!-- ═══ S4 ═══════════════════════════════════════ -->
+<section id="s4">
+<div class="sec-hdr purple"><span class="num">4</span> PHASOR DIAGRAMS: YOUR VISUAL LANGUAGE</div>
+<p>A phasor is a rotating arrow (vector) in the complex plane. Its length = amplitude of the sinusoidal quantity. Its angle = phase relative to a chosen reference. We choose current I as the horizontal reference (pointing right), and "freeze" the rotation — this snapshot is the phasor diagram.</p>
+<ul style="margin:.8rem 0 .8rem 1.4rem;line-height:2;font-size:.9rem">
+  <li>V_R phasor: points in the <strong>same direction as I</strong> (in phase)</li>
+  <li>V_L phasor: points <strong>90° counterclockwise from I</strong> (V_L leads I)</li>
+  <li>V_C phasor: points <strong>90° clockwise from I</strong> (V_C lags I)</li>
+  <li>V_applied = V_R + V_L + V_C (phasor addition — tip to tail)</li>
+</ul>
+<p>The three panels below show what happens as you sweep frequency through resonance:</p>
+
+<div class="phasor-grid">
+  <!-- Capacitive -->
+  <div class="phasor-panel cap">
+    <div class="phasor-title" style="color:#dc2626">fs &lt; f₀ (Capacitive)</div>
+    <svg viewBox="0 0 160 160" style="width:100%;max-width:160px" xmlns="http://www.w3.org/2000/svg">
+      <line x1="80" y1="80" x2="80" y2="20" stroke="#e2e6ed" stroke-width="0.5"/>
+      <line x1="20" y1="80" x2="140" y2="80" stroke="#e2e6ed" stroke-width="0.5"/>
+      <!-- I horizontal reference -->
+      <line x1="80" y1="80" x2="130" y2="80" stroke="#374151" stroke-width="2"/>
+      <polygon points="126,76 134,80 126,84" fill="#374151"/>
+      <text x="132" y="76" fill="#374151" font-size="9">I</text>
+      <!-- V_R along I -->
+      <line x1="80" y1="80" x2="110" y2="80" stroke="#059669" stroke-width="2"/>
+      <text x="112" y="76" fill="#059669" font-size="8">V_R</text>
+      <!-- V_L small (fs small) -->
+      <line x1="80" y1="80" x2="80" y2="62" stroke="#1a56db" stroke-width="2"/>
+      <polygon points="76,65 80,57 84,65" fill="#1a56db"/>
+      <text x="83" y="58" fill="#1a56db" font-size="8">V_L (small)</text>
+      <!-- V_C large downward -->
+      <line x1="80" y1="80" x2="80" y2="128" stroke="#7c3aed" stroke-width="2"/>
+      <polygon points="76,125 80,133 84,125" fill="#7c3aed"/>
+      <text x="83" y="140" fill="#7c3aed" font-size="8">V_C (large)</text>
+      <!-- V_in resultant (mostly downward-right) -->
+      <line x1="80" y1="80" x2="115" y2="118" stroke="#dc2626" stroke-width="2.5"/>
+      <polygon points="110,120 118,122 114,113" fill="#dc2626"/>
+      <text x="116" y="128" fill="#dc2626" font-size="8">V_in</text>
+      <!-- angle arc -->
+      <path d="M95,80 Q93,90 87,88" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+      <text x="96" y="95" fill="#dc2626" font-size="8">φ (V_in lags I)</text>
+    </svg>
+    <p style="font-size:.72rem;color:#dc2626;font-weight:600;margin-top:6px">I leads V_in<br>Capacitive region — no ZVS</p>
+  </div>
+
+  <!-- Resonance -->
+  <div class="phasor-panel res">
+    <div class="phasor-title" style="color:#059669">fs = f₀ (At Resonance)</div>
+    <svg viewBox="0 0 160 160" style="width:100%;max-width:160px" xmlns="http://www.w3.org/2000/svg">
+      <line x1="80" y1="80" x2="80" y2="20" stroke="#e2e6ed" stroke-width="0.5"/>
+      <line x1="20" y1="80" x2="140" y2="80" stroke="#e2e6ed" stroke-width="0.5"/>
+      <line x1="80" y1="80" x2="130" y2="80" stroke="#374151" stroke-width="2"/>
+      <polygon points="126,76 134,80 126,84" fill="#374151"/>
+      <text x="132" y="76" fill="#374151" font-size="9">I</text>
+      <line x1="80" y1="80" x2="125" y2="80" stroke="#059669" stroke-width="2"/>
+      <text x="126" y="76" fill="#059669" font-size="8">V_R = V_in</text>
+      <line x1="80" y1="80" x2="80" y2="40" stroke="#1a56db" stroke-width="2"/>
+      <polygon points="76,43 80,35 84,43" fill="#1a56db"/>
+      <text x="83" y="34" fill="#1a56db" font-size="8">V_L</text>
+      <line x1="80" y1="80" x2="80" y2="120" stroke="#7c3aed" stroke-width="2"/>
+      <polygon points="76,117 80,125 84,117" fill="#7c3aed"/>
+      <text x="83" y="134" fill="#7c3aed" font-size="8">V_C</text>
+      <text x="80" y="150" text-anchor="middle" fill="#059669" font-size="8">V_L and V_C cancel</text>
+      <text x="80" y="158" text-anchor="middle" fill="#059669" font-size="8">φ = 0°, max current</text>
+    </svg>
+    <p style="font-size:.72rem;color:#059669;font-weight:600;margin-top:6px">V_L and V_C cancel<br>φ = 0°, max current</p>
+  </div>
+
+  <!-- Inductive -->
+  <div class="phasor-panel ind">
+    <div class="phasor-title" style="color:#1a56db">fs &gt; f₀ (Inductive — ZVS!)</div>
+    <svg viewBox="0 0 160 160" style="width:100%;max-width:160px" xmlns="http://www.w3.org/2000/svg">
+      <line x1="80" y1="80" x2="80" y2="20" stroke="#e2e6ed" stroke-width="0.5"/>
+      <line x1="20" y1="80" x2="140" y2="80" stroke="#e2e6ed" stroke-width="0.5"/>
+      <line x1="80" y1="80" x2="130" y2="80" stroke="#374151" stroke-width="2"/>
+      <polygon points="126,76 134,80 126,84" fill="#374151"/>
+      <text x="132" y="76" fill="#374151" font-size="9">I</text>
+      <line x1="80" y1="80" x2="108" y2="80" stroke="#059669" stroke-width="2"/>
+      <text x="108" y="76" fill="#059669" font-size="8">V_R</text>
+      <line x1="80" y1="80" x2="80" y2="30" stroke="#1a56db" stroke-width="2"/>
+      <polygon points="76,33 80,25 84,33" fill="#1a56db"/>
+      <text x="83" y="24" fill="#1a56db" font-size="8">V_L (large)</text>
+      <line x1="80" y1="80" x2="80" y2="108" stroke="#7c3aed" stroke-width="2"/>
+      <polygon points="76,105 80,113 84,105" fill="#7c3aed"/>
+      <text x="83" y="122" fill="#7c3aed" font-size="8">V_C (small)</text>
+      <line x1="80" y1="80" x2="46" y2="38" stroke="#dc2626" stroke-width="2.5"/>
+      <polygon points="48,44 42,36 51,39" fill="#dc2626"/>
+      <text x="28" y="34" fill="#dc2626" font-size="8">V_in</text>
+      <path d="M95,80 Q92,70 84,70" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+      <text x="96" y="65" fill="#dc2626" font-size="8">φ</text>
+      <rect x="30" y="128" width="100" height="16" rx="3" fill="#059669"/>
+      <text x="80" y="140" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">→ ZVS ENABLED ✓</text>
+    </svg>
+    <p style="font-size:.72rem;color:#1a56db;font-weight:600;margin-top:6px">I lags V_in<br>Inductive region — operate here</p>
+  </div>
+</div>
+
+<div class="note green">
+  <div class="note-t">How to use phasor diagrams in practice</div>
+  When you see a resonant converter operating waveform, check if the tank current zero-crossing happens <em>after</em> the switching transition. If it does — current lags voltage — you're in the inductive region and ZVS is happening. If the current zero-crossing is <em>before</em> the transition, you're in the capacitive region and ZVS is lost.
+</div>
+</section>
+
+<!-- ═══ S5 ═══════════════════════════════════════ -->
+<section id="s5">
+<div class="sec-hdr purple"><span class="num">5</span> PHASE SHIFT AND POWER FLOW</div>
+<p>Once you know the phase relationship, you can calculate how much power actually flows. For two voltage sources separated by an inductor L (the dominant model for DAB, and an approximation for LLC under FHA):</p>
+<div class="codeblock">P = V₁ · V₂ · sin(φ) / (ω · L)
+
+φ = phase angle between V₁ and V₂ (in radians)
+ω = 2π · f_sw
+L = series inductance (L_s for DAB, or the FHA equivalent for LLC)
+
+Maximum power at φ = 90° → P_max = V₁·V₂/(ω·L)
+Zero power at φ = 0° or 180°</div>
+
+<p><strong>Intuition:</strong> The inductor acts as a "power pipe". The product V₁·V₂·sin(φ) is the "pressure × cross-section" that drives power through it. Increasing frequency OR increasing L reduces the maximum power for a given voltage pair — this is the trade-off between switching frequency and magnetics size.</p>
+
+<h2>Interactive: DAB Power Flow Canvas</h2>
+<p>Adjust the phase shift φ between the two bridges. Green = V₁ (primary), Blue = V₂ (secondary), Red = inductor current I_L. Purple shading shows instantaneous power.</p>
+<div class="dw">
+  <div class="ctrl">
+    <span class="cl">Phase shift φ:</span><input type="range" id="pf_phi" min="0" max="90" value="30" oninput="drawPowerFlow()"><span class="vv" id="pf_phiv">30°</span>
+  </div>
+  <canvas id="pfCanvas" height="200"></canvas>
+  <div class="leg">
+    <div class="li"><div class="ld" style="background:#059669"></div>V₁ (primary)</div>
+    <div class="li"><div class="ld" style="background:#1a56db"></div>V₂ (secondary, lagging by φ)</div>
+    <div class="li"><div class="ld" style="background:#dc2626"></div>Inductor current I_L</div>
+    <div class="li"><div class="ld" style="background:#7c3aed;opacity:.5"></div>Instantaneous power (shaded positive)</div>
+  </div>
+  <p class="dc" id="pf_cap">φ = 30°. Average power P ∝ sin(30°) = 0.500 (50% of maximum). At φ=0° → no power flow. At φ=90° → maximum power.</p>
+</div>
+
+<div class="note orange">
+  <div class="note-t">Why maximum power at 90°?</div>
+  At φ=90°, the current waveform is perfectly positioned so that whenever V₁ is positive, the current is positive — maximum overlap → maximum average power. At φ=0°, current is symmetric and averages to zero. At φ=180°, power reverses direction.
+</div>
+</section>
+
+<!-- ═══ S6 ═══════════════════════════════════════ -->
+<section id="s6">
+<div class="sec-hdr green"><span class="num">6</span> HOW PHASE LAG ENABLES ZVS: THE MECHANISM STEP BY STEP</div>
+<p>Now let's connect the phase lag directly to what the MOSFET switches see. We'll use a half-bridge driving an LLC tank.</p>
+
+<div class="dw">
+<canvas id="zvsDetailCanvas" height="200"></canvas>
+<div class="leg" style="margin-top:8px">
+  <div class="li"><div class="ld" style="background:#dc2626"></div>g_Q1 (gate Q1)</div>
+  <div class="li"><div class="ld" style="background:#1a56db"></div>g_Q2 (gate Q2)</div>
+  <div class="li"><div class="ld" style="background:#d97706"></div>Vds_Q2 (drain voltage Q2)</div>
+  <div class="li"><div class="ld" style="background:#374151"></div>I_tank</div>
+</div>
+<p class="dc">Full ZVS waveform: g_Q1, g_Q2, Vds_Q2, I_tank. The dead time windows (yellow shading) are where the resonant C_oss transition happens. Notice V_ds Q2 falls to zero BEFORE g_Q2 rises — that is ZVS.</p>
+</div>
+
+<h2>The Four Phases Explained</h2>
+<ol style="margin:.8rem 0 .8rem 1.4rem;line-height:2.2;font-size:.9rem">
+  <li><strong>Q1 conducts:</strong> Tank current flows through Q1. Because fs &gt; f₀ (inductive), the current lags the gate signal. The current is still slightly negative at the start of Q1's on-time — it crosses zero and builds positive through the interval.</li>
+  <li><strong>Dead time begins (Q1 off):</strong> Q1 turns off. The tank current is <em>still positive</em> (due to phase lag). This positive current charges Q1's C_oss and simultaneously <strong>discharges Q2's C_oss</strong>. This is a resonant transition using tank energy — no hard switching.</li>
+  <li><strong>Vds_Q2 reaches zero:</strong> Q2's drain voltage falls to zero. Q2's body diode starts conducting, clamping Vds_Q2 = 0 V. Turn on Q2's gate — drain is already at zero → <strong>Zero Voltage Switching ✓</strong></li>
+  <li><strong>Q2 conducts:</strong> Symmetric to Q1 interval. The current reverses, then the process repeats for Q1.</li>
+</ol>
+
+<h2>Interactive: ZVS Commutation Step-Through</h2>
+<div class="dw">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+    <button class="comm-btn" onclick="commStep(-1)">◀ Prev</button>
+    <span id="commLbl" style="font-family:var(--mono);font-size:.84rem;color:var(--acc);font-weight:600">Step 1/6 — Q1 ON</span>
+    <button class="comm-btn" onclick="commStep(1)">Next ▶</button>
+  </div>
+  <canvas id="commCanvas" height="240"></canvas>
+  <div id="commDesc" style="margin-top:12px;font-size:.88rem;line-height:1.75;padding:12px;background:var(--surf2);border-radius:5px;border-left:3px solid var(--acc)"></div>
+</div>
+
+<div class="note red">
+  <div class="note-t">What if there's not enough phase lag?</div>
+  If you operate too close to f₀ or below it, the tank current is nearly in phase with the switching transitions. When Q1 turns off, the current has already reversed — Q2's C_oss doesn't discharge fully before Q2 turns on. You get partial hard switching — higher switching losses, higher EMI.
+</div>
+<div class="note orange">
+  <div class="note-t">Dead time must be sized correctly</div>
+  Long enough for the resonant C_oss transition to complete (Vds_Q2 → 0), but not so long that the body diode conducts excessively. Typical: 100–300 ns at 100–300 kHz. Full calculation is in Section 13.
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     PART 2 — Sections 7 through 11
+     INSERT THIS BLOCK just before </main> in Part 1
+     ═══════════════════════════════════════════════════ -->
+
+<!-- ═══ S7 ═══════════════════════════════════════ -->
+<section id="s7">
+<div class="sec-hdr dark"><span class="num">7</span> THE RESONANT CONVERTER FAMILY: A TOPOLOGY MAP</div>
+<p>Before looking at individual topologies in detail, here's the landscape. The key differentiator is what's in the tank and how control is achieved:</p>
+
+<table>
+  <tr><th>Topology</th><th>Tank Elements</th><th>Control</th><th>Current Shape</th><th>ZVS Range</th><th>Bidirectional</th><th>Typical Use</th></tr>
+  <tr><td><strong>SRC</strong> Series Resonant</td><td>Lr, Cr</td><td>Frequency</td><td>Sinusoidal</td><td>Good (above fr)</td><td>Possible</td><td>Academic baseline</td></tr>
+  <tr><td><strong>PRC</strong> Parallel Resonant</td><td>Lr, Cr (Lm parallel)</td><td>Frequency</td><td>Sinusoidal</td><td>Good</td><td>Possible</td><td>Less common today</td></tr>
+  <tr><td><strong>LLC</strong></td><td>Lr, Lm, Cr</td><td>Frequency</td><td>Sinusoidal</td><td>Wide (all loads)</td><td>No (diode rect.)</td><td>EV OBC, telecom PSU</td></tr>
+  <tr><td><strong>CLLC</strong></td><td>Lr+Lm+Cr (pri) + Lr2+Cr2 (sec)</td><td>Frequency</td><td>Sinusoidal</td><td>Wide, both dirs</td><td>Yes</td><td>Bidi OBC, V2G</td></tr>
+  <tr><td><strong>DAB</strong></td><td>Ls (Llk only)</td><td>Phase shift φ</td><td>Trapezoidal</td><td>Limited range</td><td>Yes (natural)</td><td>EV drivetrains, ESS</td></tr>
+</table>
+
+<div class="note green">Notice how SRC → LLC is an evolutionary step: LLC simply adds Lm (the transformer magnetizing inductance) to the SRC tank. That one addition dramatically improves light-load regulation and ZVS range at light load — which is why LLC replaced SRC in most applications.</div>
+</section>
+
+<!-- ═══ S8 ═══════════════════════════════════════ -->
+<section id="s8">
+<div class="sec-hdr red"><span class="num">8</span> DAB: THE PHASE-SHIFT CONVERTER (FUNDAMENTALLY DIFFERENT)</div>
+<p>The Dual Active Bridge (DAB) is often grouped with LLC and CLLC, but it is architecturally different. Understanding why it's different is the key to knowing when to choose it.</p>
+
+<div class="dw">
+<svg viewBox="0 0 720 185" xmlns="http://www.w3.org/2000/svg" style="width:100%" font-family="'IBM Plex Mono',monospace">
+  <rect width="720" height="185" fill="#f8faff"/>
+  <!-- C1(V1) left cap -->
+  <line x1="22" y1="40" x2="22" y2="145" stroke="#374151" stroke-width="1.5"/>
+  <line x1="12" y1="78" x2="12" y2="107" stroke="#1a56db" stroke-width="3"/>
+  <line x1="22" y1="78" x2="22" y2="107" stroke="#1a56db" stroke-width="3"/>
+  <text x="5" y="95" fill="#1a56db" font-size="8" transform="rotate(-90,5,95)">C1(V1)</text>
+  <!-- Primary H-bridge box -->
+  <rect x="38" y="28" width="150" height="130" rx="4" fill="none" stroke="#374151" stroke-width="1.5"/>
+  <rect x="48" y="40" width="50" height="26" rx="3" fill="#fff" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="73" y="57" text-anchor="middle" fill="#dc2626" font-size="10">Q1</text>
+  <rect x="48" y="118" width="50" height="26" rx="3" fill="#fff" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="73" y="135" text-anchor="middle" fill="#dc2626" font-size="10">Q2</text>
+  <rect x="128" y="40" width="50" height="26" rx="3" fill="#fff" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="153" y="57" text-anchor="middle" fill="#dc2626" font-size="10">Q3</text>
+  <rect x="128" y="118" width="50" height="26" rx="3" fill="#fff" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="153" y="135" text-anchor="middle" fill="#dc2626" font-size="10">Q4</text>
+  <line x1="48" y1="28" x2="178" y2="28" stroke="#374151" stroke-width="1.5"/>
+  <line x1="48" y1="158" x2="178" y2="158" stroke="#374151" stroke-width="1.5"/>
+  <line x1="73" y1="66" x2="73" y2="118" stroke="#374151" stroke-width="1.5"/>
+  <line x1="153" y1="66" x2="153" y2="118" stroke="#374151" stroke-width="1.5"/>
+  <!-- Inductor Ls -->
+  <path d="M188,90 Q196,76 204,90 Q212,104 220,90 Q228,76 236,90 Q244,104 252,90" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <text x="220" y="74" text-anchor="middle" fill="#dc2626" font-size="9">Ls + Llk</text>
+  <line x1="178" y1="90" x2="188" y2="90" stroke="#dc2626" stroke-width="1.5"/>
+  <!-- Transformer -->
+  <rect x="300" y="48" width="130" height="90" rx="4" fill="#fff" stroke="#d97706" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="365" y="44" text-anchor="middle" fill="#d97706" font-size="9">Transformer 1:n</text>
+  <path d="M310,90 Q318,74 326,90 Q334,106 342,90 Q350,74 358,90" fill="none" stroke="#d97706" stroke-width="2"/>
+  <path d="M372,90 Q380,74 388,90 Q396,106 404,90 Q412,74 420,90" fill="none" stroke="#1a56db" stroke-width="2"/>
+  <line x1="310" y1="106" x2="420" y2="106" stroke="#6b7a94" stroke-width="2"/>
+  <line x1="310" y1="112" x2="420" y2="112" stroke="#6b7a94" stroke-width="2"/>
+  <line x1="252" y1="90" x2="310" y2="90" stroke="#dc2626" stroke-width="1.5"/>
+  <line x1="420" y1="90" x2="450" y2="90" stroke="#1a56db" stroke-width="1.5"/>
+  <!-- Phase shift arrow -->
+  <path d="M326,36 Q365,22 404,36" fill="none" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="3,2" marker-end="url(#arr2)"/>
+  <text x="365" y="18" text-anchor="middle" fill="#7c3aed" font-size="8">Phase shift φ controls power</text>
+  <!-- Secondary H-bridge box -->
+  <rect x="530" y="28" width="150" height="130" rx="4" fill="none" stroke="#374151" stroke-width="1.5"/>
+  <rect x="540" y="40" width="50" height="26" rx="3" fill="#fff" stroke="#1a56db" stroke-width="1.5"/>
+  <text x="565" y="57" text-anchor="middle" fill="#1a56db" font-size="10">Q5</text>
+  <rect x="540" y="118" width="50" height="26" rx="3" fill="#fff" stroke="#1a56db" stroke-width="1.5"/>
+  <text x="565" y="135" text-anchor="middle" fill="#1a56db" font-size="10">Q6</text>
+  <rect x="620" y="40" width="50" height="26" rx="3" fill="#fff" stroke="#1a56db" stroke-width="1.5"/>
+  <text x="645" y="57" text-anchor="middle" fill="#1a56db" font-size="10">Q7</text>
+  <rect x="620" y="118" width="50" height="26" rx="3" fill="#fff" stroke="#1a56db" stroke-width="1.5"/>
+  <text x="645" y="135" text-anchor="middle" fill="#1a56db" font-size="10">Q8</text>
+  <line x1="540" y1="28" x2="670" y2="28" stroke="#374151" stroke-width="1.5"/>
+  <line x1="540" y1="158" x2="670" y2="158" stroke="#374151" stroke-width="1.5"/>
+  <line x1="565" y1="66" x2="565" y2="118" stroke="#374151" stroke-width="1.5"/>
+  <line x1="645" y1="66" x2="645" y2="118" stroke="#374151" stroke-width="1.5"/>
+  <line x1="450" y1="90" x2="530" y2="90" stroke="#1a56db" stroke-width="1.5"/>
+  <!-- C2(V2) right cap -->
+  <line x1="696" y1="40" x2="696" y2="145" stroke="#374151" stroke-width="1.5"/>
+  <line x1="696" y1="78" x2="696" y2="107" stroke="#1a56db" stroke-width="3"/>
+  <line x1="706" y1="78" x2="706" y2="107" stroke="#1a56db" stroke-width="3"/>
+  <text x="714" y="95" fill="#1a56db" font-size="8" transform="rotate(90,714,95)">C2(V2)</text>
+  <!-- Active bridge label -->
+  <text x="605" y="172" text-anchor="middle" fill="#6b7a94" font-size="8">Active bridge — both directions</text>
+  <text x="365" y="175" text-anchor="middle" fill="#7c3aed" font-size="8">← Phase shift φ → power flow and direction →</text>
+  <defs><marker id="arr2" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0L0,6L7,3z" fill="#7c3aed"/></marker></defs>
+</svg>
+<p class="dc">DAB topology: two full H-bridges (Q1–Q8), transformer with leakage inductor Ls. Both bridges use MOSFETs — this is mandatory for bidirectionality. Phase shift φ between the two bridge switching patterns controls power flow magnitude and direction.</p>
+</div>
+
+<h2>Why DAB Current is Trapezoidal</h2>
+<div class="codeblock">No resonant capacitor — only Ls (inductor) in the power path
+V_Ls = V_primary − n·V_secondary
+When this voltage is constant (e.g. +V1−nV2): dI/dt = V_Ls / Ls = constant → LINEAR RAMP → trapezoidal waveform
+Power transferred: P = (V1 · V2 · φ · (π − φ)) / (n · ω · Ls)
+Maximum power at φ = π/2 (90°)</div>
+
+<h2>Interactive: DAB Waveforms</h2>
+<p>Adjust phase shift φ, voltage ratio V₂/V₁, and inductor size. Green = V1, Blue = V2, Red = I_L (trapezoidal). Purple shading = instantaneous power.</p>
+<div class="dw">
+  <div class="ctrl">
+    <span class="cl">Phase φ:</span><input type="range" id="dab_phi" min="5" max="85" value="30" oninput="drawDAB()"><span class="vv" id="dab_phiv">30°</span>
+    <span class="cl">V₂/V₁ ratio:</span><input type="range" id="dab_r" min="0.5" max="1.5" step="0.05" value="1.0" oninput="drawDAB()"><span class="vv" id="dab_rv">1.00</span>
+    <span class="cl">Ls (μH):</span><input type="range" id="dab_L" min="5" max="50" value="10" oninput="drawDAB()"><span class="vv" id="dab_Lv">10 μH</span>
+  </div>
+  <canvas id="dabCanvas" height="240"></canvas>
+  <div class="leg">
+    <div class="li"><div class="ld" style="background:#059669"></div>V₁ (primary bridge)</div>
+    <div class="li"><div class="ld" style="background:#1a56db"></div>V₂ (secondary, reflected)</div>
+    <div class="li"><div class="ld" style="background:#dc2626"></div>I_L (trapezoidal — straight ramps!)</div>
+    <div class="li"><div class="ld" style="background:#7c3aed;opacity:.4"></div>Instantaneous power</div>
+  </div>
+  <p class="dc" id="dab_cap">Note the straight current ramps — trapezoidal shape caused by a single L with constant voltage applied across it.</p>
+</div>
+
+<h2>ZVS in DAB — The Challenge</h2>
+<p>In DAB, ZVS happens when the inductor current is negative at the moment a switch turns on. Whether this is met depends on all three of: V1, V2, and φ. At light load (small φ) or when V1 ≠ nV2, ZVS can be lost — this is the main weakness of basic DAB.</p>
+
+<div class="note orange">
+  <div class="note-t">LLC vs DAB — when to choose</div>
+  <strong>Choose LLC/CLLC</strong> when: high efficiency at full and partial load is critical, input/output voltage ranges are moderate, and you want wide ZVS range inherently.<br>
+  <strong>Choose DAB</strong> when: inherent bidirectionality is needed, V1 = nV2 at nominal (so ZVS is natural), and the application can tolerate variable ZVS range.
+</div>
+
+<table>
+  <tr><th>DAB Modulation</th><th>Degrees of freedom</th><th>ZVS range</th></tr>
+  <tr><td>SPS (Single Phase Shift)</td><td>1 — phase between bridges</td><td>Baseline — ZVS only above ~30% load</td></tr>
+  <tr><td>EPS (Extended Phase Shift)</td><td>2 — phase + duty of one bridge</td><td>Extends ZVS toward lighter loads</td></tr>
+  <tr><td>DPS (Dual Phase Shift)</td><td>2 — inner phase of both bridges</td><td>Better current shaping, wider ZVS</td></tr>
+  <tr><td>TPS (Triple Phase Shift)</td><td>3 — all degrees free</td><td>Near-full ZVS range, complex control</td></tr>
+</table>
+</section>
+
+<!-- ═══ S9 ═══════════════════════════════════════ -->
+<section id="s9">
+<div class="sec-hdr blue"><span class="num">9</span> LLC: THE INDUSTRY WORKHORSE <span class="interactive-badge">INTERACTIVE</span></div>
+
+<h2>Why LLC? Starting from the SRC Problem</h2>
+<p>In a pure Series Resonant Converter (Lr + Cr only), the gain at the resonant frequency is always M=1 regardless of load — which means you can't regulate output at light load. At no load (Q→0), gain stays at 1 no matter what frequency you use. The converter can't regulate.</p>
+<p>The fix: add the transformer's magnetizing inductance Lm in parallel with the primary winding. This creates a second, lower resonant frequency and gives the gain curve the shape needed for regulation across all loads.</p>
+
+<div class="dw">
+<svg viewBox="0 0 720 165" xmlns="http://www.w3.org/2000/svg" style="width:100%" font-family="'IBM Plex Mono',monospace">
+  <rect width="720" height="165" fill="#f8faff"/>
+  <!-- Half-bridge Q1,Q2 -->
+  <rect x="12" y="28" width="52" height="110" rx="4" fill="none" stroke="#374151" stroke-width="1.5"/>
+  <rect x="20" y="38" width="36" height="24" rx="3" fill="#fff" stroke="#1a56db" stroke-width="1.5"/>
+  <text x="38" y="54" text-anchor="middle" fill="#1a56db" font-size="10">Q1</text>
+  <rect x="20" y="105" width="36" height="24" rx="3" fill="#fff" stroke="#1a56db" stroke-width="1.5"/>
+  <text x="38" y="121" text-anchor="middle" fill="#1a56db" font-size="10">Q2</text>
+  <text x="38" y="170" text-anchor="middle" fill="#6b7a94" font-size="8">V+</text>
+  <!-- Vab label -->
+  <line x1="64" y1="83" x2="84" y2="83" stroke="#374151" stroke-width="1.5"/>
+  <text x="72" y="76" fill="#6b7a94" font-size="8">Vab</text>
+  <!-- resonant Lr -->
+  <path d="M84,83 Q91,70 98,83 Q105,96 112,83 Q119,70 126,83 Q133,96 140,83" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <text x="112" y="67" text-anchor="middle" fill="#dc2626" font-size="9">resonant Lr</text>
+  <line x1="140" y1="83" x2="158" y2="83" stroke="#374151" stroke-width="1.5"/>
+  <!-- resonant Cr -->
+  <line x1="158" y1="68" x2="158" y2="98" stroke="#7c3aed" stroke-width="3"/>
+  <line x1="166" y1="68" x2="166" y2="98" stroke="#7c3aed" stroke-width="3"/>
+  <line x1="166" y1="83" x2="186" y2="83" stroke="#374151" stroke-width="1.5"/>
+  <text x="162" y="112" text-anchor="middle" fill="#7c3aed" font-size="9">resonant Cr</text>
+  <!-- Transformer box with Lm -->
+  <rect x="186" y="38" width="185" height="110" rx="4" fill="#fff" stroke="#d97706" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <!-- primary winding coil -->
+  <path d="M196,83 Q204,67 212,83 Q220,99 228,83 Q236,67 244,83 Q252,99 260,83" fill="none" stroke="#d97706" stroke-width="2"/>
+  <!-- Lm vertical inductor -->
+  <line x1="260" y1="83" x2="280" y2="83" stroke="#374151" stroke-width="1"/>
+  <line x1="280" y1="83" x2="280" y2="120" stroke="#059669" stroke-width="1.5"/>
+  <path d="M280,120 Q288,106 296,120 Q304,134 312,120 Q320,106 328,120 Q336,134 344,120" fill="none" stroke="#059669" stroke-width="2"/>
+  <line x1="344" y1="120" x2="344" y2="83" stroke="#059669" stroke-width="1.5"/>
+  <line x1="280" y1="83" x2="344" y2="83" stroke="#374151" stroke-width="1"/>
+  <text x="312" y="150" text-anchor="middle" fill="#059669" font-size="8">Lm (magnetising)</text>
+  <!-- core lines -->
+  <line x1="196" y1="98" x2="371" y2="98" stroke="#374151" stroke-width="2.5"/>
+  <line x1="196" y1="104" x2="371" y2="104" stroke="#374151" stroke-width="2.5"/>
+  <!-- secondary winding coil -->
+  <path d="M356,83 Q364,67 372,83 Q380,99 388,83 Q396,67 404,83 Q412,99 420,83" fill="none" stroke="#d97706" stroke-width="2"/>
+  <text x="290" y="30" text-anchor="middle" fill="#d97706" font-size="9">Transformer 1:n</text>
+  <text x="300" y="40" text-anchor="middle" fill="#6b7a94" font-size="7">fr = 1/(2πV(Lr·Cr))</text>
+  <text x="300" y="50" text-anchor="middle" fill="#6b7a94" font-size="7">fm = 1/(2πV((Lr+Lm)·Cr))</text>
+  <!-- Diode bridge D1-D4 -->
+  <line x1="420" y1="83" x2="444" y2="83" stroke="#374151" stroke-width="1.5"/>
+  <polygon points="444,72 460,83 444,94" fill="#fff" stroke="#374151" stroke-width="1.5"/>
+  <line x1="460" y1="72" x2="460" y2="94" stroke="#374151" stroke-width="2"/>
+  <text x="452" y="62" fill="#6b7a94" font-size="8">D1</text>
+  <line x1="460" y1="83" x2="480" y2="83" stroke="#374151" stroke-width="1.5"/>
+  <polygon points="480,72 496,83 480,94" fill="#fff" stroke="#374151" stroke-width="1.5"/>
+  <line x1="496" y1="72" x2="496" y2="94" stroke="#374151" stroke-width="2"/>
+  <text x="488" y="62" fill="#6b7a94" font-size="8">D2</text>
+  <!-- output cap + load -->
+  <line x1="496" y1="83" x2="530" y2="83" stroke="#374151" stroke-width="1.5"/>
+  <line x1="530" y1="58" x2="530" y2="108" stroke="#1a56db" stroke-width="3"/>
+  <line x1="538" y1="58" x2="538" y2="108" stroke="#1a56db" stroke-width="3"/>
+  <text x="534" y="125" text-anchor="middle" fill="#1a56db" font-size="8">Co</text>
+  <line x1="538" y1="83" x2="570" y2="83" stroke="#374151" stroke-width="1.5"/>
+  <rect x="570" y="68" width="30" height="30" rx="3" fill="#fff" stroke="#059669" stroke-width="1.5"/>
+  <text x="585" y="87" text-anchor="middle" fill="#059669" font-size="10">R</text>
+  <!-- +Vo / -Vo labels -->
+  <text x="645" y="80" fill="#374151" font-size="10">+Vo</text>
+  <text x="645" y="140" fill="#374151" font-size="10">-Vo</text>
+  <!-- bottom rail -->
+  <line x1="12" y1="138" x2="640" y2="138" stroke="#374151" stroke-width="1"/>
+</svg>
+<p class="dc">LLC converter: half-bridge primary (Q1,Q2), series Lr and Cr, transformer with magnetising inductance Lm, full-wave diode bridge (D1–D4 shown simplified), output cap Co, load R.</p>
+</div>
+
+<h2>The Two Resonant Frequencies</h2>
+<div class="codeblock">fr = 1 / (2π·√(Lr·Cr))           ← upper resonance (Lm shorted by load, only Lr resonates)
+fm = 1 / (2π·√((Lr+Lm)·Cr))      ← lower resonance (Lm participates at light/no load)
+
+Normalized frequency: fn = fs / fr
+Inductance ratio: λ = Lr/Lm  (typical: 0.1 to 0.25)  → Lm = Lr/λ</div>
+
+<p><strong>Intuitively:</strong> At heavy load, the reflected load resistance short-circuits Lm → only Lr resonates with Cr → resonance at fr. At light/no load, Lm is no longer shorted → joins Lr → resonance drops to fm.</p>
+
+<h2>Interactive: LLC Gain Curves</h2>
+<div class="dw">
+  <div class="ctrl">
+    <span class="cl">λ = Lr/Lm:</span><input type="range" id="llc_k" min="0.05" max="0.5" step="0.01" value="0.2" oninput="drawLLC()"><span class="vv" id="llc_kv">0.20 (k=5.0)</span>
+    <span class="cl">Q (full load):</span><input type="range" id="llc_Q" min="0.1" max="1.5" step="0.05" value="0.4" oninput="drawLLC()"><span class="vv" id="llc_Qv">0.40</span>
+  </div>
+  <canvas id="llcCanvas" height="270"></canvas>
+  <div class="leg">
+    <div class="li"><div class="ld" style="background:#059669"></div>Q≈0.1 (light load)</div>
+    <div class="li"><div class="ld" style="background:#d97706"></div>Q selected (full load)</div>
+    <div class="li"><div class="ld" style="background:#dc2626"></div>Q×1.5 (heavy load)</div>
+    <div class="li"><div class="ld" style="background:#7c3aed;opacity:.7"></div>fn=1 (fr) — all Q curves cross here, M=1</div>
+    <div class="li"><div class="ld" style="background:#1a56db;opacity:.7"></div>fm (lower resonance boundary)</div>
+  </div>
+  <p class="dc">LLC gain curves (FHA). At fn=1, M=1 regardless of load. Above fn=1 is the ZVS buck region. Between fm and fr is the ZVS boost region. Never operate below fm.</p>
+</div>
+
+<h2>LLC Operating Waveforms</h2>
+<p>Key advantage of LLC: the magnetizing current I_Lm (triangular) is <em>always present</em> regardless of load — it guarantees ZVS even at zero load. The secondary diodes commutate at the natural current zero crossing → ZCS, eliminating reverse recovery loss.</p>
+<div class="dw">
+  <canvas id="llcWaveCanvas" height="220"></canvas>
+  <div class="leg">
+    <div class="li"><div class="ld" style="background:#1a56db"></div>Tank current (sinusoidal)</div>
+    <div class="li"><div class="ld" style="background:#059669"></div>I_Lm magnetizing (triangular)</div>
+    <div class="li"><div class="ld" style="background:#d97706"></div>Secondary diode current (ZCS at zero crossing)</div>
+    <div class="li"><div class="ld" style="background:#dc2626"></div>Bridge voltage (square wave)</div>
+  </div>
+  <p class="dc">LLC waveforms at fn≈1. The triangular I_Lm is always present — ZVS guarantee at any load. Secondary diodes naturally turn off at current zero — ZCS.</p>
+</div>
+
+<h2>Operating Strategy</h2>
+<ul style="margin:.8rem 0 .8rem 1.4rem;line-height:2.1;font-size:.9rem">
+  <li><strong>Nominal / full load:</strong> operate near fn=1. Maximum efficiency, M=1, all Q curves cross here.</li>
+  <li><strong>Light load:</strong> increase fs above fr (fn &gt; 1) — gain M decreases, output voltage regulation maintained.</li>
+  <li><strong>Heavy load / low input voltage:</strong> decrease fs toward fr — gain increases to boost output.</li>
+  <li><strong>Never go below fm:</strong> Below the lower resonance, ZVS is lost and the gain-vs-frequency relationship becomes non-monotonic.</li>
+</ul>
+<div class="note green">
+  <div class="note-t">Why LLC dominates EV on-board charging</div>
+  ZVS on all primary switches across the full load range when operated above fr, and ZCS on secondary diodes naturally. This minimises switching losses on both sides, enabling high-frequency operation (&gt;100 kHz) with ferrite cores.
+</div>
+</section>
+
+<!-- ═══ S10 ═══════════════════════════════════════ -->
+<section id="s10">
+<div class="sec-hdr teal"><span class="num">10</span> CLLC: MAKING LLC BIDIRECTIONAL</div>
+<p>The CLLC is the natural evolution of the LLC when you need bidirectional power flow — for example, Vehicle-to-Grid (V2G), where the EV battery must both charge from the grid and inject power back.</p>
+<p>The problem with LLC for bidirectionality: the secondary has diodes, so power can only flow one way. And even if you replace the diodes with MOSFETs, the resonant tank is asymmetric — it only works optimally in the forward direction.</p>
+<p><strong>The fix:</strong> mirror the resonant elements. Add Lr2 and Cr2 on the secondary side, symmetric to Lr and Cr on the primary. Now the circuit looks like an LLC in both directions.</p>
+
+<div class="dw">
+<svg viewBox="0 0 740 175" xmlns="http://www.w3.org/2000/svg" style="width:100%" font-family="'IBM Plex Mono',monospace">
+  <rect width="740" height="175" fill="#f8faff"/>
+  <!-- Primary half-bridge -->
+  <rect x="8" y="25" width="54" height="125" rx="4" fill="none" stroke="#374151" stroke-width="1.5"/>
+  <rect x="16" y="35" width="38" height="24" rx="3" fill="#fff" stroke="#1a56db" stroke-width="1.5"/><text x="35" y="51" text-anchor="middle" fill="#1a56db" font-size="10">Q1</text>
+  <rect x="16" y="103" width="38" height="24" rx="3" fill="#fff" stroke="#1a56db" stroke-width="1.5"/><text x="35" y="119" text-anchor="middle" fill="#1a56db" font-size="10">Q3</text>
+  <line x1="8" y1="25" x2="8" y2="150" stroke="#374151" stroke-width="1.5"/>
+  <line x1="62" y1="83" x2="78" y2="83" stroke="#374151" stroke-width="1.5"/>
+  <!-- Lr1 -->
+  <path d="M78,83 Q84,70 90,83 Q96,96 102,83 Q108,70 114,83 Q120,96 126,83" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <text x="102" y="67" text-anchor="middle" fill="#dc2626" font-size="8">Lr1</text>
+  <!-- Cr1 -->
+  <line x1="126" y1="83" x2="142" y2="83" stroke="#374151" stroke-width="1.5"/>
+  <line x1="142" y1="68" x2="142" y2="98" stroke="#7c3aed" stroke-width="3"/>
+  <line x1="150" y1="68" x2="150" y2="98" stroke="#7c3aed" stroke-width="3"/>
+  <line x1="150" y1="83" x2="168" y2="83" stroke="#374151" stroke-width="1.5"/>
+  <text x="146" y="112" text-anchor="middle" fill="#7c3aed" font-size="8">Cr1</text>
+  <!-- Transformer + Lm box -->
+  <rect x="168" y="30" width="180" height="120" rx="4" fill="#fff" stroke="#d97706" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <path d="M178,83 Q186,67 194,83 Q202,99 210,83 Q218,67 226,83 Q234,99 242,83" fill="none" stroke="#d97706" stroke-width="2"/>
+  <line x1="168" y1="98" x2="348" y2="98" stroke="#374151" stroke-width="2.5"/>
+  <line x1="168" y1="104" x2="348" y2="104" stroke="#374151" stroke-width="2.5"/>
+  <!-- Lm -->
+  <line x1="242" y1="83" x2="258" y2="83" stroke="#374151" stroke-width="1"/>
+  <line x1="258" y1="83" x2="258" y2="118" stroke="#059669" stroke-width="1.5"/>
+  <path d="M258,118 Q265,105 272,118 Q279,131 286,118 Q293,105 300,118 Q307,131 314,118" fill="none" stroke="#059669" stroke-width="2"/>
+  <line x1="314" y1="118" x2="314" y2="83" stroke="#059669" stroke-width="1.5"/>
+  <line x1="258" y1="83" x2="314" y2="83" stroke="#374151" stroke-width="1"/>
+  <text x="286" y="150" text-anchor="middle" fill="#059669" font-size="8">Lm</text>
+  <!-- secondary winding -->
+  <path d="M318,83 Q326,67 334,83 Q342,99 350,83 Q358,67 366,83 Q374,99 382,83" fill="none" stroke="#d97706" stroke-width="2"/>
+  <text x="258" y="22" text-anchor="middle" fill="#d97706" font-size="8">1:n</text>
+  <!-- Cr2 -->
+  <line x1="382" y1="83" x2="398" y2="83" stroke="#374151" stroke-width="1.5"/>
+  <line x1="398" y1="68" x2="398" y2="98" stroke="#1a56db" stroke-width="3"/>
+  <line x1="406" y1="68" x2="406" y2="98" stroke="#1a56db" stroke-width="3"/>
+  <line x1="406" y1="83" x2="422" y2="83" stroke="#374151" stroke-width="1.5"/>
+  <text x="402" y="112" text-anchor="middle" fill="#1a56db" font-size="8">Cr2</text>
+  <!-- Lr2 -->
+  <path d="M422,83 Q428,70 434,83 Q440,96 446,83 Q452,70 458,83 Q464,96 470,83" fill="none" stroke="#1a56db" stroke-width="2"/>
+  <text x="446" y="67" text-anchor="middle" fill="#1a56db" font-size="8">Lr2</text>
+  <line x1="470" y1="83" x2="486" y2="83" stroke="#374151" stroke-width="1.5"/>
+  <!-- Secondary half-bridge (active MOSFETs) -->
+  <rect x="678" y="25" width="54" height="125" rx="4" fill="none" stroke="#374151" stroke-width="1.5"/>
+  <rect x="686" y="35" width="38" height="24" rx="3" fill="#fff" stroke="#059669" stroke-width="1.5"/><text x="705" y="51" text-anchor="middle" fill="#059669" font-size="10">Q5</text>
+  <rect x="686" y="103" width="38" height="24" rx="3" fill="#fff" stroke="#059669" stroke-width="1.5"/><text x="705" y="119" text-anchor="middle" fill="#059669" font-size="10">Q7</text>
+  <line x1="732" y1="25" x2="732" y2="150" stroke="#374151" stroke-width="1.5"/>
+  <line x1="486" y1="83" x2="678" y2="83" stroke="#374151" stroke-width="1.5"/>
+  <!-- bottom rails -->
+  <line x1="8" y1="150" x2="732" y2="150" stroke="#374151" stroke-width="1"/>
+  <!-- labels -->
+  <text x="370" y="168" text-anchor="middle" fill="#6b7a94" font-size="8">← Forward (charge) / Reverse (V2G) →</text>
+  <text x="370" y="10" text-anchor="middle" fill="#059669" font-size="8">Symmetric: Lr1·Cr1 = Lr2·Cr2 (same fr in both directions)</text>
+</svg>
+<p class="dc">CLLC topology: symmetric resonant elements on both sides. Secondary uses active MOSFETs (Q5–Q8 shown simplified). Lm is shared (transformer magnetising). Both bridges implement ZVS in both power directions.</p>
+</div>
+
+<div class="note blue">
+  <div class="note-t">CLLC for symmetric design</div>
+  The ideal CLLC has Lr1 = Lr2/n² and Cr2 = Cr1·n² so that fr is the same in both directions. Lm is still the transformer magnetizing inductance (shared). The secondary active switches (Q5–Q8) are synchronized with the primary and implement ZVS in both power directions. This is why CLLC dominates bidirectional EV on-board chargers.
+</div>
+
+<table>
+  <tr><th>Parameter</th><th>Primary side</th><th>Secondary side (referred to primary)</th></tr>
+  <tr><td>Series inductance</td><td>Lr1</td><td>Lr2' = Lr2/n² (set = Lr1 for symmetry)</td></tr>
+  <tr><td>Series capacitance</td><td>Cr1</td><td>Cr2' = Cr2·n² (set = Cr1 for symmetry)</td></tr>
+  <tr><td>Resonant frequency</td><td>fr = 1/(2πv(Lr1·Cr1))</td><td>Same fr if symmetric</td></tr>
+  <tr><td>Switching topology</td><td>Full bridge Q1–Q4</td><td>Full bridge Q5–Q8 (active, not diodes)</td></tr>
+  <tr><td>ZVS direction</td><td>Forward power flow</td><td>Reverse power flow (V2G)</td></tr>
+</table>
+</section>
+
+<!-- ═══ S11 ═══════════════════════════════════════ -->
+<section id="s11">
+<div class="sec-hdr dark"><span class="num">11</span> DESIGNING THE TRANSFORMER: SPECIFICATION AND SIZING</div>
+<p>In a resonant converter the transformer does double duty: galvanic isolation and voltage transformation, but also <em>part of the resonant tank</em>. Lm is a tank element. Llk can be Lr. Transformer design and converter design cannot be separated.</p>
+
+<div class="dw">
+<svg viewBox="0 0 660 110" style="width:100%" xmlns="http://www.w3.org/2000/svg" font-family="'IBM Plex Mono',monospace">
+  <rect width="660" height="110" fill="#f8faff"/>
+  <!-- Ipri -->
+  <text x="18" y="58" fill="#374151" font-size="9">Ipri</text>
+  <line x1="36" y1="55" x2="58" y2="55" stroke="#374151" stroke-width="1.5"/>
+  <!-- Llk1 -->
+  <path d="M58,55 Q63,44 68,55 Q73,66 78,55 Q83,44 88,55" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="73" y="38" fill="#dc2626" font-size="8">Llk1</text>
+  <line x1="88" y1="55" x2="110" y2="55" stroke="#374151" stroke-width="1.5"/>
+  <!-- Lm -->
+  <line x1="110" y1="55" x2="110" y2="85" stroke="#059669" stroke-width="1.5"/>
+  <path d="M110,85 Q117,74 124,85 Q131,96 138,85 Q145,74 152,85" fill="none" stroke="#059669" stroke-width="2"/>
+  <line x1="152" y1="85" x2="152" y2="55" stroke="#059669" stroke-width="1.5"/>
+  <text x="131" y="108" text-anchor="middle" fill="#059669" font-size="8">Lm (mg)</text>
+  <!-- Ideal Xfmr -->
+  <rect x="172" y="35" width="85" height="40" rx="3" fill="#fff" stroke="#d97706" stroke-width="1.5"/>
+  <text x="214" y="55" text-anchor="middle" fill="#d97706" font-size="9">Ideal Xfmr</text>
+  <text x="214" y="67" text-anchor="middle" fill="#d97706" font-size="8">Np : Ns</text>
+  <line x1="152" y1="55" x2="172" y2="55" stroke="#374151" stroke-width="1.5"/>
+  <line x1="257" y1="55" x2="285" y2="55" stroke="#374151" stroke-width="1.5"/>
+  <!-- Llk2 -->
+  <path d="M285,55 Q290,44 295,55 Q300,66 305,55 Q310,44 315,55 Q320,66 325,55" fill="none" stroke="#1a56db" stroke-width="1.5"/>
+  <text x="305" y="38" fill="#1a56db" font-size="8">Llk2</text>
+  <text x="305" y="28" fill="#6b7a94" font-size="7">(sec to pri)</text>
+  <line x1="325" y1="55" x2="355" y2="55" stroke="#374151" stroke-width="1.5"/>
+  <polygon points="352,51 360,55 352,59" fill="#374151"/>
+  <text x="365" y="58" fill="#374151" font-size="9">n:</text>
+  <!-- LLC context box -->
+  <rect x="400" y="22" width="248" height="74" rx="4" fill="#fff" stroke="#1a56db" stroke-width="1"/>
+  <text x="524" y="38" text-anchor="middle" fill="#1a56db" font-size="9" font-weight="600">In LLC context:</text>
+  <text x="412" y="52" fill="#6b7a94" font-size="8">Llk1 &amp; Lr (series resonant L)</text>
+  <text x="412" y="63" fill="#6b7a94" font-size="8">Lm = LLC magnetising L</text>
+  <text x="412" y="74" fill="#6b7a94" font-size="8">Llk2 ≈ 0 (ideally negligible)</text>
+  <text x="412" y="85" fill="#6b7a94" font-size="8">or absorbed into Lr</text>
+  <text x="412" y="96" fill="#6b7a94" font-size="8">for CLLC: Llk2 = Lr2</text>
+</svg>
+<p class="dc">Real transformer model. Llk1 and Llk2 are primary and secondary leakage inductances. In LLC, Llk1 becomes Lr. Lm is the magnetising inductance (shared core flux).</p>
+</div>
+
+<h2>Step 1 — Turns Ratio n = Np/Ns</h2>
+<div class="codeblock">For a full-bridge rectifier secondary:  n = Vp / Vs = Vin_nom / (Vout + Vf)
+  where Vf = diode drop (or 0 for MOSFETs)
+For a centre-tap rectifier: n = Vp / (2 · Vs)</div>
+
+<h2>Step 2 — Core Selection (Area Product)</h2>
+<div class="codeblock">AP = Ae · Aw = P_out / (K_u · J · B_max · f · η)
+
+  Ae = effective core cross-section [m²]   Aw = winding window area [m²]
+  K_u = winding utilisation factor (≈ 0.4 for Litz, 0.6 for foil)
+  J = current density [A/m²] (typically 3–5 A/mm² at 100 kHz)
+  B_max = peak flux density [T] (ferrite: 150–300 mT at 100 kHz)
+  f = switching frequency [Hz]   η = efficiency estimate (≈ 0.97)</div>
+
+<div class="note orange">
+  <div class="note-t">Rule of thumb for ferrite cores</div>
+  At 100 kHz use B_max = 150–200 mT. At 300 kHz, drop to 80–120 mT. Core loss rises steeply with both frequency and flux density.
+</div>
+
+<h2>Step 3 — Primary Turns Np (Faraday's Law)</h2>
+<div class="codeblock">For a full-bridge, flux swings from −B_max to +B_max in half a period:
+  Np = Vin / (4 · f · B_max · Ae)
+  Ns = Np / n  (then round up to nearest integer)</div>
+
+<h2>Step 4 — Setting Lm</h2>
+<ul style="margin:.6rem 0 .6rem 1.4rem;line-height:2;font-size:.9rem">
+  <li><strong>Larger Lm:</strong> less circulating magnetizing current → lower conduction loss → higher efficiency. But less ZVS current at light load → ZVS may be lost.</li>
+  <li><strong>Smaller Lm:</strong> more circulating current → guaranteed ZVS → but higher copper loss at all operating points.</li>
+  <li>Typical design range: λ = Lr/Lm = 0.1 to 0.25 → Lm = Lr/λ</li>
+</ul>
+<div class="codeblock">Lm is controlled by:
+  − Number of turns Np  (Lm ∝ Np²)
+  − Core geometry and air gap  (small air gap reduces Lm precisely)
+  − Lm = Np² / R_m  where R_m = magnetic reluctance of the core path</div>
+
+<h2>Step 5 — Leakage Inductance as Lr</h2>
+<ul style="margin:.6rem 0 .6rem 1.4rem;line-height:2;font-size:.9rem">
+  <li><strong>Interleaving:</strong> tightly interleaved primary/secondary reduces leakage → use for low Lr targets.</li>
+  <li><strong>Separation:</strong> physically separating windings in the window increases leakage → hits higher Lr targets without an external component.</li>
+  <li><strong>External Lr:</strong> add a separate gapped inductor in series. More predictable, thermally separate, at the cost of an extra component.</li>
+</ul>
+
+<h2>Step 6 — Wire Sizing and Skin Effect</h2>
+<div class="codeblock">Skin depth: δ = √(ρ / (π · f · μ₀))
+
+  At 50 kHz:  δ = 0.30 mm
+  At 100 kHz: δ = 0.21 mm
+  At 300 kHz: δ = 0.12 mm
+
+Rule: conductor diameter d &lt; 2δ to avoid skin-effect concentration.
+At 100 kHz: use strand diameter ≤ 0.4 mm → Litz wire needed.
+Current density J = 3–5 A/mm² (use actual RMS current — sinusoidal in LLC).</div>
+
+<div class="note purple">
+  <div class="note-t">Proximity effect</div>
+  Proximity effect is often worse than skin effect in multi-layer windings. Use Dowell's method or field simulation to estimate AC winding resistance. In an LLC with high Q, this can dominate copper loss.
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     PART 3 — Sections 12-14 + All JavaScript
+     INSERT THIS BLOCK just before </main> in Part 1
+     (after Part 2 content)
+     ═══════════════════════════════════════════════════ -->
+
+<!-- ═══ S12 ═══════════════════════════════════════ -->
+<section id="s12">
+<div class="sec-hdr green"><span class="num">12</span> SIZING LR AND CR: THE SYSTEMATIC METHOD <span class="interactive-badge">CALCULATOR</span></div>
+
+<div class="note red">
+  <div class="note-t">About "random values and simulation"</div>
+  Your friends aren't using random values — they're using analytical first-pass estimates (exactly what's below), then simulating to verify. The equations give a starting point within ~20% of the final design. The correct workflow is always: analysis → first pass → simulation → iterate → hardware.
+</div>
+
+<h2>The Two Design Handles: fr and Z₀</h2>
+<div class="codeblock">Resonant frequency: fr = 1 / (2π · √(Lr · Cr))
+Characteristic impedance: Z₀ = √(Lr / Cr)
+
+Inverting these gives:
+  Lr = Z₀ / (2π · fr)
+  Cr = 1 / (2π · fr · Z₀)</div>
+
+<p><strong>fr sets the operating frequency</strong> (where you want the resonance relative to your switching range). <strong>Z₀ sets the current level</strong> — how much current circulates in the tank for a given applied voltage. These are independent design knobs.</p>
+
+<h2>Step-by-Step Design Procedure</h2>
+
+<h3>Step 1: Define Specifications</h3>
+<div class="codeblock">Vin_nom, Vin_min, Vin_max  (e.g. 380 V ± 10%)
+Vout_nom  (e.g. 400 V battery)
+Pout_max  (e.g. 6.6 kW)
+fs_nom, fs_min, fs_max  (e.g. 100 kHz ± 40%)</div>
+
+<h3>Step 2: Calculate Turns Ratio n</h3>
+<div class="codeblock">n = Vin_nom / (2 · Vout_nom)  [half-bridge + bridge rectifier]
+n = Vin_nom / Vout_nom        [full-bridge + bridge rectifier]</div>
+
+<h3>Step 3: Calculate Rac — The FHA Load Resistance</h3>
+<div class="codeblock">Rac = (8 · n²) / π²  ·  (Vout² / Pout)
+
+Example: n=1, Vout=400V, Pout=6.6kW:  Rac = (8/π²) · (400²/6600) = 19.6 Ω</div>
+
+<h3>Step 4: Choose Q, Calculate Z₀</h3>
+<p>Q = 0.3–0.5: high peak gain, good for wide input range. Q = 0.5–0.8: balanced. Q &gt; 1.0: flatter gain curve, less regulation range.</p>
+<div class="codeblock">Z₀ = Q · Rac   e.g. Q=0.5, Z₀ = 0.5 × 19.6 = 9.8 Ω</div>
+
+<h3>Step 5: Choose fr, Calculate Lr and Cr</h3>
+<div class="codeblock">fr = fs_nom  (e.g. 100 kHz)
+Lr = Z₀ / (2π · fr)  = 9.8 / (2π · 100kHz) = 15.6 μH
+Cr = 1 / (2π · fr · Z₀)  = 1 / (2π · 100kHz · 9.8) = 162 nF</div>
+
+<h3>Step 6: Choose λ, Calculate Lm</h3>
+<div class="codeblock">λ = Lr/Lm  (e.g. λ = 0.2)
+Lm = Lr / λ  = 15.6 / 0.2 = 78 μH
+
+Lower resonance: fm = fr · √(λ/(1+λ)) = 100k · √(0.2/1.2) = 40.8 kHz
+→ fs must stay above ~41 kHz to avoid losing ZVS</div>
+
+<h3>Step 7: Verify the Gain Range</h3>
+<div class="codeblock">Check: At fs_max (fn=1.4): is M large enough for Vout_min?
+At fs_min (fn=0.6): is M ≤ Vout_max/Vin_min (no overvoltage)?
+Is fs_min > fm (~41 kHz)? ✓  No control instability.
+If not satisfied: adjust Q (changes Z₀) or λ (changes Lm and fm).</div>
+
+<h2>LLC Design Flow</h2>
+<div class="flow-row">
+  <div class="flow">
+    <div class="flow-box blue"><strong>① Specs: Vin, Vout, Pout, fs range</strong><br><span style="font-size:.78rem;color:var(--dim)">Define operating boundaries</span></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-box orange"><strong>② Turns ratio n = Vin / (2·Vout)</strong><br><span style="font-size:.78rem;color:var(--dim)">Fixed by voltage specification</span></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-box" style="background:var(--tag-purple);border-color:var(--acc3)"><strong>③ Rac = (8n²/π²) · Vout²/Pout</strong><br><span style="font-size:.78rem;color:var(--dim)">FHA equivalent load resistance</span></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-box orange"><strong>④ Choose Q → Z₀ = Q · Rac</strong><br><span style="font-size:.78rem;color:var(--dim)">Q = 0.3–0.5 typical at full load</span></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-box red"><strong>⑤ Lr = Z₀/(2πfr)  Cr = 1/(2πfrZ₀)</strong><br><span style="font-size:.78rem;color:var(--dim)">fr = fs_nom (or slightly below)</span></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-box green"><strong>⑥ Choose λ → Lm = Lr/λ</strong><br><span style="font-size:.78rem;color:var(--dim)">λ = 0.1–0.25; fm = fr·√(λ/(1+λ))</span></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-box blue"><strong>⑦ Verify gain range → Simulate → Iterate</strong></div>
+  </div>
+  <div>
+    <div class="flow-checklist">
+      <strong style="font-size:.82rem;color:var(--bright)">Simulation validates:</strong>
+      <ul style="margin-top:8px">
+        <li>ZVS across full load range</li>
+        <li>Gain vs fs matches spec</li>
+        <li>Peak switch current</li>
+        <li>Diode reverse recovery</li>
+        <li>Dead time adequacy</li>
+        <li>Coss resonant transition</li>
+        <li>Soft start behaviour</li>
+        <li>Fault / no-load stability</li>
+        <li>Transformer flux excursion</li>
+        <li>Harmonic content (EMI)</li>
+      </ul>
+      <div style="margin-top:10px;font-size:.74rem;color:var(--dim);border-top:1px solid var(--border);padding-top:8px">
+        FHA misses all of these.<br>Analysis gives 80% answer.<br>Simulation validates &amp; refines.<br>Hardware confirms.
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2>Interactive: LLC Sizing Calculator</h2>
+<div class="dw">
+  <div class="ctrl">
+    <span class="cl">Vin (V):</span><input type="range" id="sz_vin" min="200" max="800" step="10" value="400" oninput="calcSize()"><span class="vv" id="sz_vinv">400 V</span>
+    <span class="cl">Vout (V):</span><input type="range" id="sz_vout" min="12" max="500" step="1" value="48" oninput="calcSize()"><span class="vv" id="sz_voutv">48 V</span>
+  </div>
+  <div class="ctrl">
+    <span class="cl">Pout (W):</span><input type="range" id="sz_pout" min="100" max="10000" step="100" value="1000" oninput="calcSize()"><span class="vv" id="sz_poutv">1000 W</span>
+    <span class="cl">fr (kHz):</span><input type="range" id="sz_fr" min="50" max="500" step="5" value="100" oninput="calcSize()"><span class="vv" id="sz_frv">100 kHz</span>
+  </div>
+  <div class="ctrl">
+    <span class="cl">λ = Lr/Lm:</span><input type="range" id="sz_lam" min="0.05" max="0.4" step="0.01" value="0.2" oninput="calcSize()"><span class="vv" id="sz_lamv">0.20</span>
+    <span class="cl">Q:</span><input type="range" id="sz_Q" min="0.2" max="1.0" step="0.02" value="0.4" oninput="calcSize()"><span class="vv" id="sz_Qv">0.40</span>
+  </div>
+  <div id="sz_out" class="terminal"></div>
+  <div class="note orange" style="margin-top:12px">
+    <div class="note-t">Parametric sweeps in simulation</div>
+    Set up your simulation with Lr, Cr, Lm as variables. Sweep Z₀ over ±30% around your analytical starting point. For each Z₀ value check: ZVS waveforms at min load, peak current at max load, gain range coverage. You'll converge in 10–15 runs — guided by what each parameter changes. This is engineering, not guessing.
+  </div>
+</div>
+</section>
+
+<!-- ═══ S13 ═══════════════════════════════════════ -->
+<section id="s13">
+<div class="sec-hdr red"><span class="num">13</span> DEAD TIME SIZING AND ZVS ENERGY CHECK <span class="interactive-badge">INTERACTIVE</span></div>
+<p>Dead time is the brief interval when both switches are off, allowing the resonant C_oss transition to complete before the next switch turns on. Too short → incomplete transition; hard switching at turn-on. Too long → excessive body diode conduction and unnecessary dead-time loss.</p>
+
+<div class="codeblock">Key relationships:
+  Q_oss_eff = 2 × Q_oss   (both Q1 and Q2 C_oss driven simultaneously by I_L)
+  t_dead_min = Q_oss_eff / I_sw   (charge needed / current available)
+  ZVS energy budget (light-load check): E_Lm = ½ · Lm · I_Lm_peak² must be ≥ E_Coss = Q_oss_eff · V_bus / 2
+  I_Lm_peak = V_in / (4 · f_sw · Lm)</div>
+
+<h2>Interactive: Dead Time Calculator</h2>
+<div class="dw">
+  <div class="ctrl">
+    <span class="cl">V_bus (V):</span><input type="range" id="dt_vbus" min="100" max="800" step="10" value="400" oninput="calcDT()"><span class="vv" id="dt_vbusv">400 V</span>
+    <span class="cl">Lr (μH):</span><input type="range" id="dt_Lr" min="2" max="80" value="15" oninput="calcDT()"><span class="vv" id="dt_Lrv">15 μH</span>
+  </div>
+  <div class="ctrl">
+    <span class="cl">Lm (μH):</span><input type="range" id="dt_Lm" min="20" max="500" step="5" value="75" oninput="calcDT()"><span class="vv" id="dt_Lmv">75 μH</span>
+    <span class="cl">f_sw (kHz):</span><input type="range" id="dt_fsw" min="50" max="500" step="5" value="100" oninput="calcDT()"><span class="vv" id="dt_fswv">100 kHz</span>
+  </div>
+  <div class="ctrl">
+    <span class="cl">Q_oss (nC):</span><input type="range" id="dt_Qoss" min="5" max="300" step="5" value="20" oninput="calcDT()"><span class="vv" id="dt_Qossv">20 nC</span>
+    <span class="cl">I_sw (A):</span><input type="range" id="dt_Isw" min="0.2" max="20" step="0.2" value="2.0" oninput="calcDT()"><span class="vv" id="dt_Iswv">2.0 A</span>
+  </div>
+  <div id="dt_out" class="terminal"></div>
+</div>
+
+<h2>Interactive: ZVS Scope Verification</h2>
+<p>This shows what you'd see on a scope probing V_DS and V_GS of the low-side MOSFET. Adjust the margin slider to see the difference between ZVS success and failure.</p>
+<div class="dw">
+  <div class="ctrl">
+    <span class="cl">ZVS margin (positive = ZVS ✓, negative = hard switching ✗):</span>
+    <input type="range" id="scope_margin" min="-1" max="2" step="0.05" value="1" oninput="drawScope()">
+    <span class="vv" id="scope_mv">1.00×</span>
+  </div>
+  <canvas id="scopeCanvas" height="200"></canvas>
+  <div class="leg">
+    <div class="li"><div class="ld" style="background:#059669"></div>V_GS (gate signal)</div>
+    <div class="li"><div class="ld" style="background:#d97706"></div>V_DS (drain-source)</div>
+    <div class="li"><div class="ld" style="background:#dc2626"></div>I_tank at transition</div>
+  </div>
+  <p class="dc" id="scope_cap">ZVS confirmed: V_DS is at 0V (clamped by body diode) for the entire dead time before the gate rises.</p>
+</div>
+
+<div class="note red">
+  <div class="note-t">C_oss is nonlinear — use charge-equivalent Q_oss from the datasheet</div>
+  The MOSFET C_oss is highly voltage-dependent, dropping dramatically as V_DS decreases. The datasheet's Q_oss figure integrates C_oss(V) dV from 0 to V_bus, giving the correct charge budget for the full swing. Never use the flat C_oss value — it dramatically underestimates the charge at low voltage.
+</div>
+</section>
+
+<!-- ═══ S14 ═══════════════════════════════════════ -->
+<section id="s14">
+<div class="sec-hdr blue"><span class="num">14</span> KEY INTUITIONS TO CARRY FORWARD</div>
+<p>Seven intuitions that should feel solid after studying this document. If any feels shaky, go back and re-read that section.</p>
+
+<div class="intuitions-grid">
+  <div class="int-card blue">
+    <div class="int-num">①</div>
+    <div class="int-title">LC resonance = 2nd-order sinusoidal response</div>
+    <div class="int-body">A series LC is a 2nd-order system. Its natural response to any disturbance is always sinusoidal at f₀ = 1/(2πvLC). The tank acts as a bandpass filter on the square-wave drive — the FHA approximation follows from this.</div>
+  </div>
+  <div class="int-card orange">
+    <div class="int-num">②</div>
+    <div class="int-title">SRC → LLC: adding Lm fixes light-load regulation</div>
+    <div class="int-body">SRC can't regulate at light load (gain = 1 at fn=1 for all Q). Adding Lm creates a second resonance fm and gives the gain curve the slope needed to regulate across all loads while maintaining ZVS.</div>
+  </div>
+  <div class="int-card orange">
+    <div class="int-num">③</div>
+    <div class="int-title">DAB has no C → 1st order → trapezoidal</div>
+    <div class="int-body">No resonant capacitor means dI/dt = V/L = constant when V is a square wave. Current is always a linear ramp — trapezoidal. DAB is controlled by phase shift, not frequency. Fundamentally different converter classes.</div>
+  </div>
+  <div class="int-card green">
+    <div class="int-num">④</div>
+    <div class="int-title">CLLC = symmetric LLC for bidirectional use</div>
+    <div class="int-body">Adding Lr2 and Cr2 on the secondary mirrors the resonant tank. Secondary switches become active MOSFETs. The result is ZVS on both bridges in both power directions — essential for V2G and bidirectional OBC.</div>
+  </div>
+  <div class="int-card blue">
+    <div class="int-num">⑤</div>
+    <div class="int-title">Phase lag (inductive region) = ZVS</div>
+    <div class="int-body">Operating above fr (fs &gt; f₀) makes the tank look inductive. Current lags the switching transitions. This positions current to discharge the complementary switch's C_oss during dead time → ZVS. No phase lag = no ZVS.</div>
+  </div>
+  <div class="int-card purple">
+    <div class="int-num">⑥</div>
+    <div class="int-title">Z₀ and fr are your design handles</div>
+    <div class="int-body">fr sets where the resonance sits relative to your switching frequency range. Z₀ = √(Lr/Cr) sets the tank current amplitude. Then Lr = Z₀/(2πfr), Cr = 1/(2πfrZ₀). Choose λ = Lr/Lm to set the gain range. FHA gives the first pass — simulation validates.</div>
+  </div>
+  <div class="int-card purple">
+    <div class="int-num">⑦</div>
+    <div class="int-title">Phasor diagrams: freeze time, angle = phase</div>
+    <div class="int-body">Choose I as horizontal reference. V_L points up (leads I 90°). V_C points down (lags I 90°). V_applied is the vector sum. The angle between V_applied and I tells you the phase and whether you're in the ZVS region.</div>
+  </div>
+  <div class="int-card green" style="grid-column:1/-1">
+    <div class="int-num">→</div>
+    <div class="int-title">What's next</div>
+    <div class="int-body">With this conceptual foundation, you are ready to work through the FHA gain equation for LLC in full, derive the ZVS condition analytically, understand the Q–λ design space from first principles, and follow any resonant converter application note or reference design with confidence. The detailed math is just filling in the equations you already understand conceptually.</div>
+  </div>
+</div>
+</section>
+
+<div style="margin-top:4rem;padding-top:1.5rem;border-top:1px solid var(--border);color:var(--dim);font-family:var(--mono);font-size:.72rem;text-align:center">
+  Resonant Converter Complete Study Guide | LC tank · Phase &amp; phasors · ZVS · SRC · LLC · CLLC · DAB · Transformer &amp; LC sizing · Dead time<br>
+  Covers: resonant_converter_basics.html merged with comprehensive additions
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     ALL JAVASCRIPT — paste before </body>
+     ═══════════════════════════════════════════════════ -->
+<script>
+// ─── Color palette ───────────────────────────────────────────────────
+const K={
+  blue:'#1a56db',orange:'#d97706',green:'#059669',red:'#dc2626',purple:'#7c3aed',teal:'#0891b2',
+  gray:'#374151',dim:'#9ca3af',bg:'#f8faff',grid:'#e5e7eb'
+};
+
+// ─── Canvas helpers ──────────────────────────────────────────────────
+function rC(id){
+  const c=document.getElementById(id);
+  if(!c)return null;
+  const r=c.getBoundingClientRect();
+  if(!r.width)return null;
+  c.width=r.width*devicePixelRatio;
+  c.height=r.height*devicePixelRatio;
+  const ctx=c.getContext('2d');
+  ctx.scale(devicePixelRatio,devicePixelRatio);
+  return [ctx,r.width,r.height];
+}
+function grid(ctx,w,h,nx,ny){
+  ctx.strokeStyle=K.grid;ctx.lineWidth=0.5;
+  for(let i=0;i<=nx;i++){const x=i*w/nx;ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
+  for(let j=0;j<=ny;j++){const y=j*h/ny;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+}
+function midH(ctx,w,h){ctx.strokeStyle='#9ca3af';ctx.lineWidth=0.8;ctx.beginPath();ctx.moveTo(0,h/2);ctx.lineTo(w,h/2);ctx.stroke();}
+
+// ─── LC Tank ─────────────────────────────────────────────────────────
+function drawLC(){
+  const res=rC('lcCanvas');if(!res)return;
+  const[ctx,w,h]=res;
+  const L=parseFloat(document.getElementById('lc_L').value)*1e-6;
+  const Cap=parseFloat(document.getElementById('lc_C').value)*1e-9;
+  document.getElementById('lc_Lv').textContent=document.getElementById('lc_L').value+' μH';
+  document.getElementById('lc_Cv').textContent=document.getElementById('lc_C').value+' nF';
+  const f0=1/(2*Math.PI*Math.sqrt(L*Cap));
+  const Z0=Math.sqrt(L/Cap);
+  document.getElementById('lc_f0').textContent=(f0/1e3).toFixed(1)+' kHz';
+  document.getElementById('lc_Z0').textContent=Z0.toFixed(0)+' Ω';
+  document.getElementById('lc_Ip').textContent=(1000/Z0).toFixed(1)+' mA/V';
+  ctx.fillStyle=K.bg;ctx.fillRect(0,0,w,h);
+  grid(ctx,w,h,8,4);midH(ctx,w,h);
+  const N=500,mid=h/2,amp=h*0.38,T=1/f0;
+  [[K.purple,t=>Math.cos(2*Math.PI*f0*t)],[K.red,t=>Math.sin(2*Math.PI*f0*t)],[K.green,t=>0.15+0.02*Math.sin(4*Math.PI*f0*t)]].forEach(([col,fn],ci)=>{
+    ctx.strokeStyle=col;ctx.lineWidth=ci<2?2:1.5;
+    if(ci===2)ctx.setLineDash([5,4]);
+    ctx.beginPath();
+    for(let i=0;i<N;i++){
+      const t=i/N*2.5*T,x=i/N*w;
+      const v=fn(t),y=ci===2?(h*0.1-v*h*0.25):mid-v*amp;
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }ctx.stroke();ctx.setLineDash([]);
+  });
+}
+
+// ─── RLC Gain ────────────────────────────────────────────────────────
+function drawRLC(){
+  const res=rC('rlcCanvas');if(!res)return;
+  const[ctx,w,h]=res;
+  const Q=parseFloat(document.getElementById('rlc_Q').value);
+  const fn=parseFloat(document.getElementById('rlc_fn').value);
+  document.getElementById('rlc_Qv').textContent=Q.toFixed(1);
+  document.getElementById('rlc_fnv').textContent=fn.toFixed(2)+'×f₀';
+  ctx.fillStyle=K.bg;ctx.fillRect(0,0,w,h);
+  const ml={l:44,r:16,t:20,b:28};
+  const iw=w-ml.l-ml.r,ih=h-ml.t-ml.b;
+  const fnMin=0.2,fnMax=2.5,Mmax=Math.max(Q*1.2,5);
+  const tx=f=>ml.l+(f-fnMin)/(fnMax-fnMin)*iw;
+  const ty=M=>ml.t+ih*(1-Math.min(M,Mmax)/Mmax);
+  ctx.strokeStyle='#9ca3af';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(ml.l,ml.t);ctx.lineTo(ml.l,ml.t+ih);ctx.lineTo(ml.l+iw,ml.t+ih);ctx.stroke();
+  ctx.fillStyle=K.dim;ctx.font='8px IBM Plex Mono';ctx.textAlign='center';
+  ctx.fillText('f_sw / f₀',ml.l+iw/2,h-2);
+  [0.5,1,1.5,2,2.5].forEach(f=>{
+    ctx.fillText(f.toFixed(1),tx(f),ml.t+ih+14);
+    ctx.strokeStyle=K.grid;ctx.lineWidth=0.4;ctx.beginPath();ctx.moveTo(tx(f),ml.t);ctx.lineTo(tx(f),ml.t+ih);ctx.stroke();
+  });
+  ctx.textAlign='right';
+  for(let m=0;m<=Math.floor(Mmax);m++){
+    const y=ty(m);if(y<ml.t)continue;
+    ctx.fillStyle=K.dim;ctx.fillText(m,ml.l-4,y+3);
+    ctx.strokeStyle=K.grid;ctx.lineWidth=0.4;ctx.beginPath();ctx.moveTo(ml.l,y);ctx.lineTo(ml.l+iw,y);ctx.stroke();
+  }
+  // 3dB bandwidth shade
+  const f_lo=Math.sqrt(1+1/(4*Q*Q))-1/(2*Q);
+  const f_hi=Math.sqrt(1+1/(4*Q*Q))+1/(2*Q);
+  const M3=Q/Math.sqrt(2);
+  if(M3<Mmax&&f_lo>fnMin&&f_hi<fnMax){
+    ctx.fillStyle='rgba(124,58,237,.12)';
+    ctx.fillRect(tx(f_lo),ty(M3),tx(f_hi)-tx(f_lo),ih-(ty(M3)-ml.t));
+  }
+  // Gain curve
+  ctx.strokeStyle=K.green;ctx.lineWidth=2.5;ctx.beginPath();let first=true;
+  for(let i=0;i<=400;i++){
+    const f=fnMin+i/400*(fnMax-fnMin);
+    const M=Q/Math.sqrt(1+Q*Q*(f-1/f)*(f-1/f));
+    if(M>Mmax){first=true;continue;}
+    first?ctx.moveTo(tx(f),ty(M)):ctx.lineTo(tx(f),ty(M));first=false;
+  }ctx.stroke();
+  // resonance vertical
+  ctx.strokeStyle=K.dim;ctx.lineWidth=1;ctx.setLineDash([4,4]);
+  ctx.beginPath();ctx.moveTo(tx(1),ml.t);ctx.lineTo(tx(1),ml.t+ih);ctx.stroke();ctx.setLineDash([]);
+  // operating point
+  const Mop=Q/Math.sqrt(1+Q*Q*(fn-1/fn)*(fn-1/fn));
+  if(Mop<Mmax){
+    ctx.fillStyle=K.orange;ctx.beginPath();ctx.arc(tx(fn),ty(Mop),6,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=K.orange;ctx.font='bold 9px IBM Plex Mono';ctx.textAlign='left';
+    ctx.fillText(`M=${Mop.toFixed(2)} @ ${fn.toFixed(2)}f₀`,tx(fn)+10,ty(Mop));
+  }
+  ctx.fillStyle=K.green;ctx.font='bold 10px IBM Plex Mono';ctx.textAlign='left';
+  ctx.fillText(`Q=${Q.toFixed(1)}   BW=f₀/${Q.toFixed(1)}`,ml.l+4,ml.t+14);
+}
+
+// ─── Phase diagram ────────────────────────────────────────────────────
+function drawPhase(){
+  const res=rC('phaseCanvas');if(!res)return;
+  const[ctx,w,h]=res;
+  const ratio=parseFloat(document.getElementById('ph_ratio').value);
+  const Q=parseFloat(document.getElementById('ph_Q').value);
+  document.getElementById('ph_rv').textContent=ratio.toFixed(2)+'×';
+  document.getElementById('ph_Qv').textContent=Q.toFixed(1);
+  const phi=Math.atan2(ratio-1/ratio,1/Q);
+  ctx.fillStyle=K.bg;ctx.fillRect(0,0,w,h);
+  // Background stripe
+  if(ratio>1.02){ctx.fillStyle='rgba(5,150,105,.05)';ctx.fillRect(0,0,w,h);}
+  else if(ratio<0.98){ctx.fillStyle='rgba(220,38,38,.05)';ctx.fillRect(0,0,w,h);}
+  grid(ctx,w,h,8,4);midH(ctx,w,h);
+  const N=500,mid=h/2,amp=h*0.36;
+  // Bridge voltage
+  ctx.strokeStyle=K.gray;ctx.lineWidth=2;ctx.beginPath();
+  for(let i=0;i<N;i++){const t=i/N*2,x=i/N*w,v=Math.sign(Math.sin(2*Math.PI*t)),y=mid-v*amp*0.75;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();
+  // Tank current
+  ctx.strokeStyle=K.red;ctx.lineWidth=2.5;ctx.beginPath();
+  for(let i=0;i<N;i++){const t=i/N*2,x=i/N*w,v=Math.sin(2*Math.PI*t-phi),y=mid-v*amp;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();
+  // Switching instant dots
+  ctx.setLineDash([4,3]);ctx.strokeStyle=K.dim;ctx.lineWidth=1;
+  for(let k=0;k<=4;k++){
+    const x=k/4*w;ctx.beginPath();ctx.moveTo(x,4);ctx.lineTo(x,h-4);ctx.stroke();
+    const v=Math.sin(2*Math.PI*(k/4*2)-phi);
+    ctx.fillStyle=v<0?K.green:K.red;
+    ctx.beginPath();ctx.arc(x,mid-v*amp,6,0,Math.PI*2);ctx.fill();
+  }ctx.setLineDash([]);
+  const ind=ratio>1.02,cap=ratio<0.98;
+  const reg=ind?`INDUCTIVE REGION (f_sw=${ratio.toFixed(2)}×f₀) — current LAGS ✓ ZVS enabled`:
+             cap?`CAPACITIVE REGION (f_sw=${ratio.toFixed(2)}×f₀) — current LEADS ✗ ZVS fails`:
+             `AT RESONANCE — current in phase, marginal ZVS`;
+  ctx.fillStyle=ind?K.green:cap?K.red:K.orange;
+  ctx.font='bold 10px IBM Plex Mono';ctx.textAlign='center';ctx.fillText(reg,w/2,h-8);
+  const phideg=(phi*180/Math.PI).toFixed(1);
+  document.getElementById('ph_cap').textContent=
+    `Phase lag φ = ${phideg}°. Green dots = current right direction (ZVS ✓). Red dots = wrong direction (ZVS ✗). Current at transition = ${Math.abs(Math.sin(phi)).toFixed(2)} × I_peak.`;
+}
+
+// ─── Power Flow ───────────────────────────────────────────────────────
+function drawPowerFlow(){
+  const res=rC('pfCanvas');if(!res)return;
+  const[ctx,w,h]=res;
+  const phi=parseFloat(document.getElementById('pf_phi').value)*Math.PI/180;
+  document.getElementById('pf_phiv').textContent=document.getElementById('pf_phi').value+'°';
+  ctx.fillStyle=K.bg;ctx.fillRect(0,0,w,h);grid(ctx,w,h,8,4);midH(ctx,w,h);
+  const N=500,mid=h/2,amp=h*0.3;
+  // Power shading
+  ctx.beginPath();let inPow=false;
+  for(let i=0;i<N;i++){
+    const t=i/N*2,x=i/N*w;
+    const v1=Math.sin(2*Math.PI*t);
+    const iL=Math.sin(2*Math.PI*t-phi/2)*Math.sin(phi/2)*2.5;
+    const p=v1*iL;
+    if(p>0.05){
+      if(!inPow){ctx.moveTo(x,mid);inPow=true;}
+      ctx.lineTo(x,mid-p*amp);
+    } else {ctx.lineTo(x,mid);inPow=false;}
+  }ctx.fillStyle='rgba(124,58,237,.18)';ctx.fill();
+  [[K.green,t=>Math.sin(2*Math.PI*t)],[K.blue,t=>Math.sin(2*Math.PI*t-phi)],[K.red,t=>Math.sin(2*Math.PI*t-phi/2)*Math.sin(phi/2)*2.5]].forEach(([col,fn])=>{
+    ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();
+    for(let i=0;i<N;i++){const t=i/N*2,x=i/N*w,y=mid-fn(t)*amp;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();
+  });
+  const Pavg=Math.sin(phi).toFixed(3);
+  const pct=(Math.sin(phi)*100).toFixed(0);
+  ctx.fillStyle=K.purple;ctx.font='bold 11px IBM Plex Mono';ctx.textAlign='center';
+  ctx.fillText(`P ∝ sin(φ) = ${Pavg}  (${pct}% of max)`,w/2,h-8);
+  document.getElementById('pf_cap').textContent=
+    `φ = ${document.getElementById('pf_phi').value}°. Average power P ∝ sin(${document.getElementById('pf_phi').value}°) = ${Pavg} (${pct}% of maximum). At φ=0° → no power flow. At φ=90° → maximum power.`;
+}
+
+// ─── ZVS Detail waveform (Section 6) ─────────────────────────────────
+function drawZVSDetail(){
+  const res=rC('zvsDetailCanvas');if(!res)return;
+  const[ctx,w,h]=res;
+  ctx.fillStyle=K.bg;ctx.fillRect(0,0,w,h);grid(ctx,w,h,10,5);
+  const N=600,rowH=h/4;
+  const traces=[
+    {col:K.red,lbl:'g_Q1',fn:t=>t<0.45?1:t<0.5?0:0},
+    {col:K.blue,lbl:'g_Q2',fn:t=>t<0.5?0:t<0.55?0:t<0.95?1:1},
+    {col:K.orange,lbl:'Vds_Q2',fn:t=>{
+      if(t<0.45)return 1;
+      if(t<0.49)return 1-(t-0.45)/0.04;
+      if(t<0.5)return 0;
+      return 0;
+    }},
+    {col:K.gray,lbl:'I_tank',fn:t=>0.65*Math.cos(Math.PI*t*1.8+0.5)},
+  ];
+  // Dead time shading
+  ctx.fillStyle='rgba(251,191,36,.18)';
+  ctx.fillRect(w*0.45,0,w*0.055,h);
+  ctx.fillRect(w*0.945,0,w*0.055,h);
+  ctx.fillStyle=K.orange;ctx.font='8px IBM Plex Mono';ctx.textAlign='center';
+  ctx.fillText('dead',w*0.475,12);ctx.fillText('dead',w*0.972,12);
+  traces.forEach(({col,lbl,fn},ti)=>{
+    const rowMid=(ti+0.5)*rowH,amp=rowH*0.38;
+    ctx.fillStyle=K.dim;ctx.font='8px IBM Plex Mono';ctx.textAlign='left';ctx.fillText(lbl,4,rowMid-amp-3);
+    ctx.strokeStyle=col;ctx.lineWidth=1.8;ctx.beginPath();
+    for(let i=0;i<N;i++){const t=i/N,x=t*w,v=fn(t),y=rowMid-v*amp;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();
+    ctx.strokeStyle=K.grid;ctx.lineWidth=0.4;
+    ctx.beginPath();ctx.moveTo(0,rowMid);ctx.lineTo(w,rowMid);ctx.stroke();
+  });
+  // ZVS annotation
+  ctx.fillStyle=K.green;ctx.font='bold 9px IBM Plex Mono';ctx.textAlign='center';
+  ctx.fillText('Vds_Q2=0',w*0.52,h/2-2);
+  ctx.fillText('← ZVS!',w*0.55,h/2+9);
+}
+
+// ─── Commutation step-through ─────────────────────────────────────────
+let commIdx=0;
+const commData=[
+  {lbl:'Step 1/6 — Q1 ON',desc:'<strong style="color:#1a56db">Q1 conducting normally.</strong> Positive tank current flows through Q1 channel. Switch node is clamped to +V_bus. The resonant tank current follows a sinusoidal arc — in LLC it has just passed its peak and is heading downward. Energy in the inductor is being transferred to the load.'},
+  {lbl:'Step 2/6 — Q1 turns OFF',desc:'<strong style="color:#d97706">Dead time begins.</strong> Q1 gate goes low. The channel turns off. But the inductor current cannot stop instantly — Lenz\'s law. It continues flowing in the same direction, now charging Q1\'s C_oss and simultaneously discharging Q2\'s C_oss. The switch node voltage begins to fall.'},
+  {lbl:'Step 3/6 — C_oss transition',desc:'<strong style="color:#7c3aed">Both C_oss capacitances driven together.</strong> I_L is simultaneously charging Q1\'s C_oss (V_DS rises toward V_bus) and discharging Q2\'s C_oss (V_DS falls toward 0). Rate: dV/dt = I_L / C_oss_eff, where C_oss_eff = C_oss(Q1) + C_oss(Q2). Both are driven from the same switch node.'},
+  {lbl:'Step 4/6 — Body diode clamps',desc:'<strong style="color:#dc2626">V_DS(Q2) reaches zero — body diode clamps.</strong> If I_L supplied enough charge (Q_oss_eff = Q_oss1 + Q_oss2), the node reaches 0V. Q2\'s body diode becomes forward biased, clamping V_SW ≈ −0.7V. V_DS across Q2 ≈ 0.7V. ZVS condition is now met.'},
+  {lbl:'Step 5/6 — Q2 ZVS turn-on',desc:'<strong style="color:#059669">Q2 gate drives HIGH — ZVS ✓</strong> Gate signal arrives. Since V_DS ≈ 0 (clamped by body diode), Q2 turns on with zero voltage across it. No C_oss energy (½·C_eff·V²) is dissipated. No current spike. Turn-on loss ≈ 0. Channel takes over from body diode with a clean, lossless commutation.'},
+  {lbl:'Step 6/6 — Current reversal',desc:'<strong style="color:#374151">Tank current reverses direction.</strong> With Q2 ON, the drive voltage reverses. The sinusoidal LLC tank current passes through zero and goes negative. As current goes negative, it prepares the conditions for the Q1 ZVS turn-on at the end of this half-cycle. Process repeats symmetrically.'},
+];
+function commStep(dir){commIdx=Math.max(0,Math.min(5,commIdx+dir));drawComm();}
+function drawComm(){
+  const d=commData[commIdx];
+  document.getElementById('commLbl').textContent=d.lbl;
+  document.getElementById('commDesc').innerHTML=d.desc;
+  const res=rC('commCanvas');if(!res)return;
+  const[ctx,w,h]=res;
+  ctx.fillStyle=K.bg;ctx.fillRect(0,0,w,h);
+  const Lw=w*0.6,N=250,rowH=h/4;
+  const phX=[0.1,0.44,0.5,0.56,0.64,0.8][commIdx];
+  // Traces
+  const traces=[
+    {col:K.red,lbl:'g_Q1',fn:t=>t<0.44?1:0},
+    {col:K.blue,lbl:'g_Q2',fn:t=>t<0.62?0:1},
+    {col:K.orange,lbl:'Vds_Q2',fn:t=>t<0.44?1:t<0.56?Math.max(0,1-(t-0.44)/0.12):0},
+    {col:K.gray,lbl:'I_tank',fn:t=>0.6*Math.cos(Math.PI*t+0.4)},
+  ];
+  traces.forEach(({col,lbl,fn},ti)=>{
+    const rowMid=(ti+0.5)*rowH,amp=rowH*0.38;
+    ctx.fillStyle=K.dim;ctx.font='8px IBM Plex Mono';ctx.textAlign='left';ctx.fillText(lbl,3,rowMid-amp-3);
+    ctx.strokeStyle=col;ctx.lineWidth=1.8;ctx.beginPath();
+    for(let i=0;i<N;i++){const t=i/N,x=t*Lw,v=fn(t),y=rowMid-v*amp;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();
+    ctx.strokeStyle=K.grid;ctx.lineWidth=0.4;ctx.beginPath();ctx.moveTo(0,rowMid);ctx.lineTo(Lw,rowMid);ctx.stroke();
+  });
+  // Marker line
+  ctx.fillStyle=commData[commIdx].col||K.blue+'18';ctx.fillRect(phX*Lw-2,0,4,h);
+  ctx.strokeStyle=K.blue;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(phX*Lw,0);ctx.lineTo(phX*Lw,h);ctx.stroke();
+  ctx.fillStyle=K.blue;ctx.font='bold 9px IBM Plex Mono';ctx.textAlign='center';ctx.fillText('▼ now',phX*Lw,h-3);
+  // Right panel: circuit state
+  const Rx=Lw+12,Rw=w-Rx-8,cx=Rx+Rw/2;
+  if(Rw>80){
+    ctx.fillStyle='#fff';ctx.fillRect(Rx,4,Rw,h-8);
+    ctx.strokeStyle=K.border||'#e2e6ed';ctx.lineWidth=1;ctx.strokeRect(Rx,4,Rw,h-8);
+    const tY=20,bY=h-18,midY=h/2;
+    ctx.strokeStyle='#9ca3af';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(Rx+8,tY);ctx.lineTo(Rx+Rw-8,tY);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(Rx+8,bY);ctx.lineTo(Rx+Rw-8,bY);ctx.stroke();
+    ctx.fillStyle=K.dim;ctx.font='8px IBM Plex Mono';ctx.textAlign='center';
+    ctx.fillText('+Vbus',cx,tY-4);ctx.fillText('GND',cx,bY+12);
+    const q1on=commIdx===0||commIdx===5;
+    const q2on=commIdx===4||commIdx===5;
+    [[q1on,'Q1',tY+8],[q2on,'Q2',midY+8]].forEach(([on,qn,qy])=>{
+      ctx.fillStyle=on?'rgba(26,86,219,.1)':'rgba(0,0,0,.02)';ctx.fillRect(cx-20,qy,40,24);
+      ctx.strokeStyle=on?K.blue:'#9ca3af';ctx.lineWidth=1.2;ctx.strokeRect(cx-20,qy,40,24);
+      ctx.fillStyle=on?K.blue:K.dim;ctx.font='9px IBM Plex Mono';ctx.textAlign='center';
+      ctx.fillText(qn+(on?' ON':' OFF'),cx,qy+15);
+    });
+    // Switch node dot
+    const swN=[1,0.6,0.3,0,0,0][commIdx];
+    const syPos=tY+30+(midY-tY-35)*(1-swN);
+    ctx.fillStyle=K.orange;ctx.beginPath();ctx.arc(cx,syPos,4,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=K.orange;ctx.font='8px IBM Plex Mono';ctx.textAlign='left';ctx.fillText(`SW=${(swN*100).toFixed(0)}%`,cx+7,syPos+3);
+  }
+}
+
+// ─── DAB Waveforms ────────────────────────────────────────────────────
+function drawDAB(){
+  const res=rC('dabCanvas');if(!res)return;
+  const[ctx,w,h]=res;
+  const phi=parseFloat(document.getElementById('dab_phi').value)*Math.PI/180;
+  const r=parseFloat(document.getElementById('dab_r').value);
+  document.getElementById('dab_phiv').textContent=document.getElementById('dab_phi').value+'°';
+  document.getElementById('dab_rv').textContent=r.toFixed(2);
+  document.getElementById('dab_Lv').textContent=document.getElementById('dab_L').value+' μH';
+  ctx.fillStyle=K.bg;ctx.fillRect(0,0,w,h);grid(ctx,w,h,8,4);midH(ctx,w,h);
+  const N=600,mid=h/2,amp=h*0.32;
+  // V1
+  ctx.strokeStyle=K.green;ctx.lineWidth=2;ctx.beginPath();
+  for(let i=0;i<N;i++){const t=i/N*2.5,x=i/N*w,v=Math.sign(Math.sin(2*Math.PI*t)),y=mid-v*amp*0.78;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();
+  // V2
+  ctx.strokeStyle=K.blue;ctx.lineWidth=2;ctx.beginPath();
+  for(let i=0;i<N;i++){const t=i/N*2.5,x=i/N*w,tOff=phi/(2*Math.PI),v=Math.sign(Math.sin(2*Math.PI*(t-tOff)))*r,y=mid-v*amp*0.68;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();
+  // IL trapezoidal
+  let iL=0;const dt=2.5/N;
+  ctx.strokeStyle=K.red;ctx.lineWidth=2.5;ctx.beginPath();
+  // power shading pass
+  let iLp=0;ctx.beginPath();
+  for(let i=0;i<N;i++){
+    const t=i/N*2.5,x=i/N*w,tOff=phi/(2*Math.PI);
+    const v1=Math.sign(Math.sin(2*Math.PI*t));
+    const v2=Math.sign(Math.sin(2*Math.PI*(t-tOff)))*r;
+    iLp+=(v1-v2)*6*dt;iLp=Math.max(-1.1,Math.min(1.1,iLp));
+    const p=v1*iLp;
+    if(p>0.05){ctx.lineTo(x,mid-p*amp*0.6);}else{ctx.lineTo(x,mid);}
+  }ctx.fillStyle='rgba(124,58,237,.15)';ctx.fill();
+  ctx.beginPath();
+  for(let i=0;i<N;i++){
+    const t=i/N*2.5,x=i/N*w,tOff=phi/(2*Math.PI);
+    const v1=Math.sign(Math.sin(2*Math.PI*t));
+    const v2=Math.sign(Math.sin(2*Math.PI*(t-tOff)))*r;
+    iL+=(v1-v2)*6*dt;iL=Math.max(-1.1,Math.min(1.1,iL));
+    const y=mid-iL*amp;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }ctx.strokeStyle=K.red;ctx.lineWidth=2.5;ctx.stroke();
+  const Pn=(phi/Math.PI)*(1-phi/Math.PI);
+  document.getElementById('dab_cap').textContent=
+    `Phase φ=${document.getElementById('dab_phi').value}°, V₂/V₁=${r.toFixed(2)}. Normalised power = ${(Pn*100).toFixed(0)}% of max. Note the straight current ramps — trapezoidal shape caused by a single L with constant voltage applied across it.`;
+}
+
+// ─── LLC Gain Curves ──────────────────────────────────────────────────
+function llcM(fn,lam,Q){
+  const k=1/lam;
+  const re=1+(lam)*(1-1/(fn*fn));
+  const im=Q*(fn-1/fn);
+  return 1/Math.sqrt(re*re+im*im);
+}
+function drawLLC(){
+  const res=rC('llcCanvas');if(!res)return;
+  const[ctx,w,h]=res;
+  const lam=parseFloat(document.getElementById('llc_k').value);
+  const Q=parseFloat(document.getElementById('llc_Q').value);
+  document.getElementById('llc_kv').textContent=`${lam.toFixed(2)} (k=${(1/lam).toFixed(1)})`;
+  document.getElementById('llc_Qv').textContent=Q.toFixed(2);
+  ctx.fillStyle=K.bg;ctx.fillRect(0,0,w,h);
+  const ml={l:48,r:16,t:24,b:32};
+  const iw=w-ml.l-ml.r,ih=h-ml.t-ml.b;
+  const fnMin=0.35,fnMax=1.8,Mmax=3.0;
+  const tx=f=>ml.l+(f-fnMin)/(fnMax-fnMin)*iw;
+  const ty=M=>ml.t+ih*(1-Math.min(M,Mmax)/Mmax);
+  // Regions
+  const fm=Math.sqrt(lam/(1+lam));
+  ctx.fillStyle='rgba(5,150,105,.06)';
+  ctx.fillRect(tx(Math.max(fm,fnMin)),ml.t,tx(1)-tx(Math.max(fm,fnMin)),ih);
+  ctx.fillStyle='rgba(26,86,219,.04)';
+  ctx.fillRect(tx(1),ml.t,tx(fnMax)-tx(1),ih);
+  // Axes
+  ctx.strokeStyle='#9ca3af';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(ml.l,ml.t);ctx.lineTo(ml.l,ml.t+ih);ctx.lineTo(ml.l+iw,ml.t+ih);ctx.stroke();
+  ctx.fillStyle=K.dim;ctx.font='8px IBM Plex Mono';ctx.textAlign='center';
+  ctx.fillText('f_sw / f_r1  (normalised frequency)',ml.l+iw/2,h-2);
+  ctx.save();ctx.translate(12,ml.t+ih/2);ctx.rotate(-Math.PI/2);ctx.fillText('Voltage Gain M',0,0);ctx.restore();
+  [0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8].forEach(f=>{
+    ctx.fillStyle=K.dim;ctx.font='8px IBM Plex Mono';ctx.textAlign='center';ctx.fillText(f.toFixed(1),tx(f),ml.t+ih+14);
+    ctx.strokeStyle=K.grid;ctx.lineWidth=0.4;ctx.beginPath();ctx.moveTo(tx(f),ml.t);ctx.lineTo(tx(f),ml.t+ih);ctx.stroke();
+  });
+  ctx.textAlign='right';
+  [0,0.5,1,1.5,2,2.5,3].forEach(M=>{
+    const y=ty(M);if(y<ml.t)return;
+    ctx.fillStyle=K.dim;ctx.font='8px IBM Plex Mono';ctx.fillText(M,ml.l-4,y+3);
+    ctx.strokeStyle=K.grid;ctx.lineWidth=0.4;ctx.beginPath();ctx.moveTo(ml.l,y);ctx.lineTo(ml.l+iw,y);ctx.stroke();
+  });
+  // Gain curves
+  [[0.1,K.green],[Q,K.orange],[Math.min(Q*1.5,1.5),K.red]].forEach(([Qv,col])=>{
+    ctx.strokeStyle=col;ctx.lineWidth=Qv===Q?2.5:1.5;ctx.beginPath();let first=true;
+    for(let i=0;i<=400;i++){
+      const fn=fnMin+i/400*(fnMax-fnMin);
+      const M=llcM(fn,lam,Qv);
+      if(M>Mmax||M<0.01){first=true;continue;}
+      first?ctx.moveTo(tx(fn),ty(M)):ctx.lineTo(tx(fn),ty(M));first=false;
+    }ctx.stroke();
+  });
+  // fr1 line
+  ctx.strokeStyle=K.purple;ctx.lineWidth=1.5;ctx.setLineDash([5,4]);
+  ctx.beginPath();ctx.moveTo(tx(1),ml.t);ctx.lineTo(tx(1),ml.t+ih);ctx.stroke();
+  ctx.fillStyle=K.purple;ctx.font='bold 8px IBM Plex Mono';ctx.textAlign='left';ctx.fillText('fn=1 (fr)',tx(1)+3,ml.t+14);
+  // fm line
+  if(fm>=fnMin){
+    ctx.strokeStyle=K.blue;ctx.setLineDash([3,5]);
+    ctx.beginPath();ctx.moveTo(tx(fm),ml.t);ctx.lineTo(tx(fm),ml.t+ih);ctx.stroke();
+    ctx.fillStyle=K.blue;ctx.font='8px IBM Plex Mono';ctx.textAlign='left';ctx.fillText(`fm`,tx(fm)+3,ml.t+24);
+  }
+  ctx.setLineDash([]);
+  // M=1 dashed
+  ctx.strokeStyle=K.dim;ctx.lineWidth=0.8;ctx.setLineDash([2,5]);
+  ctx.beginPath();ctx.moveTo(ml.l,ty(1));ctx.lineTo(ml.l+iw,ty(1));ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle=K.dim;ctx.font='8px IBM Plex Mono';ctx.textAlign='right';ctx.fillText('M=1',ml.l+iw-4,ty(1)-4);
+  // Region labels
+  ctx.fillStyle=K.green;ctx.font='8px IBM Plex Mono';ctx.textAlign='center';
+  ctx.fillText('← ZVS boost →',tx(fm)+(tx(1)-tx(fm))/2,ml.t+10);
+  ctx.fillStyle=K.blue;ctx.fillText('← ZVS buck →',tx(1)+(ml.l+iw-tx(1))/2,ml.t+10);
+}
+
+// ─── LLC Waveforms ────────────────────────────────────────────────────
+function drawLLCWave(){
+  const res=rC('llcWaveCanvas');if(!res)return;
+  const[ctx,w,h]=res;
+  ctx.fillStyle=K.bg;ctx.fillRect(0,0,w,h);grid(ctx,w,h,8,4);midH(ctx,w,h);
+  const N=500,mid=h/2,amp=h*0.36;
+  // ZCS marker circles
+  [0.5,1.0,1.5,2.0].forEach(tc=>{
+    const x=tc/2*w;
+    ctx.fillStyle='rgba(5,150,105,.15)';
+    ctx.beginPath();ctx.arc(x,mid,10,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=K.green;ctx.font='bold 7px IBM Plex Mono';ctx.textAlign='center';
+    ctx.fillText('ZCS',x,mid+3);
+  });
+  [[K.blue,t=>Math.sin(2*Math.PI*t)],[K.green,t=>0.32*(((t%1)<0.5)?(-1+4*(t%1)):(3-4*(t%1)))],
+   [K.orange,t=>Math.max(0,Math.sin(2*Math.PI*t))*0.85],[K.red,t=>Math.sign(Math.sin(2*Math.PI*t))*0.7]
+  ].forEach(([col,fn])=>{
+    ctx.strokeStyle=col;ctx.lineWidth=1.8;ctx.beginPath();
+    for(let i=0;i<N;i++){const t=i/N*2,x=i/N*w,y=mid-fn(t)*amp;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();
+  });
+}
+
+// ─── Sizing Calculator ────────────────────────────────────────────────
+function calcSize(){
+  const Vin=parseFloat(document.getElementById('sz_vin').value);
+  const Vout=parseFloat(document.getElementById('sz_vout').value);
+  const Pout=parseFloat(document.getElementById('sz_pout').value);
+  const fr=parseFloat(document.getElementById('sz_fr').value)*1e3;
+  const lam=parseFloat(document.getElementById('sz_lam').value);
+  const Q=parseFloat(document.getElementById('sz_Q').value);
+  document.getElementById('sz_vinv').textContent=Vin+' V';
+  document.getElementById('sz_voutv').textContent=Vout+' V';
+  document.getElementById('sz_poutv').textContent=Pout+' W';
+  document.getElementById('sz_frv').textContent=(fr/1e3).toFixed(0)+' kHz';
+  document.getElementById('sz_lamv').textContent=lam.toFixed(2);
+  document.getElementById('sz_Qv').textContent=Q.toFixed(2);
+  const n=Vin/(2*Vout);
+  const Rload=Vout*Vout/Pout;
+  const Rac=(8*n*n/(Math.PI*Math.PI))*Rload;
+  const Z0=Q*Rac;
+  const Lr=Z0/(2*Math.PI*fr);
+  const Cr=1/(2*Math.PI*fr*Z0);
+  const Lm=Lr/lam;
+  const fr1=1/(2*Math.PI*Math.sqrt(Lr*Cr));
+  const fm=fr1*Math.sqrt(lam/(1+lam));
+  const ILm=Vin/(4*fr*Lm);
+  const Itank=Vin/(2*Z0);
+  const el=document.getElementById('sz_out');
+  el.innerHTML=
+`<span style="color:#58a6ff">─── Step 1: Turns Ratio ─────────────────────────</span>
+n = V_in / (2·V_out) = ${Vin} / (2×${Vout}) = <span style="color:#7ee787">${n.toFixed(3)}</span>
+
+<span style="color:#58a6ff">─── Step 2: Reflected Load ──────────────────────</span>
+R_load = V_out² / P_out = ${Vout}² / ${Pout} = ${Rload.toFixed(2)} Ω
+R_ac = (8n²/π²)·R_load = <span style="color:#7ee787">${Rac.toFixed(2)} Ω</span>
+
+<span style="color:#58a6ff">─── Step 3: Tank Component Values ───────────────</span>
+Z₀ = Q · R_ac = ${Q}×${Rac.toFixed(2)} = ${Z0.toFixed(2)} Ω
+L_r = Z₀ / (2π·fr) = <span style="color:#7ee787">${(Lr*1e6).toFixed(2)} μH</span>
+C_r = 1/(2π·fr·Z₀)  = <span style="color:#7ee787">${(Cr*1e9).toFixed(2)} nF</span>
+L_m = L_r / λ = ${(Lr*1e6).toFixed(2)} / ${lam} = <span style="color:#7ee787">${(Lm*1e6).toFixed(1)} μH</span>
+
+<span style="color:#58a6ff">─── Step 4: Verify ──────────────────────────────</span>
+Z₀ = √(L_r/C_r) = ${(Math.sqrt(Lr/Cr)).toFixed(2)} Ω  (= Q·R_ac = ${Z0.toFixed(2)} ✓)
+f_r1 (series)   = <span style="color:#7ee787">${(fr1/1e3).toFixed(1)} kHz</span>  (target: ${(fr/1e3).toFixed(0)} kHz ✓)
+f_r2 / fm (par.)= ${(fm/1e3).toFixed(1)} kHz  (f_r2/f_r1 = ${(fm/fr1).toFixed(3)})
+→ f_sw must stay above ${(fm/1e3).toFixed(1)} kHz to maintain ZVS
+
+<span style="color:#58a6ff">─── Step 5: ZVS Currents ────────────────────────</span>
+I_Lm_peak = V_in/(4·fr·L_m) = <span style="color:#ffa657">${ILm.toFixed(2)} A</span>  (light-load ZVS current)
+I_tank_peak ≈ V_in/(2·Z₀)   = <span style="color:#7ee787">${Itank.toFixed(2)} A</span>  (full-load, at resonance)
+
+<span style="color:#8b949e">─── Next Steps ──────────────────────────────────</span>
+1. Verify gain range: plot M(fn,λ,Q) covers your V_in variation
+2. Check: ½·L_m·I_Lm² ≥ Q_oss_eff·V_bus/2  (ZVS energy budget)
+3. Simulate with nonlinear C_oss MOSFET model
+4. Scope: V_DS flat at 0V before V_GS rises`;
+}
+
+// ─── Dead Time Calculator ─────────────────────────────────────────────
+function calcDT(){
+  const Vbus=parseFloat(document.getElementById('dt_vbus').value);
+  const Lr=parseFloat(document.getElementById('dt_Lr').value)*1e-6;
+  const Lm=parseFloat(document.getElementById('dt_Lm').value)*1e-6;
+  const fsw=parseFloat(document.getElementById('dt_fsw').value)*1e3;
+  const Qoss=parseFloat(document.getElementById('dt_Qoss').value)*1e-9;
+  const Isw=parseFloat(document.getElementById('dt_Isw').value);
+  document.getElementById('dt_vbusv').textContent=Vbus+' V';
+  document.getElementById('dt_Lrv').textContent=document.getElementById('dt_Lr').value+' μH';
+  document.getElementById('dt_Lmv').textContent=document.getElementById('dt_Lm').value+' μH';
+  document.getElementById('dt_fswv').textContent=document.getElementById('dt_fsw').value+' kHz';
+  document.getElementById('dt_Qossv').textContent=document.getElementById('dt_Qoss').value+' nC';
+  document.getElementById('dt_Iswv').textContent=Isw.toFixed(1)+' A';
+  const Qeff=2*Qoss;
+  const tdmin=Qeff/Isw;
+  const tdrec=tdmin*1.5;
+  const ILm=Vbus/(4*fsw*Lm);
+  const ELm=0.5*Lm*ILm*ILm;
+  const ECoss=Qeff*Vbus/2;
+  const zvs=ELm>=ECoss;
+  const el=document.getElementById('dt_out');
+  el.innerHTML=
+`<span style="color:#58a6ff">─── C_oss Charge Budget ─────────────────────────</span>
+Q_oss per MOSFET (at ${Vbus}V, from datasheet) = ${(Qoss*1e9).toFixed(0)} nC
+Q_oss_eff = 2 × Q_oss = <span style="color:#7ee787">${(Qeff*1e9).toFixed(0)} nC</span>
+(Both Q1 and Q2 C_oss are driven simultaneously by I_L)
+
+<span style="color:#58a6ff">─── Dead Time Calculation ───────────────────────</span>
+t_dead_min = Q_oss_eff / I_sw = ${(Qeff*1e9).toFixed(0)}nC / ${Isw.toFixed(1)}A
+           = <span style="color:#ffa657">${(tdmin*1e9).toFixed(1)} ns</span>
+t_dead_target (1.5× margin) = <span style="color:#7ee787">${(tdrec*1e9).toFixed(1)} ns</span>
+
+<span style="color:#58a6ff">─── L_m ZVS Energy Check (light-load) ───────────</span>
+I_Lm_peak = V_in/(4·f_sw·L_m) = ${Vbus}/(4×${(fsw/1e3).toFixed(0)}k×${(Lm*1e6).toFixed(0)}μ)
+          = <span style="color:#7ee787">${ILm.toFixed(2)} A</span>
+E_Lm = ½·L_m·I_Lm² = <span style="color:#7ee787">${(ELm*1e6).toFixed(2)} μJ</span>
+E_Coss = Q_oss_eff·V_bus/2 = <span style="color:#ffa657">${(ECoss*1e6).toFixed(2)} μJ</span>
+
+<span style="color:${zvs?'#7ee787':'#f85149'}">─── ZVS Verdict ─────────────────────────────────</span>
+E_Lm ${zvs?'≥':'<'} E_Coss  →  <span style="color:${zvs?'#7ee787':'#f85149'}">${zvs?'✓ ZVS achievable at light load (via L_m alone)':'✗ ZVS FAILS at light load — insufficient L_m energy'}</span>
+${!zvs?`
+Fix options:
+1. Reduce L_m (increase λ) → more I_Lm, more ZVS energy
+2. Increase dead time → more time for C_oss swing  
+3. Use lower C_oss MOSFETs → less charge needed
+4. Accept light-load hard-switching (only efficiency impact)`:'L_m provides adequate energy for C_oss swing during dead time. ✓'}
+
+<span style="color:#8b949e">─── Scope Verification ──────────────────────────</span>
+Probe V_DS + V_GS of low-side switch at switching instant.
+ZVS ✓: V_DS reaches 0V and stays flat BEFORE V_GS rises.
+ZVS ✗: V_DS still positive when V_GS rises → increase t_dead.`;
+  drawScope();
+}
+
+// ─── Scope Waveform ───────────────────────────────────────────────────
+function drawScope(){
+  const res=rC('scopeCanvas');if(!res)return;
+  const[ctx,w,h]=res;
+  const margin=parseFloat(document.getElementById('scope_margin').value);
+  document.getElementById('scope_mv').textContent=margin.toFixed(2)+'×';
+  const zvs=margin>=0;
+  ctx.fillStyle=K.bg;ctx.fillRect(0,0,w,h);grid(ctx,w,h,8,4);
+  const N=500,rowH=h/3;
+  const dtX1=w*0.44,dtX2=w*0.56;
+  ctx.fillStyle=zvs?'rgba(5,150,105,.08)':'rgba(220,38,38,.08)';
+  ctx.fillRect(dtX1,0,dtX2-dtX1,h);
+  ctx.strokeStyle=zvs?K.green:K.red;ctx.lineWidth=1;ctx.setLineDash([4,3]);
+  ctx.beginPath();ctx.moveTo(dtX1,0);ctx.lineTo(dtX1,h);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(dtX2,0);ctx.lineTo(dtX2,h);ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle=zvs?K.green:K.red;ctx.font='bold 9px IBM Plex Mono';ctx.textAlign='center';
+  ctx.fillText('dead time',( dtX1+dtX2)/2,12);
+  const traces=[
+    {col:K.green,lbl:'V_GS',fn:t=>t<dtX2/w?0:1},
+    {col:K.orange,lbl:'V_DS',fn:t=>{
+      if(t<0.44)return 1;
+      const prog=(t-0.44)/0.12;
+      if(t<0.56){
+        if(zvs)return Math.max(0,1-prog);
+        return Math.max(1-margin*0.8,0.05+0.05*Math.random());
+      }
+      return zvs?0:Math.max(0,1-margin*0.8);
+    }},
+    {col:K.red,lbl:'I_tank',fn:t=>0.6*Math.cos(Math.PI*t*1.3+0.5)},
+  ];
+  traces.forEach(({col,lbl,fn},ti)=>{
+    const rowMid=(ti+0.5)*rowH,amp=rowH*0.38;
+    ctx.fillStyle=K.dim;ctx.font='8px IBM Plex Mono';ctx.textAlign='left';ctx.fillText(lbl,5,rowMid-amp-3);
+    ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();
+    for(let i=0;i<N;i++){const t=i/N,x=t*w,v=fn(t),y=rowMid-v*amp;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();
+    ctx.strokeStyle=K.grid;ctx.lineWidth=0.4;ctx.beginPath();ctx.moveTo(0,rowMid);ctx.lineTo(w,rowMid);ctx.stroke();
+  });
+  const msg=zvs?'✓ ZVS: V_DS reaches 0V before gate rises — zero turn-on loss':'✗ Hard switching: V_DS > 0 when gate rises — C_oss energy dumped as heat';
+  ctx.fillStyle=zvs?K.green:K.red;ctx.font='bold 10px IBM Plex Mono';ctx.textAlign='center';ctx.fillText(msg,w/2,h-5);
+  document.getElementById('scope_cap').textContent=
+    zvs?'ZVS confirmed. V_DS is at 0V for the entire dead time before the gate rises. Turn-on loss = 0.':
+    'ZVS failed. V_DS has not reached 0V before the gate signal rises. Increase dead time or reduce Lm.';
+}
+
+// ─── Nav highlight ────────────────────────────────────────────────────
+const allLinks=[...document.querySelectorAll('.sb-a')];
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      allLinks.forEach(l=>l.classList.remove('on'));
+      const link=document.querySelector(`.sb-a[href="#${e.target.id}"]`);
+      if(link)link.classList.add('on');
+    }
+  });
+},{threshold:0.2});
+document.querySelectorAll('section[id]').forEach(s=>obs.observe(s));
+
+// ─── Init ─────────────────────────────────────────────────────────────
+function initAll(){
+  drawLC();drawRLC();drawPhase();drawPowerFlow();
+  drawZVSDetail();drawComm();drawDAB();drawLLC();drawLLCWave();
+  calcSize();calcDT();drawScope();
+}
+window.addEventListener('load',initAll);
+window.addEventListener('resize',()=>{
+  drawLC();drawRLC();drawPhase();drawPowerFlow();
+  drawZVSDetail();drawComm();drawDAB();drawLLC();drawLLCWave();drawScope();
+});
+</script>
+
+</main>
+</body>
+</html>
