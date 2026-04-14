@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resonant Converter Fundamentals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #f8fafc;
+        }
+
+        .diagram-container {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        code {
+            background: #f1f5f9;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-family: monospace;
+        }
+
+        .math {
+            font-style: italic;
+            color: #1e40af;
+        }
+    </style>
+</head>
+
+<body class="text-slate-800 font-sans leading-relaxed">
+
+    <header class="bg-indigo-900 text-white py-12 px-6">
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-4xl font-bold mb-4">Mastering Resonant Converters</h1>
+            <p class="text-xl text-indigo-200">A conceptual and analytical guide from LC tanks to ZVS design.</p>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto p-6 space-y-12">
+
+        <!-- SECTION 1: THE LC TANK -->
+        <section>
+            <h2 class="text-2xl font-bold border-b-2 border-indigo-500 pb-2 mb-4">1. The LC Tank: Why is it Sinusoidal?
+            </h2>
+            <p>
+                A resonant converter's heart is the <strong>LC tank</strong>. While a DAB (Dual Active Bridge) is
+                essentially a
+                purely inductive converter, a resonant converter adds a capacitor in series.
+            </p>
+            <div class="grid md:grid-cols-2 gap-6 items-center">
+                <div>
+                    <h3 class="font-bold text-lg mb-2">The Harmonic Filter</h3>
+                    <p>
+                        We apply a <strong>Square Wave</strong> (from the MOSFET bridge) to the tank.
+                        A square wave contains the fundamental frequency and all odd harmonics (3rd, 5th, etc.).
+                    </p>
+                    <p class="mt-2">
+                        The LC tank is a <strong>Band-Pass Filter</strong>. At the resonant frequency
+                        <span class="math">f<sub>r</sub> = 1 / (2π√(LC))</span>, the impedance of the L and C cancel
+                        each other out.
+                        Higher harmonics see a very high impedance and are "filtered out," leaving only the fundamental
+                        <strong>Sine Wave</strong>.
+                    </p>
+                </div>
+                <div class="diagram-container">
+                    <svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Square Wave -->
+                        <path d="M 10 60 L 10 30 L 50 30 L 50 90 L 90 90 L 90 30" fill="none" stroke="#94a3b8"
+                            stroke-width="2" />
+                        <text x="10" y="25" font-size="10" fill="#64748b">Square Input</text>
+                        <!-- Sine Wave -->
+                        <path d="M 110 60 Q 130 10 150 60 T 190 60" fill="none" stroke="#4f46e5" stroke-width="3" />
+                        <text x="110" y="25" font-size="10" fill="#4f46e5">Resonant Output</text>
+                        <!-- Arrow -->
+                        <path d="M 95 60 L 105 60" stroke="#000" stroke-width="1" marker-end="url(#arrowhead)" />
+                        <defs>
+                            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                                <polygon points="0 0, 10 3.5, 0 7" />
+                            </marker>
+                        </defs>
+                    </svg>
+                    <p class="text-xs text-center text-slate-500 mt-2">The tank filters harmonics into a pure sine wave.
+                    </p>
+                </div>
+            </div>
+            <div class="bg-blue-50 p-4 rounded-lg mt-4">
+                <strong>Why is DAB Trapezoidal?</strong><br>
+                DAB uses only an Inductor (<span class="math">L</span>). In an inductor, <span class="math">V =
+                    L(di/dt)</span>.
+                When you apply a constant DC voltage from a bridge, the current changes <em>linearly</em> (<span
+                    class="math">di = V/L dt</span>).
+                These linear ramps create the trapezoidal/triangular shapes you see in DAB.
+            </div>
+        </section>
+
+        <!-- SECTION 2: IMPEDANCE AND ZVS REGIONS -->
+        <section>
+            <h2 class="text-2xl font-bold border-b-2 border-indigo-500 pb-2 mb-4">2. Impedance and the "Inductive
+                Region"</h2>
+            <p>
+                To achieve Soft Switching (ZVS), the tank <strong>must look Inductive</strong> to the bridge.
+                This depends on your switching frequency (<span class="math">f<sub>sw</sub></span>) relative to
+                resonance (<span class="math">f<sub>r</sub></span>).
+            </p>
+            <ul class="list-disc ml-6 mt-4 space-y-2">
+                <li><strong>Inductive Region (f<sub>sw</sub> > f<sub>r</sub>):</strong> The current
+                    <strong>lags</strong> the voltage. This is our target for ZVS.</li>
+                <li><strong>Capacitive Region (f<sub>sw</sub>
+                        < f<sub>r</sub>):
+                    </strong> The current <strong>leads</strong> the voltage. This leads to hard-switching and diode
+                    recovery issues.</li>
+            </ul>
+
+            <div class="diagram-container">
+                <h3 class="text-center font-bold mb-4">ZVS Mechanism (Inductive Load)</h3>
+                <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Voltage Square Wave -->
+                    <rect x="50" y="50" width="140" height="100" fill="#e2e8f0" />
+                    <path d="M 50 150 L 50 50 L 190 50 L 190 150 L 330 150 L 330 50" fill="none" stroke="#475569"
+                        stroke-width="2" />
+                    <!-- Lagging Current Sine Wave -->
+                    <path d="M 20 120 Q 80 180 140 100 T 260 20 T 380 100" fill="none" stroke="#ef4444" stroke-width="2"
+                        stroke-dasharray="4" />
+                    <text x="340" y="60" fill="#475569" font-size="12">Voltage (V)</text>
+                    <text x="340" y="110" fill="#ef4444" font-size="12">Current (I)</text>
+
+                    <!-- ZVS Highlight -->
+                    <circle cx="50" cy="110" r="5" fill="#22c55e" />
+                    <text x="60" y="115" font-size="10" fill="#15803d">I is negative when V turns ON</text>
+                </svg>
+            </div>
+
+            <p class="mt-4">
+                <strong>Why Inductive?</strong> In the inductive region, when a MOSFET turns OFF, the current is still
+                flowing in the same direction. This current charges the <span class="math">C<sub>oss</sub></span> of the
+                turning-off switch
+                and <em>discharges</em> the <span class="math">C<sub>oss</sub></span> of the complementary switch.
+                When the voltage across the next switch hits zero, its body diode conducts, and we turn it on at
+                <strong>Zero Voltage</strong>.
+            </p>
+        </section>
+
+        <!-- SECTION 3: TOPOLOGIES -->
+        <section>
+            <h2 class="text-2xl font-bold border-b-2 border-indigo-500 pb-2 mb-4">3. Comparing Topologies</h2>
+            <div class="space-y-6">
+                <div class="border-l-4 border-indigo-500 pl-4">
+                    <h3 class="font-bold">LLC Converter (The Gold Standard)</h3>
+                    <p class="text-sm">Uses two inductors (<span class="math">L<sub>r</sub></span> resonant, <span
+                            class="math">L<sub>m</sub></span> magnetizing) and one capacitor (<span
+                            class="math">C<sub>r</sub></span>).</p>
+                    <p class="text-sm mt-1"><strong>Benefit:</strong> Can maintain ZVS from zero to full load. High
+                        efficiency. Uses primary MOSFETs and secondary Diodes (or Sync-Rects).</p>
+                </div>
+                <div class="border-l-4 border-emerald-500 pl-4">
+                    <h3 class="font-bold">DAB - Dual Active Bridge</h3>
+                    <p class="text-sm">Two active MOSFET bridges connected via a transformer and a series inductor.</p>
+                    <p class="text-sm mt-1"><strong>Benefit:</strong> Bidirectional by nature. Control is via
+                        <strong>Phase Shift</strong> between bridges rather than frequency modulation.</p>
+                </div>
+                <div class="border-l-4 border-amber-500 pl-4">
+                    <h3 class="font-bold">CLLC (Bidirectional LLC)</h3>
+                    <p class="text-sm">A symmetric version of the LLC with resonant tanks on both primary and secondary.
+                    </p>
+                    <p class="text-sm mt-1"><strong>Benefit:</strong> Optimized for bidirectional chargers (like EVs)
+                        where efficiency is critical in both directions.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: COMPONENT SIZING (THE INTUITION) -->
+        <section>
+            <h2 class="text-2xl font-bold border-b-2 border-indigo-500 pb-2 mb-4">4. How L and C are actually sized</h2>
+            <p>Your friend is right that many people "guess," but world-class engineers use the <strong>First Harmonic
+                    Approximation (FHA)</strong>.</p>
+
+            <div class="bg-slate-100 p-6 rounded-xl space-y-4">
+                <div>
+                    <h4 class="font-bold">Step 1: Choose Resonant Frequency (<span class="math">f<sub>r</sub></span>)
+                    </h4>
+                    <p class="text-sm">This is your "sweet spot." Usually 100kHz - 500kHz depending on your MOSFET
+                        technology (GaN/SiC allows higher).</p>
+                </div>
+                <div>
+                    <h4 class="font-bold">Step 2: Define the Quality Factor (<span class="math">Q</span>)</h4>
+                    <p class="math text-sm">Q = (√(L<sub>r</sub>/C<sub>r</sub>)) / R<sub>load</sub></p>
+                    <p class="text-sm">A higher Q makes the gain curve sharper (narrow frequency range, but harder to
+                        control). A lower Q makes it flatter. Typical design target: <strong>0.4 to 0.6</strong>.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold">Step 3: The Inductance Ratio (<span class="math">L<sub>n</sub></span>)</h4>
+                    <p class="math text-sm">L<sub>n</sub> = L<sub>m</sub> / L<sub>r</sub></p>
+                    <p class="text-sm">Usually between 3 and 7. Lower values give a wider gain range but increase
+                        circulating current (lower efficiency).</p>
+                </div>
+            </div>
+            <p class="mt-4 italic">Intuition: <span class="math">L<sub>r</sub></span> and <span
+                    class="math">C<sub>r</sub></span> set the frequency, while their <strong>ratio</strong> sets how
+                "stiff" the tank is against load changes.</p>
+        </section>
+
+        <!-- SECTION 5: DEAD TIME AND COSS -->
+        <section>
+            <h2 class="text-2xl font-bold border-b-2 border-indigo-500 pb-2 mb-4">5. Dead Time and <span
+                    class="math">C<sub>oss</sub></span>: The Physics</h2>
+            <p>
+                Soft switching isn't "hope"; it's a balance of energy. Every MOSFET has an output capacitance (<span
+                    class="math">C<sub>oss</sub></span>).
+                To achieve ZVS, the <strong>Energy stored in the Inductor</strong> must be greater than the
+                <strong>Energy in the Capacitors</strong>.
+            </p>
+
+            <div class="grid md:grid-cols-2 gap-4 mt-6">
+                <div class="p-4 border rounded-lg bg-white shadow-sm">
+                    <h4 class="font-bold text-indigo-700">The Energy Condition</h4>
+                    <p class="math text-lg">½ L<sub>m</sub> I<sub>mag</sub>² > 2 × ½ C<sub>oss</sub> V<sub>in</sub>²</p>
+                    <p class="text-sm mt-2">The magnetizing energy must be enough to "flip" the voltage of both MOSFETs
+                        in a leg.</p>
+                </div>
+                <div class="p-4 border rounded-lg bg-white shadow-sm">
+                    <h4 class="font-bold text-indigo-700">The Timing Condition</h4>
+                    <p class="math text-lg">t<sub>dead</sub> ≥ (2 · V<sub>in</sub> · C<sub>oss</sub>) / I<sub>mag</sub>
+                    </p>
+                    <p class="text-sm mt-2">The dead time must be long enough for the current to actually finish
+                        discharging the capacitor.</p>
+                </div>
+            </div>
+            <p class="mt-6">
+                If <span class="math">t<sub>dead</sub></span> is too short, the MOSFET turns on while there is still
+                voltage across it (Hard Switching).
+                If <span class="math">t<sub>dead</sub></span> is too long, the body diode conducts too long, or the
+                voltage might even start "swinging back"
+                up, losing the ZVS window.
+            </p>
+        </section>
+
+        <!-- SECTION 6: INTERACTIVE EXAMPLE -->
+        <section class="bg-indigo-50 p-8 rounded-2xl">
+            <h2 class="text-2xl font-bold mb-4">Interactive Calculation Example</h2>
+            <div class="space-y-4">
+                <p>Imagine a 400V to 12V LLC Converter:</p>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-white p-3 rounded shadow-sm">
+                        <span class="block text-gray-500 text-xs">Target f<sub>r</sub></span>
+                        <span class="font-bold">100 kHz</span>
+                    </div>
+                    <div class="bg-white p-3 rounded shadow-sm">
+                        <span class="block text-gray-500 text-xs">Selected C<sub>r</sub></span>
+                        <span class="font-bold">100 nF</span>
+                    </div>
+                    <div class="bg-white p-3 rounded shadow-sm">
+                        <span class="block text-gray-500 text-xs">Calculated L<sub>r</sub></span>
+                        <span class="font-bold">25.3 µH</span>
+                    </div>
+                    <div class="bg-white p-3 rounded shadow-sm">
+                        <span class="block text-gray-500 text-xs">Min Dead Time</span>
+                        <span class="font-bold">~250 ns</span>
+                    </div>
+                </div>
+                <p class="text-sm text-slate-600">Calculated using <span class="math">L = 1 / [(2πf)²C]</span>.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 py-8 px-6 text-center mt-12">
+        <p>Resonant Converter Basics Educational Tool &bull; Created for Engineering Excellence</p>
+    </footer>
+
+</body>
+
+</html>
