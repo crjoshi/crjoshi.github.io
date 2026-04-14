@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ground Reference Strategy — 3.3 kW Non-Isolated AC-DC PFC</title>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; color: #222; margin: 0; padding: 30px; }
+  h1 { color: #1a3a5c; border-bottom: 3px solid #2980b9; padding-bottom: 8px; }
+  h2 { color: #2980b9; margin-top: 30px; }
+  h3 { color: #34495e; }
+  .container { max-width: 1200px; margin: 0 auto; }
+  .diagram-box { background: #fff; border: 2px solid #2980b9; border-radius: 8px; padding: 20px; margin: 20px 0; overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; margin: 15px 0; }
+  th, td { border: 1px solid #bdc3c7; padding: 8px 12px; text-align: left; }
+  th { background: #2980b9; color: #fff; }
+  tr:nth-child(even) { background: #eaf2f8; }
+  .warning { background: #fdecea; border-left: 4px solid #e74c3c; padding: 12px 16px; margin: 15px 0; }
+  .note { background: #eaf2f8; border-left: 4px solid #3498db; padding: 12px 16px; margin: 15px 0; }
+  .svg-container { text-align: center; margin: 20px 0; }
+  svg { max-width: 100%; }
+  code { background: #ecf0f1; padding: 2px 6px; border-radius: 3px; font-family: 'Consolas', monospace; }
+  .legend { font-size: 0.9em; color: #555; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Ground Reference Strategy for 3.3 kW Non-Isolated PFC Converter</h1>
+
+<h2>1. System Block Diagram</h2>
+<div class="diagram-box">
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 780" font-family="Segoe UI, Arial, sans-serif">
+  <!-- Background zones -->
+  <rect x="10" y="10" width="580" height="760" fill="#fdf2e9" stroke="#e67e22" stroke-width="2" rx="8" stroke-dasharray="8,4"/>
+  <text x="300" y="35" text-anchor="middle" font-size="16" font-weight="bold" fill="#e67e22">HIGH VOLTAGE DOMAIN (Floating / DC− referenced)</text>
+
+  <rect x="610" y="10" width="580" height="760" fill="#eaf2f8" stroke="#2980b9" stroke-width="2" rx="8" stroke-dasharray="8,4"/>
+  <text x="900" y="35" text-anchor="middle" font-size="16" font-weight="bold" fill="#2980b9">LOW VOLTAGE DOMAIN (Control Board — AGND/DGND)</text>
+
+  <!-- ISOLATION BARRIER -->
+  <line x1="600" y1="50" x2="600" y2="770" stroke="#e74c3c" stroke-width="3" stroke-dasharray="12,6"/>
+  <text x="600" y="765" text-anchor="middle" font-size="12" font-weight="bold" fill="#e74c3c">⚡ ISOLATION BARRIER ⚡</text>
+
+  <!-- AC Mains -->
+  <rect x="30" y="60" width="140" height="50" fill="#fff" stroke="#333" stroke-width="2" rx="5"/>
+  <text x="100" y="82" text-anchor="middle" font-size="13" font-weight="bold">AC Mains</text>
+  <text x="100" y="100" text-anchor="middle" font-size="11">230 VAC / 50 Hz</text>
+  <text x="55" y="125" font-size="11">L (Line)</text>
+  <text x="55" y="145" font-size="11">N (Neutral)</text>
+  <text x="55" y="165" font-size="11">PE (Earth)</text>
+
+  <!-- EMI Filter -->
+  <rect x="200" y="80" width="140" height="70" fill="#fff" stroke="#27ae60" stroke-width="2" rx="5"/>
+  <text x="270" y="105" text-anchor="middle" font-size="13" font-weight="bold">EMI Filter</text>
+  <text x="270" y="123" text-anchor="middle" font-size="10">Common-mode choke</text>
+  <text x="270" y="138" text-anchor="middle" font-size="10">+ X/Y capacitors</text>
+
+  <!-- Arrows AC -> EMI -->
+  <line x1="170" y1="87" x2="200" y2="87" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="170" y1="107" x2="200" y2="107" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="170" y1="127" x2="200" y2="127" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+  <!-- PE to chassis -->
+  <line x1="170" y1="147" x2="200" y2="147" stroke="#f39c12" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Bridge Rectifier -->
+  <rect x="370" y="80" width="140" height="70" fill="#fff" stroke="#8e44ad" stroke-width="2" rx="5"/>
+  <text x="440" y="105" text-anchor="middle" font-size="13" font-weight="bold">Bridge Rectifier</text>
+  <text x="440" y="123" text-anchor="middle" font-size="10">or Totem-Pole sync</text>
+  <text x="440" y="138" text-anchor="middle" font-size="10">rectification</text>
+
+  <!-- Arrows EMI -> Bridge -->
+  <line x1="340" y1="87" x2="370" y2="87" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="340" y1="107" x2="370" y2="107" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- PFC Boost Stage -->
+  <rect x="370" y="200" width="140" height="90" fill="#fff" stroke="#e74c3c" stroke-width="2" rx="5"/>
+  <text x="440" y="225" text-anchor="middle" font-size="13" font-weight="bold">Boost PFC Stage</text>
+  <text x="440" y="243" text-anchor="middle" font-size="10">SiC MOSFET + Boost Diode</text>
+  <text x="440" y="258" text-anchor="middle" font-size="10">+ Boost Inductor</text>
+  <text x="440" y="278" text-anchor="middle" font-size="10">Vout = 400 VDC</text>
+
+  <!-- Arrows Bridge -> PFC -->
+  <line x1="440" y1="150" x2="440" y2="200" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- DC Bus Capacitor -->
+  <rect x="370" y="340" width="140" height="60" fill="#fff" stroke="#2c3e50" stroke-width="2" rx="5"/>
+  <text x="440" y="365" text-anchor="middle" font-size="13" font-weight="bold">DC Bus Capacitor</text>
+  <text x="440" y="383" text-anchor="middle" font-size="11">400 V / bulk capacitance</text>
+
+  <!-- Arrows PFC -> Cap -->
+  <line x1="440" y1="290" x2="440" y2="340" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- DC+ and DC- labels -->
+  <text x="530" y="360" font-size="12" font-weight="bold" fill="#e74c3c">DC+ (400V)</text>
+  <text x="530" y="395" font-size="12" font-weight="bold" fill="#2980b9">DC− (Power Return)</text>
+
+  <!-- Voltage Sensor -->
+  <rect x="200" y="350" width="140" height="50" fill="#d5f5e3" stroke="#27ae60" stroke-width="2" rx="5"/>
+  <text x="270" y="372" text-anchor="middle" font-size="12" font-weight="bold">Voltage Sensor</text>
+  <text x="270" y="388" text-anchor="middle" font-size="10">Resistor div + AMC1311</text>
+  <line x1="370" y1="375" x2="340" y2="375" stroke="#27ae60" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Current Sensor -->
+  <rect x="200" y="450" width="140" height="50" fill="#d5f5e3" stroke="#27ae60" stroke-width="2" rx="5"/>
+  <text x="270" y="472" text-anchor="middle" font-size="12" font-weight="bold">Current Sensor</text>
+  <text x="270" y="488" text-anchor="middle" font-size="10">ACS / LEM / shunt</text>
+  <line x1="440" y1="400" x2="440" y2="430" stroke="#333" stroke-width="2"/>
+  <text x="455" y="420" font-size="10">Iout to load</text>
+
+  <!-- ============ RIGHT SIDE: CONTROL BOARD ============ -->
+
+  <!-- DSP Controller -->
+  <rect x="680" y="80" width="200" height="80" fill="#fff" stroke="#2980b9" stroke-width="2" rx="5"/>
+  <text x="780" y="105" text-anchor="middle" font-size="14" font-weight="bold">TMS320F280039C</text>
+  <text x="780" y="123" text-anchor="middle" font-size="10">C2000 DSP Control Card</text>
+  <text x="780" y="140" text-anchor="middle" font-size="10">PWM + ADC + SD Filter</text>
+
+  <!-- Isolated Gate Drivers -->
+  <rect x="680" y="210" width="200" height="70" fill="#fadbd8" stroke="#e74c3c" stroke-width="2" rx="5"/>
+  <text x="780" y="235" text-anchor="middle" font-size="13" font-weight="bold">Isolated Gate Drivers</text>
+  <text x="780" y="253" text-anchor="middle" font-size="10">UCC21520 / ISO5852S</text>
+  <text x="780" y="268" text-anchor="middle" font-size="10">PWM → SiC MOSFET gates</text>
+
+  <!-- Isolated ADC / Amplifiers -->
+  <rect x="680" y="330" width="200" height="70" fill="#d5f5e3" stroke="#27ae60" stroke-width="2" rx="5"/>
+  <text x="780" y="355" text-anchor="middle" font-size="13" font-weight="bold">Isolated Amplifiers</text>
+  <text x="780" y="373" text-anchor="middle" font-size="10">AMC1311 (voltage)</text>
+  <text x="780" y="388" text-anchor="middle" font-size="10">AMC1302 (current bitstream)</text>
+
+  <!-- Auxiliary Power Supply -->
+  <rect x="680" y="450" width="200" height="70" fill="#fef9e7" stroke="#f39c12" stroke-width="2" rx="5"/>
+  <text x="780" y="475" text-anchor="middle" font-size="13" font-weight="bold">Auxiliary Power Supply</text>
+  <text x="780" y="493" text-anchor="middle" font-size="10">3.3V / 5V isolated DC-DC</text>
+  <text x="780" y="508" text-anchor="middle" font-size="10">derived from 400V DC bus</text>
+
+  <!-- AGND / DGND Star Point -->
+  <rect x="730" y="570" width="100" height="50" fill="#fdebd0" stroke="#e67e22" stroke-width="2" rx="5"/>
+  <text x="780" y="595" text-anchor="middle" font-size="12" font-weight="bold">AGND = DGND</text>
+  <text x="780" y="610" text-anchor="middle" font-size="10">Single Star Point</text>
+
+  <!-- Signal arrows right side -->
+  <line x1="780" y1="160" x2="780" y2="210" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="795" y="185" font-size="10">PWM out</text>
+
+  <line x1="780" y1="280" x2="780" y2="330" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="795" y="305" font-size="10">feedback in</text>
+
+  <line x1="780" y1="400" x2="780" y2="450" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="780" y1="520" x2="780" y2="570" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ISOLATION DEVICES crossing barrier -->
+  <!-- Gate driver isolation -->
+  <line x1="600" y1="240" x2="680" y2="240" stroke="#e74c3c" stroke-width="3" stroke-dasharray="6,3"/>
+  <text x="640" y="235" text-anchor="middle" font-size="9" fill="#e74c3c">Reinforced</text>
+  <text x="640" y="247" text-anchor="middle" font-size="9" fill="#e74c3c">isolation</text>
+  <line x1="510" y1="240" x2="600" y2="240" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- AMC1311 isolation -->
+  <line x1="600" y1="365" x2="680" y2="365" stroke="#27ae60" stroke-width="3" stroke-dasharray="6,3"/>
+  <text x="640" y="360" text-anchor="middle" font-size="9" fill="#27ae60">Capacitive</text>
+  <text x="640" y="372" text-anchor="middle" font-size="9" fill="#27ae60">isolation</text>
+  <line x1="340" y1="375" x2="440" y2="375" stroke="#27ae60" stroke-width="1"/>
+  <line x1="440" y1="375" x2="600" y2="375" stroke="#27ae60" stroke-width="1" stroke-dasharray="4,3"/>
+
+  <!-- Aux power isolation -->
+  <line x1="600" y1="485" x2="680" y2="485" stroke="#f39c12" stroke-width="3" stroke-dasharray="6,3"/>
+  <text x="640" y="480" text-anchor="middle" font-size="9" fill="#f39c12">Isolated</text>
+  <text x="640" y="492" text-anchor="middle" font-size="9" fill="#f39c12">DC-DC</text>
+
+  <!-- STAR POINT: DC- to AGND connection -->
+  <line x1="510" y1="395" x2="780" y2="595" stroke="#e67e22" stroke-width="2.5" stroke-dasharray="8,4"/>
+  <text x="640" y="510" text-anchor="middle" font-size="11" font-weight="bold" fill="#e67e22">Single Star-Point Connection</text>
+  <text x="640" y="525" text-anchor="middle" font-size="10" fill="#e67e22">DC− (HV Power Return) → AGND (Control Board)</text>
+  <text x="640" y="540" text-anchor="middle" font-size="10" fill="#e67e22">via 0Ω jumper or single-point copper tie</text>
+
+  <!-- Arrow markers -->
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+    </marker>
+  </defs>
+
+  <!-- Ground symbols -->
+  <!-- DC- ground symbol (HV side) -->
+  <g transform="translate(510, 410)">
+    <line x1="0" y1="0" x2="0" y2="15" stroke="#2c3e50" stroke-width="2"/>
+    <line x1="-12" y1="15" x2="12" y2="15" stroke="#2c3e50" stroke-width="2"/>
+    <line x1="-8" y1="21" x2="8" y2="21" stroke="#2c3e50" stroke-width="1.5"/>
+    <line x1="-4" y1="27" x2="4" y2="27" stroke="#2c3e50" stroke-width="1"/>
+  </g>
+  <text x="510" y="445" text-anchor="middle" font-size="11" font-weight="bold" fill="#2c3e50">DC− (HV Power Return)</text>
+
+  <!-- AGND ground symbol (LV side) -->
+  <g transform="translate(780, 620)">
+    <line x1="0" y1="0" x2="0" y2="15" stroke="#2980b9" stroke-width="2"/>
+    <line x1="-12" y1="15" x2="12" y2="15" stroke="#2980b9" stroke-width="2"/>
+    <line x1="-8" y1="21" x2="8" y2="21" stroke="#2980b9" stroke-width="1.5"/>
+    <line x1="-4" y1="27" x2="4" y2="27" stroke="#2980b9" stroke-width="1"/>
+  </g>
+  <text x="780" y="660" text-anchor="middle" font-size="11" font-weight="bold" fill="#2980b9">Control Board AGND</text>
+
+  <!-- PE earth symbol -->
+  <g transform="translate(200, 147)">
+    <line x1="0" y1="0" x2="0" y2="10" stroke="#f39c12" stroke-width="2"/>
+    <line x1="-15" y1="10" x2="15" y2="10" stroke="#f39c12" stroke-width="2"/>
+    <line x1="-10" y1="16" x2="10" y2="16" stroke="#f39c12" stroke-width="1.5"/>
+    <line x1="-5" y1="22" x2="5" y2="22" stroke="#f39c12" stroke-width="1"/>
+    <circle cx="0" cy="-3" r="5" fill="none" stroke="#f39c12" stroke-width="1.5"/>
+  </g>
+  <text x="200" y="185" text-anchor="middle" font-size="10" fill="#f39c12">PE → Chassis Earth</text>
+
+  <!-- AC- label -->
+  <text x="340" y="115" font-size="10" fill="#7f8c8d">AC− (rectified)</text>
+
+  <!-- Signal flow labels -->
+  <text x="270" y="430" text-anchor="middle" font-size="10" fill="#27ae60">To isolated amplifier HV side</text>
+  <text x="270" y="530" text-anchor="middle" font-size="10" fill="#27ae60">To DSP ADC / SD input</text>
+
+</svg>
+</div>
+</div>
+
+<h2>2. Why DC− (Not AC−) Must Be the Control Board Reference</h2>
+
+<div class="warning">
+<strong>⚠ CRITICAL:</strong> AC− is <em>NOT</em> suitable as a ground reference for a non-isolated PFC. Here's why:
+</div>
+
+<table>
+  <tr>
+    <th>Parameter</th>
+    <th>AC− Reference</th>
+    <th>DC− Reference (Recommended)</th>
+  </tr>
+  <tr>
+    <td><strong>Potential relative to earth</strong></td>
+    <td>Floats with mains — alternates between ≈−325 V and +325 V peak at 50 Hz</td>
+    <td>Stable DC potential ≈ 0 V relative to output return</td>
+  </tr>
+  <tr>
+    <td><strong>Common-mode voltage to DSP</strong></td>
+    <td>325 V<sub>pk</sub> at 50 Hz — will destroy DSP I/O and create massive CM noise</td>
+    <td>Only switching-node CM at PWM frequency — manageable with isolation</td>
+  </tr>
+  <tr>
+    <td><strong>Sensor ground loop</strong></td>
+    <td>AC− is the input return of the bridge — it is NOT the same node as the output DC− during switching. Creates ground loop through EMI filter Y-caps</td>
+    <td>DC− is the single power return for the entire output stage — clean reference</td>
+  </tr>
+  <tr>
+    <td><strong>EMI / safety</strong></td>
+    <td>Y-capacitors from AC lines to earth create leakage currents that flow through control board ground — unpredictable offsets</td>
+    <td>Star point at DC− allows controlled single-point ground — predictable CM behavior</td>
+  </tr>
+  <tr>
+    <td><strong>PWM switching noise</strong></td>
+    <td>AC− node sees the full bridge rectifier switching transients superimposed on 50 Hz — extremely noisy reference</td>
+    <td>DC− is behind the bulk capacitance — much lower impedance at switching frequency</td>
+  </tr>
+  <tr>
+    <td><strong>Compatibility with isolated amplifiers</strong></td>
+    <td>AMC1311/AMC1302 GND1 pin must reference the measured signal ground — AC− makes GND1 float at 50 Hz → violates input CM range</td>
+    <td>GND1 = DC− = signal reference → input CM within spec (±0.5 V for AMC1311)</td>
+  </tr>
+</table>
+
+<h2>3. Detailed Explanation</h2>
+
+<h3>3.1 The Problem with AC−</h3>
+<p>In a non-isolated boost PFC, the AC input is rectified (either by a diode bridge or totem-pole sync rectifiers). The AC− node after the EMI filter is <strong>not a stable DC potential</strong>. During the positive half-cycle of mains, AC− is near earth potential; during the negative half-cycle, it swings to approximately −325 V<sub>pk</sub> relative to earth.</p>
+<p>If you reference your control board to AC−:</p>
+<ul>
+  <li>The DSP's AGND would swing ±325 V at 50 Hz relative to earth ground</li>
+  <li>All signal cables (JTAG, UART, USB) connecting to the DSP would see this enormous CM voltage</li>
+  <li>The Y-capacitors in the EMI filter would pass significant 50 Hz leakage current through the control ground path</li>
+  <li>Any oscilloscope probe connected to a DSP pin would create a direct short through the scope's earth-referenced ground lead</li>
+</ul>
+
+<h3>3.2 Why DC− is the Correct Choice</h3>
+<p>DC− is the output return of the PFC stage. It is the node that all output-side measurements (voltage, current) reference to. By connecting the control board AGND to DC− at a <strong>single star point</strong>:</p>
+<ul>
+  <li>The control board ground is at the same DC potential as all sensed signals</li>
+  <li>Isolated gate drivers handle the PWM signals crossing to the high-side SiC MOSFET (whose source is at the switching node, not at DC−)</li>
+  <li>Isolated amplifiers (AMC1311, AMC1302) have their HV-side ground (GND1) tied to DC−, and their LV-side ground (GND2) tied to the control board AGND</li>
+  <li>The isolation barrier absorbs the CM voltage between the switching node and DC−</li>
+</ul>
+
+<h3>3.3 Star-Point Connection Details</h3>
+<p>The star point between DC− and control board AGND should be implemented as:</p>
+<ul>
+  <li><strong>For prototyping:</strong> A 0 Ω jumper resistor or a single short trace connecting the two ground planes at exactly one point</li>
+  <li><strong>For production:</strong> A dedicated copper tie between the HV power ground plane and the LV control ground plane, placed near the auxiliary power supply return</li>
+  <li><strong>Location:</strong> Place the star point near where the auxiliary isolated DC-DC converter's secondary-side ground connects — this is typically close to the isolated amplifiers and DSP</li>
+</ul>
+
+<div class="note">
+<strong>📌 Note:</strong> The control board should have separate AGND (analog ground) and DGND (digital ground) regions that are joined at a single point <em>underneath the DSP</em>. The DC− star point connects to this combined ground at the DSP location.
+</div>
+
+<h2>4. Isolation Devices Summary</h2>
+<table>
+  <tr>
+    <th>Device</th>
+    <th>Function</th>
+    <th>Isolation Rating</th>
+    <th>Barrier Direction</th>
+  </tr>
+  <tr>
+    <td>UCC21520 / ISO5852S</td>
+    <td>Gate driver for SiC MOSFET</td>
+    <td>5 kV<sub>RMS</sub> reinforced</td>
+    <td>DSP PWM → HV-side gate</td>
+  </tr>
+  <tr>
+    <td>AMC1311</td>
+    <td>Isolated amplifier (voltage sense)</td>
+    <td>5 kV<sub>RMS</sub> capacitive</td>
+    <td>HV sense → LV ADC</td>
+  </tr>
+  <tr>
+    <td>AMC1302</td>
+    <td>Isolated delta-sigma modulator (current)</td>
+    <td>5 kV<sub>RMS</sub> capacitive</td>
+    <td>HV shunt → LV SD decoder</td>
+  </tr>
+  <tr>
+    <td>Isolated DC-DC (e.g., LM5017 + transformer)</td>
+    <td>Auxiliary power from 400 V bus</td>
+    <td>Functional isolation</td>
+    <td>400 V bus → 3.3V/5V control power</td>
+  </tr>
+</table>
+
+<h2>5. Control Board Ground Plane Layout</h2>
+<div class="diagram-box">
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 350" font-family="Segoe UI, Arial, sans-serif">
+  <!-- Control board outline -->
+  <rect x="20" y="20" width="760" height="310" fill="#f8f9fa" stroke="#2c3e50" stroke-width="2" rx="8"/>
+  <text x="400" y="45" text-anchor="middle" font-size="14" font-weight="bold">Control Board Ground Plane Layout</text>
+
+  <!-- AGND region -->
+  <rect x="40" y="70" width="350" height="240" fill="#d5f5e3" stroke="#27ae60" stroke-width="1.5" rx="5"/>
+  <text x="215" y="95" text-anchor="middle" font-size="13" font-weight="bold" fill="#27ae60">AGND (Analog Ground)</text>
+  <text x="215" y="115" text-anchor="middle" font-size="10">— AMC1311 LV side (GND2)</text>
+  <text x="215" y="132" text-anchor="middle" font-size="10">— AMC1302 LV side (GND2)</text>
+  <text x="215" y="149" text-anchor="middle" font-size="10">— OPA2320/OPA340 analog ground</text>
+  <text x="215" y="166" text-anchor="middle" font-size="10">— ADC reference ground</text>
+  <text x="215" y="183" text-anchor="middle" font-size="10">— TMCS1133 / ACS sensor ground</text>
+  <text x="215" y="200" text-anchor="middle" font-size="10">— 3.3V LDO / 5V regulator ground</text>
+
+  <!-- DGND region -->
+  <rect x="410" y="70" width="350" height="240" fill="#d6eaf8" stroke="#2980b9" stroke-width="1.5" rx="5"/>
+  <text x="585" y="95" text-anchor="middle" font-size="13" font-weight="bold" fill="#2980b9">DGND (Digital Ground)</text>
+  <text x="585" y="115" text-anchor="middle" font-size="10">— DSP digital ground</text>
+  <text x="585" y="132" text-anchor="middle" font-size="10">— SD decoder module ground</text>
+  <text x="585" y="149" text-anchor="middle" font-size="10">— PWM output ground</text>
+  <text x="585" y="166" text-anchor="middle" font-size="10">— Communication interfaces (SPI, UART)</text>
+  <text x="585" y="183" text-anchor="middle" font-size="10">— Debug interface (JTAG) ground</text>
+
+  <!-- Star point under DSP -->
+  <circle cx="400" cy="190" r="25" fill="#fdebd0" stroke="#e67e22" stroke-width="2.5"/>
+  <text x="400" y="186" text-anchor="middle" font-size="10" font-weight="bold" fill="#e67e22">STAR POINT</text>
+  <text x="400" y="200" text-anchor="middle" font-size="9" fill="#e67e22">AGND = DGND</text>
+
+  <!-- DSP location -->
+  <rect x="365" y="150" width="70" height="40" fill="#fff" stroke="#333" stroke-width="1.5" rx="3"/>
+  <text x="400" y="175" text-anchor="middle" font-size="10" font-weight="bold">DSP</text>
+
+  <!-- DC- star point connection -->
+  <line x1="400" y1="215" x2="400" y2="280" stroke="#e74c3c" stroke-width="2" stroke-dasharray="6,3"/>
+  <rect x="340" y="280" width="120" height="35" fill="#fadbd8" stroke="#e74c3c" stroke-width="1.5" rx="5"/>
+  <text x="400" y="297" text-anchor="middle" font-size="10" font-weight="bold" fill="#e74c3c">DC− Star Point</text>
+  <text x="400" y="310" text-anchor="middle" font-size="8" fill="#e74c3c">From HV power return</text>
+
+  <!-- Gate driver area -->
+  <rect x="40" y="270" width="160" height="40" fill="#fadbd8" stroke="#e74c3c" stroke-width="1" rx="3"/>
+  <text x="120" y="295" text-anchor="middle" font-size="9">Isolated Gate Drivers</text>
+
+  <!-- Aux power area -->
+  <rect x="600" y="270" width="160" height="40" fill="#fef9e7" stroke="#f39c12" stroke-width="1" rx="3"/>
+  <text x="680" y="295" text-anchor="middle" font-size="9">Aux DC-DC Converter</text>
+
+  <!-- Wide trace for star point -->
+  <text x="400" y="255" text-anchor="middle" font-size="9" fill="#e67e22">Wide copper pour / 0Ω jumper</text>
+
+</svg>
+</div>
+</div>
+
+<h2>6. Key Design Rules</h2>
+<ol>
+  <li><strong>Never reference control ground to AC−</strong> — it floats at line frequency and creates lethal CM voltages</li>
+  <li><strong>DC− is the only valid power ground reference</strong> for a non-isolated PFC output stage</li>
+  <li><strong>All isolation barriers must be respected</strong> — no copper traces, no thermal pads, no component bodies crossing the barrier except designated isolators</li>
+  <li><strong>Single star point</strong> between DC− and control AGND — no multiple connections that create ground loops</li>
+  <li><strong>AGND and DGND join under the DSP</strong> — analog and digital grounds meet at the converter's ground pin</li>
+  <li><strong>PE (protective earth)</strong> connects to chassis/enclosure only — <em>never</em> to the control board ground</li>
+  <li><strong>Creepage/clearance:</strong> Maintain ≥8 mm creepage for 400 V DC bus (per IEC 60950-1 / IEC 62368-1)</li>
+</ol>
+
+</div>
+</body>
+</html>

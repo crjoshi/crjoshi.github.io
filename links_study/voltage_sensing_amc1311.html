@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>400 V DC Bus Voltage Sensing — AMC1311 Isolated Amplifier</title>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; color: #222; margin: 0; padding: 30px; }
+  h1 { color: #1a3a5c; border-bottom: 3px solid #2980b9; padding-bottom: 8px; }
+  h2 { color: #2980b9; margin-top: 30px; }
+  h3 { color: #34495e; }
+  .container { max-width: 1200px; margin: 0 auto; }
+  .diagram-box { background: #fff; border: 2px solid #2980b9; border-radius: 8px; padding: 20px; margin: 20px 0; overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; margin: 15px 0; }
+  th, td { border: 1px solid #bdc3c7; padding: 8px 12px; text-align: left; }
+  th { background: #2980b9; color: #fff; }
+  tr:nth-child(even) { background: #eaf2f8; }
+  .note { background: #eaf2f8; border-left: 4px solid #3498db; padding: 12px 16px; margin: 15px 0; }
+  .formula { background: #fef9e7; border: 1px solid #f39c12; border-radius: 4px; padding: 12px 16px; margin: 10px 0; font-family: 'Consolas', monospace; font-size: 14px; }
+  .svg-container { text-align: center; margin: 20px 0; }
+  svg { max-width: 100%; }
+  code { background: #ecf0f1; padding: 2px 6px; border-radius: 3px; font-family: 'Consolas', monospace; }
+  .result { background: #d5f5e3; border-left: 4px solid #27ae60; padding: 12px 16px; margin: 15px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>400 V DC Bus Voltage Sensing Circuit</h1>
+<p>Sensing the 400 V DC bus using a resistor divider feeding an <strong>AMC1311</strong> high-impedance isolated amplifier, producing a 0–2 V output compatible with the TMS320F280039C ADC input range (0–3.3 V).</p>
+
+<h2>1. Design Requirements</h2>
+<table>
+  <tr><th>Parameter</th><th>Value</th></tr>
+  <tr><td>Maximum DC bus voltage to sense</td><td>400 V DC (nominal), up to 450 V DC (max transient)</td></tr>
+  <tr><td>AMC1311 input range</td><td>±2 V (differential), high-impedance input (R<sub>in</sub> = 31.2 kΩ typ)</td></tr>
+  <tr><td>AMC1311 gain</td><td>Vout / Vin = 2 V/V (fixed internal gain)</td></tr>
+  <tr><td>AMC1311 output range</td><td>0 to 2 V (single-ended, ratiometric to VDD2)</td></tr>
+  <tr><td>DSP ADC input range</td><td>0 to 3.3 V (12-bit ADC)</td></tr>
+  <tr><td>Series resistor chain (TIDA-010054 reference)</td><td>634 kΩ total (two 317 kΩ in series for voltage rating)</td></tr>
+</table>
+
+<h2>2. Calculation Steps</h2>
+
+<h3>Step 1: Determine Divider Ratio</h3>
+<div class="formula">
+V<sub>in(AMC1311)</sub> = V<sub>bus</sub> × R<sub>in</sub> / (R<sub>div</sub> + R<sub>in</sub>)<br><br>
+Where R<sub>in</sub> = 31.2 kΩ (AMC1311 internal input resistance, differential)<br>
+R<sub>div</sub> = total series divider resistance = 634 kΩ<br><br>
+At V<sub>bus</sub> = 400 V:<br>
+V<sub>in</sub> = 400 × 31.2k / (634k + 31.2k) = 400 × 31.2 / 665.2 = <strong>18.82 mV</strong><br><br>
+AMC1311 output: V<sub>out</sub> = 2 × V<sub>in</sub> = 2 × 18.82 mV = <strong>37.64 mV</strong>
+</div>
+
+<div class="note">
+<strong>Wait — this is far too small!</strong> The TIDA-010054 uses 634 kΩ for a different voltage range. We need to recalculate for our 400 V application to maximize the ADC resolution.
+</div>
+
+<h3>Step 2: Recalculate for Optimal ADC Utilization</h3>
+<p>We want the AMC1311 output to reach ≈2 V at maximum bus voltage (450 V) to utilize the full ADC range. Working backwards:</p>
+
+<div class="formula">
+Target: V<sub>out(AMC1311)</sub> = 2.0 V at V<sub>bus(max)</sub> = 450 V<br>
+V<sub>in(AMC1311)</sub> = V<sub>out</sub> / 2 = 2.0 / 2 = <strong>1.0 V</strong><br><br>
+But AMC1311 maximum differential input is ±2 V, and the common-mode input range is limited.<br>
+For safety and margin, target V<sub>in</sub> = <strong>1.0 V</strong> at V<sub>bus</sub> = 450 V (50% of AMC1311 max).<br><br>
+Divider ratio needed: R<sub>in</sub> / (R<sub>div</sub> + R<sub>in</sub>) = 1.0 / 450<br>
+31.2k / (R<sub>div</sub> + 31.2k) = 1/450<br>
+R<sub>div</sub> + 31.2k = 31.2k × 450 = 14,040 kΩ<br>
+R<sub>div</sub> = 14,040k − 31.2k = <strong>14,008.8 kΩ ≈ 14 MΩ</strong>
+</div>
+
+<div class="note">
+<strong>That's a very large divider resistance</strong>, which means very low current and good power efficiency. However, the TIDA-010054 uses 634 kΩ, so let's design for that constraint and accept a smaller output signal, then add a buffer/offset stage.
+</div>
+
+<h3>Step 3: Design with 634 kΩ Divider Chain (TIDA-010054 Approach)</h3>
+<p>The TIDA-010054 uses 634 kΩ total for sensing up to 1500 V DC. For our 400 V application:</p>
+
+<div class="formula">
+R<sub>div</sub> = 634 kΩ (split as 2 × 317 kΩ for voltage rating)<br>
+R<sub>in</sub> = 31.2 kΩ (AMC1311 internal)<br><br>
+Divider ratio = 31.2k / (634k + 31.2k) = 31.2 / 665.2 = <strong>0.04691</strong><br><br>
+At V<sub>bus</sub> = 400 V: V<sub>in</sub> = 400 × 0.04691 = <strong>18.76 mV</strong><br>
+AMC1311 V<sub>out</sub> = 2 × 18.76 mV = <strong>37.53 mV</strong><br><br>
+At V<sub>bus</sub> = 450 V (max): V<sub>in</sub> = 450 × 0.04691 = <strong>21.11 mV</strong><br>
+AMC1311 V<sub>out</sub> = 2 × 21.11 mV = <strong>42.22 mV</strong>
+</div>
+
+<div class="note">
+This output is very small (37–42 mV). The AMC1311 is designed for ±2 V input. With only 18–21 mV at the input, we're using only ~1% of its range. This is the TIDA-010054 approach for <em>high-voltage</em> (1500 V) sensing. For 400 V, we should use a lower divider resistance to get more signal.
+</div>
+
+<h3>Step 4: Optimized Design for 400 V Bus</h3>
+<p>Let's design a divider that gives V<sub>in</sub> = 1.0 V at V<sub>bus</sub> = 400 V (50% of AMC1311 full scale):</p>
+
+<div class="formula">
+V<sub>in(target)</sub> = 1.0 V at V<sub>bus</sub> = 400 V<br>
+I<sub>divider</sub> = V<sub>in</sub> / R<sub>in</sub> = 1.0 / 31.2k = <strong>32.05 µA</strong><br>
+R<sub>total</sub> = V<sub>bus</sub> / I<sub>divider</sub> = 400 / 32.05µ = <strong>12.48 MΩ</strong><br>
+R<sub>div</sub> = R<sub>total</sub> − R<sub>in</sub> = 12.48M − 31.2k ≈ <strong>12.45 MΩ</strong><br><br>
+Split into 2 equal resistors: R1 = R2 = 12.45M / 2 = <strong>6.225 MΩ each</strong><br>
+Use standard E96 values: <strong>R1 = R2 = 6.20 MΩ</strong> (0805 or 1206, 0.25 W each)
+</div>
+
+<p><strong>Verification with 6.20 MΩ + 6.20 MΩ:</strong></p>
+
+<div class="formula">
+R<sub>div</sub> = 12.40 MΩ<br>
+V<sub>in</sub> at 400 V = 400 × 31.2k / (12,400k + 31.2k) = 400 × 31.2 / 12,431.2 = <strong>1.004 V</strong> ✓<br>
+V<sub>in</sub> at 450 V = 450 × 31.2 / 12,431.2 = <strong>1.130 V</strong> (within ±2 V limit) ✓<br>
+AMC1311 V<sub>out</sub> at 400 V = 2 × 1.004 = <strong>2.008 V</strong> ✓<br>
+AMC1311 V<sub>out</sub> at 450 V = 2 × 1.130 = <strong>2.260 V</strong> ✓<br>
+ADC reading at 400 V = (2.008 / 3.3) × 4095 = <strong>2,489 counts</strong> (60.7% of full scale) ✓
+</div>
+
+<div class="result">
+<strong>✅ Final Design:</strong> R1 = R2 = 6.20 MΩ (1206, 0.25 W). AMC1311 output = 2.008 V at 400 V bus. DSP ADC reads ≈2,489 of 4,095 counts.
+</div>
+
+<h2>3. Power Dissipation & Voltage Rating Calculations</h2>
+
+<h3>Power Dissipation per Resistor</h3>
+<div class="formula">
+I<sub>divider</sub> = 400 V / 12,431.2 kΩ = <strong>32.18 µA</strong><br><br>
+P<sub>R1</sub> = I² × R1 = (32.18µ)² × 6.20M = <strong>6.43 mW</strong><br>
+P<sub>R2</sub> = I² × R2 = <strong>6.43 mW</strong><br>
+P<sub>Rin(AMC1311)</sub> = I² × 31.2k = <strong>0.033 mW</strong><br><br>
+Total divider power = 6.43 + 6.43 = <strong>12.86 mW</strong> (negligible)
+</div>
+
+<h3>Voltage Rating per Resistor</h3>
+<div class="formula">
+V<sub>R1</sub> = I × R1 = 32.18µ × 6.20M = <strong>199.5 V</strong><br>
+V<sub>R2</sub> = I × R2 = <strong>199.5 V</strong><br><br>
+At 450 V max transient: V<sub>R1</sub> = V<sub>R2</sub> = 450 × 6.20M / 12,431.2k = <strong>224.4 V</strong><br><br>
+Required voltage rating per resistor: ≥ 250 V (with margin)<br>
+Recommended: <strong>1206 package, 200 V working voltage minimum</strong><br>
+For safety: use resistors rated for <strong>≥ 500 V pulse</strong> (e.g., Vishay MCT 0603 or higher)
+</div>
+
+<h3>Resistor Selection</h3>
+<table>
+  <tr><th>Parameter</th><th>Value</th><th>Notes</th></tr>
+  <tr><td>Part</td><td>Vishay MCT06030D6204T5E (0.1%, 25 ppm/°C)</td><td>Thin film, 1206 equivalent</td></tr>
+  <tr><td>Resistance</td><td>6.20 MΩ</td><td>E96 standard value</td></tr>
+  <tr><td>Power rating</td><td>0.25 W (1206)</td><td>Derated to 6.43 mW → 38× margin</td></tr>
+  <tr><td>Working voltage</td><td>200 V (per resistor)</td><td>224.4 V at max → may need 1206 or series split</td></tr>
+  <tr><td>Temperature coefficient</td><td>25 ppm/°C</td><td>Critical for measurement accuracy</td></tr>
+  <tr><td>Tolerance</td><td>0.1%</td><td>Minimizes calibration error</td></tr>
+</table>
+
+<div class="note">
+<strong>Voltage rating concern:</strong> Standard 1206 resistors have a working voltage limit of 200 V. At 450 V bus transient, each resistor sees 224.4 V. Two options:
+<br><strong>Option A:</strong> Use 3 resistors in series (e.g., 3 × 4.12 MΩ) → each sees 150 V at 450 V bus.
+<br><strong>Option B:</strong> Use high-voltage rated resistors (e.g., Vishay MCA 1206, rated 300 V working).
+<br><em>Recommendation:</em> Use 3 × 4.12 MΩ (E96) in series per leg for safety margin.
+</div>
+
+<h2>4. Anti-Aliasing Filter</h2>
+<div class="formula">
+The AMC1311 output needs a low-pass anti-aliasing filter before the DSP ADC.<br>
+The DSP ADC sampling rate: typically 100 kSPS to 1 MSPS for PFC control.<br><br>
+For a 20 kHz PFC switching frequency, target corner frequency f<sub>c</sub> = 50 kHz:<br><br>
+RC low-pass: R<sub>aa</sub> = 100 Ω, C<sub>aa</sub> = ?<br>
+f<sub>c</sub> = 1 / (2π × R<sub>aa</sub> × C<sub>aa</sub>)<br>
+C<sub>aa</sub> = 1 / (2π × 100 × 50k) = <strong>31.8 nF</strong><br>
+Use standard value: <strong>C<sub>aa</sub> = 33 nF</strong> (X7R, 0603)<br><br>
+Actual f<sub>c</sub> = 1 / (2π × 100 × 33n) = <strong>48.2 kHz</strong> ✓
+</div>
+
+<h2>5. Complete Schematic</h2>
+<div class="diagram-box">
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 750" font-family="Segoe UI, Arial, sans-serif">
+  <!-- Title -->
+  <text x="550" y="25" text-anchor="middle" font-size="16" font-weight="bold">400 V DC Bus Voltage Sensing — AMC1311 Isolated Amplifier</text>
+
+  <!-- ===== HV SIDE (left) ===== -->
+  <rect x="10" y="40" width="480" height="690" fill="#fdf2e9" stroke="#e67e22" stroke-width="2" rx="8" stroke-dasharray="8,4"/>
+  <text x="250" y="65" text-anchor="middle" font-size="13" font-weight="bold" fill="#e67e22">HV Side — GND1 = DC−</text>
+
+  <!-- ===== LV SIDE (right) ===== -->
+  <rect x="510" y="40" width="580" height="690" fill="#eaf2f8" stroke="#2980b9" stroke-width="2" rx="8" stroke-dasharray="8,4"/>
+  <text x="800" y="65" text-anchor="middle" font-size="13" font-weight="bold" fill="#2980b9">LV Side — GND2 = AGND (Control Board)</text>
+
+  <!-- ISOLATION BARRIER -->
+  <line x1="500" y1="70" x2="500" y2="730" stroke="#e74c3c" stroke-width="2.5" stroke-dasharray="10,5"/>
+  <text x="500" y="740" text-anchor="middle" font-size="11" font-weight="bold" fill="#e74c3c">ISOLATION BARRIER (5 kVrms capacitive)</text>
+
+  <!-- DC+ and DC- inputs -->
+  <text x="50" y="100" font-size="14" font-weight="bold" fill="#e74c3c">DC+ (400 V)</text>
+  <text x="50" y="680" font-size="14" font-weight="bold" fill="#2c3e50">DC− (Power Return = GND1)</text>
+
+  <!-- R1: first divider resistor -->
+  <rect x="180" y="85" width="100" height="30" fill="#fff" stroke="#333" stroke-width="1.5" rx="3"/>
+  <text x="230" y="105" text-anchor="middle" font-size="12">R1</text>
+  <text x="230" y="130" text-anchor="middle" font-size="10" fill="#555">6.20 MΩ, 1206, 0.1%</text>
+  <text x="230" y="143" text-anchor="middle" font-size="9" fill="#888">4.12M × 3 in series</text>
+  <line x1="100" y1="100" x2="180" y2="100" stroke="#e74c3c" stroke-width="2"/>
+  <line x1="50" y1="97" x2="100" y2="97" stroke="#e74c3c" stroke-width="2.5"/>
+
+  <!-- R2: second divider resistor -->
+  <rect x="320" y="85" width="100" height="30" fill="#fff" stroke="#333" stroke-width="1.5" rx="3"/>
+  <text x="370" y="105" text-anchor="middle" font-size="12">R2</text>
+  <text x="370" y="130" text-anchor="middle" font-size="10" fill="#555">6.20 MΩ, 1206, 0.1%</text>
+  <text x="370" y="143" text-anchor="middle" font-size="9" fill="#888">4.12M × 3 in series</text>
+  <line x1="280" y1="100" x2="320" y2="100" stroke="#333" stroke-width="2"/>
+
+  <!-- Connection to AMC1311 VIN+ -->
+  <line x1="420" y1="100" x2="470" y2="100" stroke="#333" stroke-width="2"/>
+  <line x1="470" y1="100" x2="470" y2="200" stroke="#27ae60" stroke-width="2"/>
+  <line x1="470" y1="200" x2="500" y2="200" stroke="#27ae60" stroke-width="2"/>
+
+  <!-- DC- to R2 bottom and GND1 -->
+  <line x1="420" y1="100" x2="420" y2="600" stroke="#333" stroke-width="1.5"/>
+  <line x1="420" y1="600" x2="370" y2="600" stroke="#333" stroke-width="1.5"/>
+  <!-- GND1 symbol -->
+  <g transform="translate(370, 620)">
+    <line x1="0" y1="0" x2="0" y2="10" stroke="#2c3e50" stroke-width="2"/>
+    <line x1="-10" y1="10" x2="10" y2="10" stroke="#2c3e50" stroke-width="2"/>
+    <line x1="-7" y1="15" x2="7" y2="15" stroke="#2c3e50" stroke-width="1.5"/>
+    <line x1="-4" y1="20" x2="4" y2="20" stroke="#2c3e50" stroke-width="1"/>
+  </g>
+  <text x="370" y="650" text-anchor="middle" font-size="11" font-weight="bold" fill="#2c3e50">GND1 = DC−</text>
+
+  <!-- ===== AMC1311 IC ===== -->
+  <rect x="520" y="150" width="200" height="140" fill="#fff" stroke="#27ae60" stroke-width="2.5" rx="8"/>
+  <text x="620" y="175" text-anchor="middle" font-size="15" font-weight="bold" fill="#27ae60">AMC1311</text>
+  <text x="620" y="193" text-anchor="middle" font-size="10">High-Impedance Input</text>
+  <text x="620" y="206" text-anchor="middle" font-size="10">Isolated Amplifier</text>
+  <text x="620" y="219" text-anchor="middle" font-size="10">Gain = 2 V/V</text>
+
+  <!-- AMC1311 pins HV side -->
+  <text x="520" y="220" font-size="10" fill="#2c3e50">VIN+ (pin 2)</text>
+  <line x1="500" y1="200" x2="520" y2="200" stroke="#27ae60" stroke-width="2"/>
+  <line x1="500" y1="200" x2="500" y2="220" stroke="#27ae60" stroke-width="1" stroke-dasharray="3,2"/>
+
+  <text x="520" y="260" font-size="10" fill="#2c3e50">VIN− (pin 1)</text>
+  <line x1="520" y1="270" x2="500" y2="270" stroke="#2c3e50" stroke-width="2"/>
+
+  <text x="520" y="285" font-size="10" fill="#2c3e50">GND1 (pin 4)</text>
+  <line x1="520" y1="290" x2="500" y2="290" stroke="#2c3e50" stroke-width="2"/>
+
+  <!-- VIN- and GND1 to DC- -->
+  <line x1="500" y1="270" x2="500" y2="600" stroke="#2c3e50" stroke-width="1.5"/>
+  <line x1="500" y1="290" x2="500" y2="600" stroke="#2c3e50" stroke-width="1.5"/>
+
+  <!-- VDD1 (HV side supply) -->
+  <text x="520" y="160" font-size="10" fill="#f39c12">VDD1 (pin 7) = 5 V</text>
+  <line x1="620" y1="150" x2="620" y2="120" stroke="#f39c12" stroke-width="1.5"/>
+  <text x="620" y="115" text-anchor="middle" font-size="10" fill="#f39c12">5 V isolated (from aux DC-DC)</text>
+
+  <!-- AMC1311 pins LV side -->
+  <text x="720" y="200" font-size="10" fill="#2980b9">VOUT (pin 8)</text>
+  <line x1="720" y1="200" x2="740" y2="200" stroke="#2980b9" stroke-width="2"/>
+
+  <text x="720" y="260" font-size="10" fill="#2980b9">GND2 (pin 6)</text>
+  <line x1="720" y1="270" x2="740" y2="270" stroke="#2980b9" stroke-width="2"/>
+
+  <text x="720" y="285" font-size="10" fill="#f39c12">VDD2 (pin 5) = 3.3 V</text>
+  <line x1="720" y1="280" x2="740" y2="280" stroke="#f39c12" stroke-width="1.5"/>
+
+  <!-- VDD2 and GND2 -->
+  <text x="800" y="275" font-size="10" fill="#f39c12">3.3 V LDO</text>
+  <line x1="740" y1="280" x2="780" y2="280" stroke="#f39c12" stroke-width="1.5"/>
+  <line x1="740" y1="270" x2="780" y2="270" stroke="#2980b9" stroke-width="1.5"/>
+  <text x="800" y="290" font-size="10" fill="#2980b9">GND2 = AGND</text>
+
+  <!-- Anti-aliasing filter -->
+  <rect x="780" y="170" width="120" height="60" fill="#fef9e7" stroke="#f39c12" stroke-width="1.5" rx="5"/>
+  <text x="840" y="195" text-anchor="middle" font-size="12" font-weight="bold">Anti-Alias Filter</text>
+  <text x="840" y="212" text-anchor="middle" font-size="10">R<sub>aa</sub> = 100 Ω</text>
+  <text x="840" y="225" text-anchor="middle" font-size="10">C<sub>aa</sub> = 33 nF</text>
+  <text x="840" y="238" text-anchor="middle" font-size="9">f<sub>c</sub> = 48.2 kHz</text>
+
+  <line x1="740" y1="200" x2="780" y2="200" stroke="#2980b9" stroke-width="2"/>
+
+  <!-- OPA340 Buffer -->
+  <rect x="940" y="170" width="120" height="60" fill="#d5f5e3" stroke="#27ae60" stroke-width="1.5" rx="5"/>
+  <text x="1000" y="195" text-anchor="middle" font-size="12" font-weight="bold">OPA340 Buffer</text>
+  <text x="1000" y="212" text-anchor="middle" font-size="10">Unity gain buffer</text>
+  <text x="1000" y="225" text-anchor="middle" font-size="10">Low Z → DSP ADC</text>
+
+  <line x1="900" y1="200" x2="940" y2="200" stroke="#2980b9" stroke-width="2"/>
+
+  <!-- To DSP ADC -->
+  <line x1="1060" y1="200" x2="1080" y2="200" stroke="#2980b9" stroke-width="2"/>
+  <text x="1075" y="190" font-size="9" fill="#2980b9">ADCINA0</text>
+
+  <!-- GND2 ground symbol -->
+  <g transform="translate(780, 350)">
+    <line x1="0" y1="0" x2="0" y2="15" stroke="#2980b9" stroke-width="2"/>
+    <line x1="-12" y1="15" x2="12" y2="15" stroke="#2980b9" stroke-width="2"/>
+    <line x1="-8" y1="21" x2="8" y2="21" stroke="#2980b9" stroke-width="1.5"/>
+    <line x1="-4" y1="27" x2="4" y2="27" stroke="#2980b9" stroke-width="1"/>
+  </g>
+  <text x="780" y="375" text-anchor="middle" font-size="11" font-weight="bold" fill="#2980b9">AGND</text>
+  <line x1="740" y1="270" x2="780" y2="270" stroke="#2980b9" stroke-width="1.5"/>
+  <line x1="780" y1="270" x2="780" y2="350" stroke="#2980b9" stroke-width="1.5"/>
+
+  <!-- Signal level annotations -->
+  <rect x="520" y="360" width="450" height="180" fill="#f8f9fa" stroke="#bdc3c7" stroke-width="1" rx="5"/>
+  <text x="745" y="385" text-anchor="middle" font-size="13" font-weight="bold">Signal Levels at Each Stage</text>
+
+  <text x="540" y="410" font-size="11">V<sub>bus</sub> = 400 V DC</text>
+  <text x="540" y="430" font-size="11">→ R1 + R2 divider: V<sub>mid</sub> = 1.004 V</text>
+  <text x="540" y="450" font-size="11">→ AMC1311 VIN+ − VIN− = 1.004 V</text>
+  <text x="540" y="470" font-size="11">→ AMC1311 VOUT = 2 × 1.004 V = 2.008 V</text>
+  <text x="540" y="490" font-size="11">→ After anti-alias filter: 2.008 V (DC, negligible attenuation)</text>
+  <text x="540" y="510" font-size="11">→ After OPA340 buffer: 2.008 V (unity gain)</text>
+  <text x="540" y="530" font-size="11">→ DSP ADCINA0: 2.008 V → ADC code = 2,489 (of 4,095)</text>
+
+  <text x="760" y="560" font-size="11">Resolution: 400 V / 2489 counts = <strong>0.161 V/count</strong></text>
+  <text x="760" y="580" font-size="11">Full-scale range: 0 to 528 V (at 3.3 V ADC max)</text>
+  <text x="760" y="600" font-size="11">Effective resolution at 400 V: <strong>11.3 bits</strong> of 12-bit ADC</text>
+
+  <!-- Component table -->
+  <rect x="520" y="560" width="560" height="170" fill="#fff" stroke="#bdc3c7" stroke-width="1" rx="5"/>
+  <text x="800" y="585" text-anchor="middle" font-size="12" font-weight="bold">Bill of Materials</text>
+
+  <text x="540" y="610" font-size="10">R1, R2: 6.20 MΩ (3× 4.12M in series each), 1206, 0.1%, 25ppm/°C — Vishay MCT0603</text>
+  <text x="540" y="628" font-size="10">U1: AMC1311DWR — TI, high-impedance isolated amplifier, gain=2, 5kVrms</text>
+  <text x="540" y="646" font-size="10">U2: OPA340UA — TI, precision rail-to-rail op-amp, unity buffer</text>
+  <text x="540" y="664" font-size="10">R<sub>aa</sub>: 100 Ω, 0603, 1% — Yageo RC0603FR-07100RL</text>
+  <text x="540" y="682" font-size="10">C<sub>aa</sub>: 33 nF, 0603, X7R, 10% — Murata GCM188R71C333KA55</text>
+  <text x="540" y="700" font-size="10">C1: 1 µF, 0603, X7R — decoupling for VDD1 and VDD2</text>
+
+</svg>
+</div>
+</div>
+
+<h2>6. Calculation Summary Table</h2>
+<table>
+  <tr><th>Step</th><th>Calculation</th><th>Result</th><th>Notes</th></tr>
+  <tr><td>1</td><td>Divider ratio = R<sub>in</sub>/(R<sub>div</sub>+R<sub>in</sub>)</td><td>31.2k/12,431.2k = 0.002510</td><td></td></tr>
+  <tr><td>2</td><td>V<sub>in</sub> at 400 V = 400 × 0.002510</td><td>1.004 V</td><td>AMC1311 differential input</td></tr>
+  <tr><td>3</td><td>V<sub>out</sub> = 2 × V<sub>in</sub></td><td>2.008 V</td><td>AMC1311 output</td></tr>
+  <tr><td>4</td><td>ADC code = (2.008/3.3) × 4095</td><td>2,489</td><td>12-bit ADC</td></tr>
+  <tr><td>5</td><td>I<sub>divider</sub> = 400/12,431.2k</td><td>32.18 µA</td><td></td></tr>
+  <tr><td>6</td><td>P<sub>R1</sub> = I² × R1</td><td>6.43 mW</td><td>0.25 W rated → 38× margin</td></tr>
+  <tr><td>7</td><td>V<sub>R1</sub> = I × R1</td><td>199.5 V</td><td>Use 3× series for 450 V max</td></tr>
+  <tr><td>8</td><td>f<sub>c</sub> = 1/(2π×100×33n)</td><td>48.2 kHz</td><td>Anti-alias filter</td></tr>
+</table>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DC Output Current Sensing — ACS37802 Hall-Effect Current Sensor</title>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; color: #222; margin: 0; padding: 30px; }
+  h1 { color: #1a3a5c; border-bottom: 3px solid #2980b9; padding-bottom: 8px; }
+  h2 { color: #2980b9; margin-top: 30px; }
+  h3 { color: #34495e; }
+  .container { max-width: 1200px; margin: 0 auto; }
+  .diagram-box { background: #fff; border: 2px solid #2980b9; border-radius: 8px; padding: 20px; margin: 20px 0; overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; margin: 15px 0; }
+  th, td { border: 1px solid #bdc3c7; padding: 8px 12px; text-align: left; }
+  th { background: #2980b9; color: #fff; }
+  tr:nth-child(even) { background: #eaf2f8; }
+  .note { background: #eaf2f8; border-left: 4px solid #3498db; padding: 12px 16px; margin: 15px 0; }
+  .formula { background: #fef9e7; border: 1px solid #f39c12; border-radius: 4px; padding: 12px 16px; margin: 10px 0; font-family: 'Consolas', monospace; font-size: 14px; }
+  .svg-container { text-align: center; margin: 20px 0; }
+  svg { max-width: 100%; }
+  .result { background: #d5f5e3; border-left: 4px solid #27ae60; padding: 12px 16px; margin: 15px 0; }
+  .warning { background: #fdecea; border-left: 4px solid #e74c3c; padding: 12px 16px; margin: 15px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>DC Output Current Sensing — ACS37802 Hall-Effect Sensor</h1>
+<p>Sensing the DC output current (up to 20 A) of the 400 V PFC using an <strong>Allegro ACS37802</strong> (or ACS37002) Hall-effect current sensor IC with integrated conductor, providing galvanic isolation and a ratiometric analog output for the DSP ADC.</p>
+
+<h2>1. Sensor Selection: ACS37802 vs ACS37002 vs ACS71240</h2>
+<table>
+  <tr><th>Parameter</th><th>ACS37802</th><th>ACS37002</th><th>ACS71240</th></tr>
+  <tr><td>Max current range</td><td>±30 A / ±50 A</td><td>±25 A / ±50 A</td><td>±5 A / ±10 A</td></tr>
+  <tr><td>Conductor resistance</td><td>1.2 mΩ (typ)</td><td>1.5 mΩ (typ)</td><td>1.2 mΩ</td></tr>
+  <tr><td>Bandwidth</td><td>240 kHz</td><td>120 kHz</td><td>80 kHz</td></tr>
+  <tr><td>Isolation rating</td><td>2.1 kV<sub>RMS</sub> (basic)</td><td>2.1 kV<sub>RMS</sub></td><td>2.1 kV<sub>RMS</sub></td></tr>
+  <tr><td>Output type</td><td>Analog, ratiometric</td><td>Analog, ratiometric</td><td>Analog, ratiometric</td></tr>
+  <tr><td>Sensitivity (±30A version)</td><td>60 mV/A</td><td>60 mV/A</td><td>187 mV/A (±5A)</td></tr>
+  <tr><td>Quiescent output</td><td>50% VCC (1.65 V at 3.3 V)</td><td>50% VCC</td><td>50% VCC</td></tr>
+  <tr><td>Package</td><td>LC SOIC-16 (wide body)</td><td>LC SOIC-16</td><td>SOIC-8</td></tr>
+  <tr><td>Cost (approx)</td><td>$2.50–3.50</td><td>$2.00–3.00</td><td>$1.50–2.50</td></tr>
+  <tr><td>Suitable for 20 A DC</td><td>✅ Yes</td><td>✅ Yes</td><td>❌ Too small range</td></tr>
+</table>
+
+<div class="result">
+<strong>Recommendation:</strong> Use <strong>ACS37802KEXLTR-030B3</strong> (±30 A range, 60 mV/A sensitivity) for 20 A DC output sensing. This gives 60% headroom above nominal and is the most cost-effective Hall sensor option.
+</div>
+
+<h2>2. Design Requirements</h2>
+<table>
+  <tr><th>Parameter</th><th>Value</th></tr>
+  <tr><td>Maximum DC output current</td><td>20 A (nominal), 25 A peak (transient)</td></tr>
+  <tr><td>Selected sensor range</td><td>±30 A (ACS37802-030B3)</td></tr>
+  <tr><td>Sensitivity</td><td>60 mV/A (typical)</td></tr>
+  <tr><td>Supply voltage</td><td>3.3 V (single supply, from control board LDO)</td></tr>
+  <tr><td>Quiescent output (I = 0 A)</td><td>50% × 3.3 V = 1.65 V</td></tr>
+  <tr><td>Output at +20 A</td><td>1.65 V + (20 × 0.060) = 1.65 + 1.20 = 2.85 V</td></tr>
+  <tr><td>Output at −20 A</td><td>1.65 V − 1.20 = 0.45 V</td></tr>
+  <tr><td>Output at +30 A (full scale)</td><td>1.65 + 1.80 = 3.45 V (exceeds 3.3 V — clip at 30 A)</td></tr>
+  <tr><td>DSP ADC input range</td><td>0 to 3.3 V</td></tr>
+</table>
+
+<div class="note">
+<strong>Important:</strong> The ACS37802 output at +30 A would be 3.45 V, which exceeds the 3.3 V supply rail. The output will clip at approximately VCC − 0.1 V = 3.2 V. For 20 A nominal operation, the output is 2.85 V — well within range. If bidirectional current measurement is needed (e.g., for regenerative modes), the ±30 A range is appropriate. For unidirectional-only sensing, the ACS37802-030B5 (unidirectional, 0–30 A) would be better.
+</div>
+
+<h2>3. Calculation Steps</h2>
+
+<h3>Step 1: Verify Output Voltage Range</h3>
+<div class="formula">
+V<sub>out</sub> = V<sub>CC</sub>/2 + Sensitivity × I<sub>sense</sub><br><br>
+At I = 0 A:  V<sub>out</sub> = 3.3/2 + 60m × 0 = <strong>1.650 V</strong><br>
+At I = +10 A: V<sub>out</sub> = 1.650 + 0.600 = <strong>2.250 V</strong><br>
+At I = +20 A: V<sub>out</sub> = 1.650 + 1.200 = <strong>2.850 V</strong><br>
+At I = +25 A: V<sub>out</sub> = 1.650 + 1.500 = <strong>3.150 V</strong><br>
+At I = +30 A: V<sub>out</sub> = 1.650 + 1.800 = 3.450 V → <strong>clips at ~3.2 V</strong><br>
+At I = −10 A: V<sub>out</sub> = 1.650 − 0.600 = <strong>1.050 V</strong><br>
+At I = −20 A: V<sub>out</sub> = 1.650 − 1.200 = <strong>0.450 V</strong>
+</div>
+
+<h3>Step 2: ADC Resolution</h3>
+<div class="formula">
+ADC range used for 0 to +20 A: 1.650 V to 2.850 V = 1.200 V swing<br>
+ADC codes for 20 A range: (1.200 / 3.3) × 4095 = <strong>1,489 counts</strong><br>
+Resolution: 20 A / 1489 = <strong>13.4 mA/count</strong><br>
+Effective resolution: log₂(1489) = <strong>10.5 bits</strong><br><br>
+For full bidirectional range (−20 A to +20 A):<br>
+Total swing: 2.850 − 0.450 = 2.400 V<br>
+ADC codes: (2.400 / 3.3) × 4095 = <strong>2,978 counts</strong><br>
+Resolution: 40 A / 2978 = <strong>13.4 mA/count</strong><br>
+Effective resolution: <strong>11.5 bits</strong>
+</div>
+
+<h3>Step 3: Power Dissipation in Sensor Conductor</h3>
+<div class="formula">
+R<sub>cond</sub> = 1.2 mΩ (ACS37802 internal conductor)<br>
+P<sub>cond</sub> = I² × R<sub>cond</sub> = 20² × 0.0012 = <strong>0.48 W</strong><br>
+P<sub>cond</sub> at 25 A peak: 25² × 0.0012 = <strong>0.75 W</strong><br><br>
+Thermal rise: ACS37802 package thermal resistance θ<sub>JA</sub> ≈ 30°C/W<br>
+ΔT at 20 A: 0.48 × 30 = <strong>14.4°C above ambient</strong> ✓<br>
+ΔT at 25 A: 0.75 × 30 = <strong>22.5°C above ambient</strong> ✓
+</div>
+
+<h3>Step 4: Anti-Aliasing Filter</h3>
+<div class="formula">
+The ACS37802 output has inherent bandwidth of 240 kHz.<br>
+For PFC current control at 20 kHz switching, target f<sub>c</sub> = 50 kHz.<br><br>
+RC low-pass: R<sub>aa</sub> = 100 Ω, C<sub>aa</sub> = ?<br>
+f<sub>c</sub> = 1/(2π × R<sub>aa</sub> × C<sub>aa</sub>) = 50 kHz<br>
+C<sub>aa</sub> = 1/(2π × 100 × 50k) = <strong>31.8 nF</strong> → use <strong>33 nF</strong><br>
+f<sub>c(actual)</sub> = 1/(2π × 100 × 33n) = <strong>48.2 kHz</strong> ✓
+</div>
+
+<h2>4. Complete Schematic</h2>
+<div class="diagram-box">
+<div class="svg-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 720" font-family="Segoe UI, Arial, sans-serif">
+  <!-- Title -->
+  <text x="550" y="25" text-anchor="middle" font-size="16" font-weight="bold">DC Output Current Sensing — ACS37802 Hall-Effect Current Sensor</text>
+
+  <!-- HV conductor path (top) -->
+  <text x="550" y="50" text-anchor="middle" font-size="12" fill="#e74c3c" font-weight="bold">High-Current Conductor Path (DC+ rail, up to 20 A)</text>
+
+  <!-- DC+ input from PFC stage -->
+  <rect x="20" y="70" width="120" height="40" fill="#fadbd8" stroke="#e74c3c" stroke-width="2" rx="5"/>
+  <text x="80" y="95" text-anchor="middle" font-size="12" font-weight="bold">From PFC Stage</text>
+  <text x="80" y="110" text-anchor="middle" font-size="10">DC+ (400 V bus)</text>
+
+  <!-- Thick conductor trace through ACS37802 -->
+  <line x1="140" y1="90" x2="250" y2="90" stroke="#e74c3c" stroke-width="6"/>
+  <text x="195" y="80" text-anchor="middle" font-size="10" fill="#e74c3c">IP+</text>
+
+  <!-- ACS37802 IC -->
+  <rect x="250" y="60" width="200" height="60" fill="#fff" stroke="#27ae60" stroke-width="2.5" rx="8"/>
+  <text x="350" y="82" text-anchor="middle" font-size="14" font-weight="bold" fill="#27ae60">ACS37802</text>
+  <text x="350" y="98" text-anchor="middle" font-size="10">±30 A Hall-Effect Sensor</text>
+  <text x="350" y="112" text-anchor="middle" font-size="10">60 mV/A, 2.1 kV isolation</text>
+
+  <!-- Conductor inside IC -->
+  <line x1="250" y1="90" x2="450" y2="90" stroke="#e74c3c" stroke-width="6"/>
+  <text x="350" y="80" text-anchor="middle" font-size="9" fill="#fff" stroke="#e74c3c">Internal Conductor</text>
+
+  <!-- Conductor out to load -->
+  <line x1="450" y1="90" x2="560" y2="90" stroke="#e74c3c" stroke-width="6"/>
+  <text x="505" y="80" text-anchor="middle" font-size="10" fill="#e74c3c">IP−</text>
+
+  <rect x="560" y="70" width="120" height="40" fill="#fadbd8" stroke="#e74c3c" stroke-width="2" rx="5"/>
+  <text x="620" y="95" text-anchor="middle" font-size="12" font-weight="bold">To Load</text>
+  <text x="620" y="110" text-anchor="middle" font-size="10">DC+ (400 V bus)</text>
+
+  <!-- ===== ACS37802 Pin Connections ===== -->
+  <!-- VCC pin -->
+  <line x1="280" y1="120" x2="280" y2="170" stroke="#f39c12" stroke-width="1.5"/>
+  <rect x="230" y="170" width="100" height="30" fill="#fef9e7" stroke="#f39c12" stroke-width="1.5" rx="3"/>
+  <text x="280" y="190" text-anchor="middle" font-size="11">VCC = 3.3 V</text>
+
+  <!-- VCC decoupling capacitor -->
+  <line x1="280" y1="200" x2="280" y2="240" stroke="#f39c12" stroke-width="1.5"/>
+  <rect x="255" y="240" width="50" height="30" fill="#fff" stroke="#f39c12" stroke-width="1" rx="3"/>
+  <text x="280" y="260" text-anchor="middle" font-size="10">C<sub>dec</sub></text>
+  <text x="280" y="285" text-anchor="middle" font-size="9" fill="#888">1 µF + 0.1 µF</text>
+  <line x1="280" y1="270" x2="280" y2="300" stroke="#2c3e50" stroke-width="1.5"/>
+  <!-- GND symbol -->
+  <g transform="translate(280, 300)">
+    <line x1="0" y1="0" x2="0" y2="8" stroke="#2c3e50" stroke-width="2"/>
+    <line x1="-8" y1="8" x2="8" y2="8" stroke="#2c3e50" stroke-width="2"/>
+    <line x1="-5" y1="13" x2="5" y2="13" stroke="#2c3e50" stroke-width="1.5"/>
+    <line x1="-3" y1="18" x2="3" y2="18" stroke="#2c3e50" stroke-width="1"/>
+  </g>
+  <text x="280" y="330" text-anchor="middle" font-size="10" fill="#2c3e50">AGND</text>
+
+  <!-- GND pin -->
+  <line x1="350" y1="120" x2="350" y2="300" stroke="#2c3e50" stroke-width="1.5"/>
+
+  <!-- VIOUT pin -->
+  <line x1="420" y1="120" x2="420" y2="170" stroke="#2980b9" stroke-width="2"/>
+  <text x="440" y="145" font-size="10" fill="#2980b9">VIOUT (pin 5)</text>
+
+  <!-- Anti-aliasing filter -->
+  <rect x="380" y="190" width="120" height="55" fill="#fef9e7" stroke="#f39c12" stroke-width="1.5" rx="5"/>
+  <text x="440" y="210" text-anchor="middle" font-size="11" font-weight="bold">Anti-Alias Filter</text>
+  <text x="440" y="225" text-anchor="middle" font-size="10">R<sub>aa</sub> = 100 Ω</text>
+  <text x="440" y="238" text-anchor="middle" font-size="10">C<sub>aa</sub> = 33 nF, X7R</text>
+
+  <line x1="420" y1="170" x2="420" y2="190" stroke="#2980b9" stroke-width="2"/>
+
+  <!-- OPA340 buffer -->
+  <rect x="540" y="190" width="130" height="55" fill="#d5f5e3" stroke="#27ae60" stroke-width="1.5" rx="5"/>
+  <text x="605" y="210" text-anchor="middle" font-size="11" font-weight="bold">OPA340 Buffer</text>
+  <text x="605" y="225" text-anchor="middle" font-size="10">Unity gain, low-Z</text>
+  <text x="605" y="238" text-anchor="middle" font-size="10">→ DSP ADC</text>
+
+  <line x1="500" y1="218" x2="540" y2="218" stroke="#2980b9" stroke-width="2"/>
+
+  <!-- To DSP ADC -->
+  <line x1="670" y1="218" x2="720" y2="218" stroke="#2980b9" stroke-width="2"/>
+  <text x="700" y="208" font-size="9" fill="#2980b9">ADCINA1</text>
+
+  <!-- DSP SD Filter Block -->
+  <rect x="720" y="180" width="160" height="80" fill="#d6eaf8" stroke="#2980b9" stroke-width="2" rx="8"/>
+  <text x="800" y="205" text-anchor="middle" font-size="12" font-weight="bold">TMS320F280039C</text>
+  <text x="800" y="222" text-anchor="middle" font-size="10">SD Filter Module</text>
+  <text x="800" y="238" text-anchor="middle" font-size="10">ADCINA1 → digital current</text>
+  <text x="800" y="252" text-anchor="middle" font-size="10">for PFC control loop</text>
+
+  <!-- ===== Signal Level Annotations ===== -->
+  <rect x="20" y="360" width="500" height="200" fill="#f8f9fa" stroke="#bdc3c7" stroke-width="1" rx="5"/>
+  <text x="270" y="385" text-anchor="middle" font-size="13" font-weight="bold">Signal Levels vs. Current</text>
+
+  <text x="40" y="410" font-size="11">I<sub>sense</sub> = −20 A → V<sub>out</sub> = 0.450 V → ADC = 560</text>
+  <text x="40" y="432" font-size="11">I<sub>sense</sub> = −10 A → V<sub>out</sub> = 1.050 V → ADC = 1,304</text>
+  <text x="40" y="454" font-size="11">I<sub>sense</sub> =   0 A → V<sub>out</sub> = 1.650 V → ADC = 2,048 (mid-scale)</text>
+  <text x="40" y="476" font-size="11">I<sub>sense</sub> = +10 A → V<sub>out</sub> = 2.250 V → ADC = 2,792</text>
+  <text x="40" y="498" font-size="11">I<sub>sense</sub> = +20 A → V<sub>out</sub> = 2.850 V → ADC = 3,536</text>
+  <text x="40" y="520" font-size="11">I<sub>sense</sub> = +25 A → V<sub>out</sub> = 3.150 V → ADC = 3,908</text>
+  <text x="40" y="542" font-size="11">I<sub>sense</sub> = +30 A → V<sub>out</sub> ≈ 3.2 V (clip) → ADC = 3,969 (saturation)</text>
+
+  <!-- Component sizing table -->
+  <rect x="540" y="360" width="540" height="200" fill="#fff" stroke="#bdc3c7" stroke-width="1" rx="5"/>
+  <text x="810" y="385" text-anchor="middle" font-size="13" font-weight="bold">Component Selection</text>
+
+  <text x="560" y="410" font-size="11">U1: ACS37802KEXLTR-030B3 — Allegro, ±30 A, 60 mV/A</text>
+  <text x="560" y="428" font-size="11">     Package: LC SOIC-16, 2.1 kV isolation, 240 kHz BW</text>
+  <text x="560" y="446" font-size="11">C<sub>dec</sub>: 1 µF + 0.1 µF, 0603, X7R — VCC decoupling (place close to IC)</text>
+  <text x="560" y="464" font-size="11">R<sub>aa</sub>: 100 Ω, 0603, 1% — Anti-alias filter series resistor</text>
+  <text x="560" y="482" font-size="11">C<sub>aa</sub>: 33 nF, 0603, X7R, 10% — Anti-alias filter shunt capacitor</text>
+  <text x="560" y="500" font-size="11">U2: OPA340UA — TI, precision rail-to-rail op-amp, unity buffer</text>
+  <text x="560" y="518" font-size="11">     Alternative: OPA2320 (dual, if sensing multiple currents)</text>
+  <text x="560" y="536" font-size="11">VCC: 3.3 V LDO (e.g., TPS7A4700, low noise, 1 µA Iq)</text>
+  <text x="560" y="554" font-size="11">f<sub>c</sub>: 48.2 kHz (anti-alias filter corner frequency)</text>
+
+  <!-- Layout notes -->
+  <rect x="20" y="580" width="500" height="120" fill="#eaf2f8" stroke="#3498db" stroke-width="1" rx="5"/>
+  <text x="270" y="605" text-anchor="middle" font-size="12" font-weight="bold">PCB Layout Guidelines</text>
+
+  <text x="40" y="628" font-size="10">1. Place C<sub>dec</sub> as close to VCC/GND pins as possible (< 2 mm trace)</text>
+  <text x="40" y="644" font-size="10">2. Route VIOUT trace away from high-current conductor path</text>
+  <text x="40" y="660" font-size="10">3. Use ground plane under VIOUT trace (controlled impedance not critical)</text>
+  <text x="40" y="676" font-size="10">4. High-current conductor trace width: ≥ 3 mm (2 oz copper) for 20 A</text>
+  <text x="40" y="692" font-size="10">5. Keep ACS37802 away from external magnetic fields (transformers, inductors)</text>
+
+  <!-- Kelvin sense taps annotation (for shunt-based alternative) -->
+  <rect x="540" y="580" width="540" height="120" fill="#fef9e7" stroke="#f39c12" stroke-width="1" rx="5"/>
+  <text x="810" y="605" text-anchor="middle" font-size="12" font-weight="bold">Kelvin Sense Taps (for Shunt Alternative — AMC1302)</text>
+
+  <text x="560" y="628" font-size="10">If using a shunt resistor instead of Hall sensor (TIDA-010054 approach):</text>
+  <text x="560" y="644" font-size="10">• Use 2 mΩ, 5 W shunt (e.g., Vishay WSBS8518)</text>
+  <text x="560" y="660" font-size="10">• Kelvin sense taps connect directly to AMC1302 VIN+/VIN− pins</text>
+  <text x="560" y="676" font-size="10">• V<sub>shunt</sub> at 20 A = 20 × 0.002 = 40 mV → AMC1302 gain = 8.2 → 328 mV output</text>
+  <text x="560" y="692" font-size="10">• AMC1302 outputs bitstream to DSP SD filter module (no external demodulator)</text>
+
+</svg>
+</div>
+</div>
+
+<h2>5. Alternative: Shunt + AMC1302 (TIDA-010054 Approach)</h2>
+<p>If you prefer the shunt-based current sensing approach used in TIDA-010054 (which you already use for the DAB DC-DC), here's the sizing:</p>
+
+<table>
+  <tr><th>Parameter</th><th>Value</th></tr>
+  <tr><td>Shunt resistance</td><td>2 mΩ (e.g., Vishay WSBS8518L2000FEA)</td></tr>
+  <tr><td>Shunt power rating</td><td>5 W (P = 20² × 0.002 = 0.8 W at full load → 6× margin)</td></tr>
+  <tr><td>Voltage at 20 A</td><td>40 mV differential</td></tr>
+  <tr><td>AMC1302 gain</td><td>8.2 V/V (fixed)</td></tr>
+  <tr><td>AMC1302 output at 20 A</td><td>40 mV × 8.2 = 328 mV (bitstream duty cycle)</td></tr>
+  <tr><td>AMC1302 max input</td><td>±200 mV (differential)</td></tr>
+  <tr><td>Max current before AMC1302 saturation</td><td>200 mV / 8.2 / 0.002 = <strong>12.2 A</strong></td></tr>
+</table>
+
+<div class="warning">
+<strong>⚠ Warning:</strong> The AMC1302 has a ±200 mV input range. With a 2 mΩ shunt, this limits measurement to ±12.2 A. For 20 A sensing, use a <strong>1 mΩ shunt</strong> (max current = 24.4 A) or accept reduced range. Alternatively, use the <strong>AMC1311</strong> (±2 V input, gain = 2) with a larger shunt.
+</div>
+
+<h2>6. Calculation Summary Table</h2>
+<table>
+  <tr><th>Step</th><th>Calculation</th><th>Result</th><th>Notes</th></tr>
+  <tr><td>1</td><td>V<sub>out</sub> at 20 A = 1.65 + 60m × 20</td><td>2.850 V</td><td>ACS37802 output</td></tr>
+  <tr><td>2</td><td>ADC code = (2.850/3.3) × 4095</td><td>3,536</td><td>12-bit ADC</td></tr>
+  <tr><td>3</td><td>P<sub>cond</sub> = 20² × 0.0012</td><td>0.48 W</td><td>Internal conductor dissipation</td></tr>
+  <tr><td>4</td><td>ΔT = 0.48 × 30°C/W</td><td>14.4°C</td><td>Thermal rise above ambient</td></tr>
+  <tr><td>5</td><td>f<sub>c</sub> = 1/(2π × 100 × 33n)</td><td>48.2 kHz</td><td>Anti-alias filter</td></tr>
+  <tr><td>6</td><td>Resolution = 20 A / 1489 counts</td><td>13.4 mA/count</td><td>For 0 to 20 A range</td></tr>
+</table>
+
+<h2>7. Connection to DSP SD Input Port</h2>
+<p>The ACS37802 produces an <strong>analog voltage output</strong>, not a bitstream. Therefore it connects to the DSP's <strong>regular ADC input (ADCINA1)</strong>, not the SD filter module. The SD filter module is only used with the AMC1302 (delta-sigma modulator).</p>
+
+<table>
+  <tr><th>Sensor Type</th><th>Output</th><th>DSP Input</th><th>Processing</th></tr>
+  <tr><td>ACS37802 (Hall)</td><td>Analog voltage (0.45–2.85 V)</td><td>ADCINA1 (12-bit SAR ADC)</td><td>Software scaling in DSP</td></tr>
+  <tr><td>AMC1302 (ΔΣ modulator)</td><td>1-bit bitstream (20 MHz)</td><td>SD Filter Module (GPIO/CLA)</td><td>Hardware digital filter in DSP</td></tr>
+  <tr><td>LEM LA 55-P</td><td>Analog voltage (25 mV/A)</td><td>ADCINAx (12-bit SAR ADC)</td><td>Software scaling in DSP</td></tr>
+</table>
+
+<div class="note">
+<strong>Key distinction:</strong> The SD (Sigma-Delta) filter port on the C2000 DSP is specifically designed for the AMC1302's 1-bit bitstream output. The ACS37802 and LEM sensors produce analog voltages that go to the regular SAR ADC channels. Both are available on the F280039C simultaneously.
+</div>
+
+</div>
+</body>
+</html>

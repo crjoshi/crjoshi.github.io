@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Engineering Links — Sensing Circuit Design</title>
+  <style>
+      body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          max-width: 800px;
+          margin: 40px auto;
+          padding: 20px;
+          text-align: center;
+          line-height: 1.6;
+          background-color: #f9f9f9;
+      }
+      img.profile {
+          width: 150px;
+          height: 150px;
+          border-radius: 50%;
+          margin-top: 20px;
+      }
+      h1 {
+          margin-top: 20px;
+      }
+      p {
+          font-size: 18px;
+          color: #555;
+      }
+      nav a {
+          margin: 0 10px;
+          text-decoration: none;
+          color: #007acc;
+          font-weight: bold;
+      }
+      .links-container {
+          text-align: left;
+          max-width: 700px;
+          margin: 30px auto;
+      }
+      .link-item {
+          display: block;
+          margin: 15px 0;
+          padding: 15px 20px;
+          background-color: #fff;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          text-decoration: none;
+          color: #007acc;
+          font-weight: bold;
+          font-size: 16px;
+          transition: background-color 0.2s, box-shadow 0.2s;
+      }
+      .link-item:hover {
+          background-color: #e8f4fd;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      }
+      .link-item .description {
+          display: block;
+          font-size: 14px;
+          color: #666;
+          font-weight: normal;
+          margin-top: 4px;
+      }
+      .link-number {
+          display: inline-block;
+          width: 28px;
+          height: 28px;
+          line-height: 28px;
+          text-align: center;
+          background-color: #007acc;
+          color: #fff;
+          border-radius: 50%;
+          margin-right: 10px;
+          font-size: 14px;
+          font-weight: bold;
+      }
+      footer {
+          margin-top: 40px;
+          font-size: 14px;
+          color: #999;
+      }
+  </style>
+</head>
+
+<body>
+  <header>
+    <img src="/images/profile_crop.JPG" alt="Profile Picture" class="profile">
+    <h1>Engineering Links — 3.3 kW PFC Sensing Design</h1>
+    <p>Sensing circuit design for a non-isolated AC-DC PFC converter</p>
+    <nav>
+      <a href="/">Home</a> |
+      <a href="/links.html">Links</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="links-container">
+
+      <a class="link-item" href="/links_study/ground_reference_diagram.html">
+        <span class="link-number">1</span> Ground Reference Strategy
+        <span class="description">System block diagram, why DC− (not AC−) must be the control board reference, isolation architecture, and AGND/DGND star-point layout.</span>
+      </a>
+
+      <a class="link-item" href="/links_study/voltage_sensing_amc1311.html">
+        <span class="link-number">2</span> 400 V DC Bus Voltage Sensing
+        <span class="description">Resistor divider + AMC1311 isolated amplifier circuit. Full calculations for resistor values, power dissipation, voltage rating, and anti-aliasing filter design.</span>
+      </a>
+
+      <a class="link-item" href="/links_study/current_sensing_acs37802.html">
+        <span class="link-number">3</span> DC Output Current Sensing
+        <span class="description">ACS37802 Hall-effect current sensor design for 20 A DC output. Includes component sizing, ADC resolution, and alternative shunt + AMC1302 approach.</span>
+      </a>
+
+      <a class="link-item" href="/links_study/lem_sensor_switchover.html">
+        <span class="link-number">4</span> LEM Sensor Replacement Switchover
+        <span class="description">Shared feedback connector supporting LEM LA 55-P, ACS37002, or TMCS1133 via DNP 0 Ω resistors. Scaling networks and DSP firmware calibration constants.</span>
+      </a>
+
+      <a class="link-item" href="/links_study/complete_sensing_design.html">
+        <span class="link-number">5</span> Complete Sensing Design (Consolidated)
+        <span class="description">All sensing circuits combined into one document with full BOM, design rules checklist, creepage/clearance table, and system-level schematic.</span>
+      </a>
+
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 Hello World! | All Rights Reserved</p>
+  </footer>
+</body>
+</html>
